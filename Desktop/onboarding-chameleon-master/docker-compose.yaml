@@ -1,0 +1,60 @@
+services:
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    container_name: backend-app
+    ports:
+      - "8000:8000"
+    environment:
+      - SYMFONY_ENV=dev
+    volumes:
+      - ./src/backend:/app
+    depends_on:
+      - dynamodb
+    command: php -S 0.0.0.0:8000 -t public
+
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    container_name: frontend-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src/frontend:/app
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb
+    ports:
+      - "8001:8000"
+    volumes:
+      - dynamodb-data:/data
+      
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    container_name: dynamodb-admin
+    ports:
+      - "8002:8001"
+    environment:
+      DYNAMO_ENDPOINT: http://dynamodb:8000
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: codearts
+      AWS_SECRET_ACCESS_KEY: codearts
+      REGION: us-east-1
+    depends_on:
+      - dynamodb
+
+  cypress:
+    image: cypress/included:14.0.1
+    depends_on:
+      - frontend
+    working_dir: /e2e
+    volumes:
+      - ./src/e2e:/e2e
+      - ./src/frontend:/frontend
+    command: ["cypress", "run", "--config-file", "cypress.config.ts"]
+
+volumes:
+  dynamodb-data:

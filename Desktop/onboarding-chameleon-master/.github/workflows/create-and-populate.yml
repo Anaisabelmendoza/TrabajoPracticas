@@ -1,0 +1,278 @@
+name: Create project and populate backlog
+run-name: create-populate
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: 'Nombre del proyecto GitHub'
+        required: true
+        default: 'test-onboarding'
+
+jobs:
+  create-populate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Authenticate with GitHub CLI
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: gh auth status
+
+    - name: Create Project
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: |
+        PROJECT_NAME="${{ github.event.inputs.project_name }}"
+        REPO_NAME="${{ github.event.repository.name }}"
+        OWNER="${{ github.repository_owner }}"
+
+        OWNER_ID=$(gh api graphql -f query='
+        query($login: String!) {
+            user(login: $login) {
+            id                
+            }              
+        }     
+        ' -F login="$OWNER" | jq -r '.data.user.id')
+
+        if [ "$OWNER_ID" = null ]; then
+          OWNER_ID=$(gh api graphql -f query='
+          query($login: String!) {
+            organization(login: $login) {
+              id                
+            }              
+          }     
+        ' -F login="$OWNER" | jq -r '.data.organization.id')
+        fi
+
+
+        if [ "$OWNER_ID" = null ]; then
+          echo "Error: No se encontró el owner $OWNER"
+          exit 1
+        fi
+
+        echo "Owner ID de $OWNER: $OWNER_ID"
+
+        # Obtener el id del repositorio
+        REPO_ID=$(gh api graphql -f query='
+        query($owner: String!, $repo: String!) {
+            repository(owner: $owner, name: $repo) {
+            id
+            }
+        }
+        ' -F owner="$OWNER" -F repo="$REPO_NAME" | jq -r '.data.repository.id')
+
+        echo "ID del repositorio $REPO_NAME: $REPO_ID"
+        echo "Creating project \"$PROJECT_NAME\" in \"$OWNER/$REPO_NAME\"..."
+
+        PROJECT_ID=$(gh api graphql -f query='
+        mutation($ownerId: ID!, $title: String!) {
+            createProjectV2(input: {
+            ownerId: $ownerId,
+            title: $title
+            }) {
+            projectV2 {
+                id
+                title
+            }
+            }
+        }
+        ' -F ownerId="$OWNER_ID" -F title="$PROJECT_NAME" | jq -r '.data.createProjectV2.projectV2.id')
+
+        if [ -z "$PROJECT_ID" ]; then
+          echo "Project creation failed!"
+          exit 1
+        fi
+
+        # Vincular el proyecto al repositorio
+        echo "Vinculando el proyecto \"$PROJECT_NAME\" al repositorio $OWNER/$REPO..."
+
+        gh api graphql -f query='
+        mutation($projectId: ID!, $repositoryId: ID!) {
+            linkProjectV2ToRepository(input: {
+            projectId: $projectId,
+            repositoryId: $repositoryId
+            }) {
+            repository {
+                id
+            }
+            }
+        }
+        ' -F projectId="$PROJECT_ID" -F repositoryId="$REPO_ID"
+
+        if [ $? -eq 0 ]; then
+            echo "Proyecto \"$PROJECT_NAME\" vinculado exitosamente al repositorio $OWNER/$REPO_NAME"
+        else
+            echo "Error: No se pudo vincular el proyecto \"$PROJECT_NAME\" al repositorio $OWNER/$REPO_NAME"
+        fi
+
+        echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
+
+    - name: Add Custom Fields
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: |
+        FIELDS=("Category:TEXT" \
+                "References:TEXT" \
+                "Tags:TEXT" \
+                "Estimate:NUMBER" \
+                "Spent:NUMBER")
+
+        for FIELD in "${FIELDS[@]}"; do
+          NAME=$(echo "$FIELD" | cut -d':' -f1)
+          TYPE=$(echo "$FIELD" | cut -d':' -f2)
+
+          gh api graphql -F query='
+            mutation($projectId: ID!, $name: String!, $dataType: ProjectV2CustomFieldType!) {
+              createProjectV2Field(input: {
+                projectId: $projectId,
+                name: $name,
+                dataType: $dataType
+              }) {
+                clientMutationId
+              }
+            }' -F projectId="$PROJECT_ID" -F name="$NAME" -F dataType="$TYPE"
+        done
+
+    - name: Get Field IDs
+      env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+      run: |
+        # Obtener IDs de campos personalizados
+        FIELD_NAMES=("Estimate" "Category" "References" "Tags")
+        for FIELD_NAME in "${FIELD_NAMES[@]}"; do
+            FIELD_ID=$(gh api graphql -f query='
+                query($projectId: ID!) {
+                node(id: $projectId) {
+                    ... on ProjectV2 {
+                    fields(first: 20) {
+                        nodes {
+                        ... on ProjectV2FieldCommon {
+                            id
+                            name
+                        }
+                        ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                        }
+                        }
+                    }
+                    }
+                }
+                }' -F projectId="$PROJECT_ID" | jq -r --arg FIELD_NAME "$FIELD_NAME" '.data.node.fields.nodes[] | select(.name == $FIELD_NAME) | .id')
+
+            if [ -z "$FIELD_ID" ]; then
+                echo "Error: Field \"$FIELD_NAME\" not found!"
+            fi
+
+            echo "${FIELD_NAME}_FIELD_ID=$FIELD_ID" >> $GITHUB_ENV
+            echo "Field \"$FIELD_NAME\" found with ID: $FIELD_ID"
+        done
+
+    - name: Populate Tasks
+      env:
+            GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+            PROJECT_ID: ${{ env.PROJECT_ID }}
+            ESTIMATE_FIELD_ID: ${{ env.Estimate_FIELD_ID }}
+            CATEGORY_FIELD_ID: ${{ env.Category_FIELD_ID }}
+            REFERENCES_FIELD_ID: ${{ env.References_FIELD_ID }}
+            TAGS_FIELD_ID: ${{ env.Tags_FIELD_ID }}
+      run: |
+        echo "PROJECT_ID=$PROJECT_ID"
+        echo "ESTIMATE_FIELD_ID=$ESTIMATE_FIELD_ID"
+        echo "CATEGORY_FIELD_ID=$CATEGORY_FIELD_ID"
+        echo "REFERENCES_FIELD_ID=$REFERENCES_FIELD_ID"
+        echo "TAGS_FIELD_ID=$TAGS_FIELD_ID"
+
+        FILES=$(ls backlog/*backlog_*.md)
+
+        for FILE in $FILES; do
+          echo "Processing $FILE"
+
+          # Extraer, limpiar y procesar tareas
+          awk '/```json/{flag=1; next} /```\./{flag=0} flag' "$FILE" | jq -c '.[]' | while read -r task; do
+            TITLE=$(echo "$task" | jq -r '.title')
+            DESCRIPTION=$(echo "$task" | jq -r '.description')
+            ESTIMATE=$(echo "$task" | jq -r '.estimate')
+            CATEGORY=$(echo "$task" | jq -r '.category')
+            REFERENCES=$(echo "$task" | jq -r '.references | join(", ")')
+            TAGS=$(echo "$task" | jq -r '.tags | join(", ")')
+
+            echo "Adding task: $TITLE"
+
+            # Crear tarea como borrador
+            TASK_ID=$(gh api graphql -f query='
+              mutation($projectId: ID!, $title: String!, $description: String!) {
+                addProjectV2DraftIssue(input: {
+                  projectId: $projectId,
+                  title: $title,
+                  body: $description
+                }) {
+                  projectItem {
+                    id
+                  }
+                }
+              }' -F projectId="$PROJECT_ID" -F title="$TITLE" -F description="$DESCRIPTION" | jq -r '.data.addProjectV2DraftIssue.projectItem.id')
+
+            # Asignar el valor de `estimate` al campo personalizado
+            echo "Setting estimate for task: $TITLE"
+            gh api graphql -f query='
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: Float!) {
+              updateProjectV2ItemFieldValue(input: {
+                projectId: $projectId,
+                itemId: $itemId,
+                fieldId: $fieldId,
+                value: { number: $value }
+              }) {
+                clientMutationId
+              }
+            }' -F projectId="$PROJECT_ID" -F itemId="$TASK_ID" -F fieldId="$ESTIMATE_FIELD_ID" -F value="$ESTIMATE"
+
+            # Asignar el valor de `Category`
+            echo "Setting category for task: $TITLE"
+            gh api graphql -f query='
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+            updateProjectV2ItemFieldValue(input: {
+                projectId: $projectId,
+                itemId: $itemId,
+                fieldId: $fieldId,
+                value: { text: $value }
+            }) {
+                clientMutationId
+            }
+            }' -F projectId="$PROJECT_ID" -F itemId="$TASK_ID" -F fieldId="$CATEGORY_FIELD_ID" -F value="$CATEGORY"
+
+            # Asignar el valor de `References`
+            echo "Setting references for task: $TITLE"
+            gh api graphql -f query='
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+            updateProjectV2ItemFieldValue(input: {
+                projectId: $projectId,
+                itemId: $itemId,
+                fieldId: $fieldId,
+                value: { text: $value }
+            }) {
+                clientMutationId
+            }
+            }' -F projectId="$PROJECT_ID" -F itemId="$TASK_ID" -F fieldId="$REFERENCES_FIELD_ID" -F value="$REFERENCES"
+
+            # Asignar el valor de `Tags`
+            echo "Setting tags for task: $TITLE"
+            gh api graphql -f query='
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+            updateProjectV2ItemFieldValue(input: {
+                projectId: $projectId,
+                itemId: $itemId,
+                fieldId: $fieldId,
+                value: { text: $value }
+            }) {
+                clientMutationId
+            }
+            }' -F projectId="$PROJECT_ID" -F itemId="$TASK_ID" -F fieldId="$TAGS_FIELD_ID" -F value="$TAGS"
+
+          done
+        done

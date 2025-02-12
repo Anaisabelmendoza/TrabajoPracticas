@@ -1,0 +1,18 @@
+{
+    "name": "diegoblazquezanguis/onboarding-chameleon-master",
+    "description": "Proyecto chameleon",
+    "autoload": {
+        "psr-4": {
+            "Diegoblazquezanguis\\OnboardingChameleonMaster\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Anaisabel.mendoza",
+            "email": "anaisabel.mendoza@escuelaestech.es"
+        }
+    ],
+    "require": {
+        "async-aws/dynamo-db": "^3.4"
+    }
+}
