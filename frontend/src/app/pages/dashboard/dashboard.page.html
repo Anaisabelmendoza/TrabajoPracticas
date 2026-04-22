@@ -51,5 +51,10 @@
       <mat-icon>add</mat-icon>
       Reportar nuevo problema
     </button>
+
+    <button *ngIf="isAdmin" mat-flat-button class="main-action primary-gradient" routerLink="/stats" style="margin-top: 10px;">
+      <mat-icon>analytics</mat-icon>
+      Panel Analítico de Control (Admin)
+    </button>
   </div>
 </ion-content>

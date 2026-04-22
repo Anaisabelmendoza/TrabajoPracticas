@@ -1,0 +1,88 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Dashboard de Rendimiento</ion-title>
+    <ion-buttons slot="end">
+      <ion-badge color="danger" style="margin-right: 15px;">ADMIN</ion-badge>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="filters-container">
+    <mat-form-field appearance="outline">
+      <mat-label>Filtrar por Área</mat-label>
+      <mat-select [(ngModel)]="selectedCategory" (selectionChange)="onFilterChange()">
+        <mat-option value="">Todas las Áreas</mat-option>
+        <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Prioridad</mat-label>
+      <mat-select [(ngModel)]="selectedPriority" (selectionChange)="onFilterChange()">
+        <mat-option value="">Todas</mat-option>
+        <mat-option value="Baja">Baja</mat-option>
+        <mat-option value="Media">Media</mat-option>
+        <mat-option value="Alta">Alta</mat-option>
+        <mat-option value="Crítica">Crítica</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando métricas...</p>
+  </div>
+
+  <ng-container *ngIf="!loading && statsData">
+    <div class="kpi-grid">
+      <mat-card class="kpi-card" [routerLink]="['/stats/drilldown/active']" [queryParams]="{ category: selectedCategory, priority: selectedPriority }" style="cursor: pointer;">
+        <mat-card-header>
+          <div mat-card-avatar class="kpi-icon total"><mat-icon>confirmation_number</mat-icon></div>
+          <mat-card-title>{{ kpis.total }}</mat-card-title>
+          <mat-card-subtitle>Incidencias Activas</mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+
+      <mat-card class="kpi-card" [routerLink]="['/stats/drilldown/critical']" [queryParams]="{ category: selectedCategory, priority: selectedPriority }" style="cursor: pointer;">
+        <mat-card-header>
+          <div mat-card-avatar class="kpi-icon critic"><mat-icon>warning</mat-icon></div>
+          <mat-card-title>{{ kpis.criticalPending }}</mat-card-title>
+          <mat-card-subtitle>Tickets Críticos Pendientes</mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+
+      <mat-card class="kpi-card" [routerLink]="['/stats/drilldown/unassigned']" [queryParams]="{ category: selectedCategory, priority: selectedPriority }" style="cursor: pointer;">
+        <mat-card-header>
+          <div mat-card-avatar class="kpi-icon time"><mat-icon>schedule</mat-icon></div>
+          <mat-card-title>{{ kpis.open }}</mat-card-title>
+          <mat-card-subtitle>Sin Asignar (Nuevos)</mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+    </div>
+
+    <div class="charts-container">
+      <mat-card class="chart-box">
+        <mat-card-header>
+          <mat-card-title>Distribución por Estado</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="chart-content">
+          <canvas #pieCanvas></canvas>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="chart-box">
+        <mat-card-header>
+          <mat-card-title>Rendimiento por Empleado</mat-card-title>
+          <mat-card-subtitle>Carga de tickets asignados</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="chart-content">
+          <canvas #barCanvas></canvas>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-container>
+</ion-content>

@@ -30,6 +30,7 @@ export class DashboardPage implements OnInit {
     resolved: 0
   };
   loading = true;
+  isAdmin = false;
 
   constructor(
     private authService: AuthService,
@@ -44,6 +45,7 @@ export class DashboardPage implements OnInit {
     } else {
       this.userName = 'Invitado';
     }
+    this.isAdmin = this.authService.hasRole('ROLE_ADMIN');
   }
 
   ionViewWillEnter() {

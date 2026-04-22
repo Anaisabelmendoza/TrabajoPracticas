@@ -16,28 +16,54 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
-    //    /**
-    //     * @return Ticket[] Returns an array of Ticket objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('t.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getDashboardStatistics(?int $categoryId, ?string $status, ?string $priority, ?int $agentId): array
+    {
+        $qb = $this->createQueryBuilder('t');
 
-    //    public function findOneBySomeField($value): ?Ticket
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($categoryId) {
+            $qb->andWhere('t.category = :cat')->setParameter('cat', $categoryId);
+        }
+        if ($status) {
+            $qb->andWhere('t.status = :status')->setParameter('status', $status);
+        }
+        if ($priority) {
+            $qb->andWhere('t.priority = :prio')->setParameter('prio', $priority);
+        }
+        if ($agentId) {
+            $qb->andWhere('t.agent = :agent')->setParameter('agent', $agentId);
+        }
+
+        $baseQb = clone $qb;
+
+        $total = (int) (clone $baseQb)->select('COUNT(t.id)')->getQuery()->getSingleScalarResult();
+
+        $byStatus = (clone $baseQb)->select('t.status, COUNT(t.id) as count')
+            ->groupBy('t.status')->getQuery()->getArrayResult();
+
+        $byPriority = (clone $baseQb)->select('t.priority, COUNT(t.id) as count')
+            ->groupBy('t.priority')->getQuery()->getArrayResult();
+
+        $byCategory = (clone $baseQb)->select('c.name as category_name, COUNT(t.id) as count')
+            ->leftJoin('t.category', 'c')
+            ->groupBy('t.category, c.name')->getQuery()->getArrayResult();
+
+        $byAgent = (clone $baseQb)->select('u.firstName, u.lastName, COUNT(t.id) as count')
+            ->leftJoin('t.agent', 'u')
+            ->andWhere('t.agent IS NOT NULL')
+            ->groupBy('t.agent, u.firstName, u.lastName')->getQuery()->getArrayResult();
+
+        $criticalPending = (int) (clone $baseQb)->select('COUNT(t.id)')
+            ->andWhere('t.priority IN (\'Alta\', \'Crítica\')')
+            ->andWhere('t.status NOT IN (\'Resuelto\', \'Cerrado\')')
+            ->getQuery()->getSingleScalarResult();
+
+        return [
+            'total' => $total,
+            'by_status' => $byStatus,
+            'by_priority' => $byPriority,
+            'by_category' => $byCategory,
+            'by_agent' => $byAgent,
+            'critical_pending_count' => $criticalPending,
+        ];
+    }
 }

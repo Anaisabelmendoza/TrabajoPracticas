@@ -5,6 +5,7 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardPage } from './pages/dashboard/dashboard.page';
 import { ProfilePage } from './pages/profile/profile.page';
 import { ForgotPasswordPage } from './pages/forgot-password/forgot-password.page';
+import { AdminGuard } from './guards/admin.guard';
 
 const routes: Routes = [
   {
@@ -48,6 +49,16 @@ const routes: Routes = [
     path: 'tickets/:id',
     loadComponent: () => import('./pages/tickets/ticket-detail/ticket-detail.page').then(m => m.TicketDetailPage)
   },
+  {
+    path: 'stats',
+    loadComponent: () => import('./pages/stats/stats.page').then(m => m.StatsPage),
+    canActivate: [AdminGuard]
+  },
+  {
+    path: 'stats/drilldown/:type',
+    loadComponent: () => import('./pages/stats/stats-drilldown/stats-drilldown.page').then(m => m.StatsDrilldownPage),
+    canActivate: [AdminGuard]
+  }
 ];
 
 @NgModule({

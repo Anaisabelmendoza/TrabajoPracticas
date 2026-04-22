@@ -94,3 +94,21 @@ mat-card {
 .header-md::after, .footer-md::before {
   display: none !important;
 }
+
+// CORRECCIÓN MAT-SELECT (MENÚS DESPLEGABLES) PARA MODO OSCURO
+.cdk-overlay-pane {
+  .mat-mdc-select-panel {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333 !important;
+  }
+  
+  .mat-mdc-option, 
+  .mdc-list-item__primary-text {
+    color: #ffffff !important;
+  }
+
+  .mat-mdc-option:hover,
+  .mat-mdc-option.mdc-list-item--selected {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
