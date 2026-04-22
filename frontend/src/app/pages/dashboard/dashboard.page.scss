@@ -1,0 +1,128 @@
+ion-content {
+  --background: var(--app-bg) !important;
+}
+
+.welcome-section {
+  padding: 40px 20px 20px;
+  background: transparent;
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--app-text);
+  }
+
+  p {
+    opacity: 0.6;
+    font-size: 1rem;
+    margin-top: 4px;
+    color: var(--app-text);
+  }
+}
+
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 20px;
+  margin-top: 10px;
+
+  .stat-pill {
+    background: var(--app-card-bg) !important;
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--app-border);
+
+    mat-icon {
+      font-size: 24px;
+      height: 24px;
+      width: 24px;
+      font-weight: bold;
+    }
+
+    .stat-info {
+      display: flex;
+      flex-direction: row;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .stat-num {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--app-text) !important;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--app-text-secondary) !important;
+      font-weight: 500;
+    }
+
+    &.new mat-icon {
+      color: #ff9800;
+    }
+
+    &.process mat-icon {
+      color: #2196f3;
+    }
+
+    &.done mat-icon {
+      color: #4caf50;
+    }
+
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+      background: var(--ion-color-step-100, rgba(255, 255, 255, 0.08)) !important;
+    }
+
+    &:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+      transition: all 0.1s;
+    }
+  }
+}
+
+.actions-section {
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .main-action {
+    height: 56px;
+    border-radius: 12px !important;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+
+    mat-icon {
+      margin-right: 8px;
+    }
+
+    &.primary-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      color: white !important;
+      border: none !important;
+    }
+
+    &.outlined-violet {
+      border: 2px solid #764ba2 !important;
+      color: #764ba2 !important;
+      background: transparent !important;
+      
+      &:hover {
+        background: rgba(118, 75, 162, 0.05) !important;
+      }
+    }
+  }
+}

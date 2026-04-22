@@ -1,0 +1,297 @@
+ion-content {
+  --background: var(--app-bg);
+}
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--app-bg);
+  color: var(--app-text);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.profile-header {
+  padding: 50px 20px;
+  text-align: center;
+  background: var(--app-bg);
+
+  .avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    cursor: pointer;
+
+    .avatar-circle, .profile-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--app-accent);
+      font-size: 3rem;
+      font-weight: 700;
+      color: white;
+      border: 3px solid var(--app-border);
+    }
+
+    .edit-badge {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: var(--app-accent);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--app-bg);
+      mat-icon { font-size: 18px; color: white; }
+    }
+  }
+
+  .user-name {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--app-text);
+  }
+
+  .user-role-label {
+    color: var(--app-accent);
+    font-weight: 600;
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+  }
+}
+
+.profile-details {
+  padding: 0 30px;
+  flex: 1;
+
+  .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--app-border);
+
+    mat-icon { color: var(--app-icon-color); }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      
+      .label {
+        color: var(--app-text-muted);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+
+      .value {
+        color: var(--app-text);
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-top: 2px;
+      }
+    }
+  }
+}
+
+/* ---- Options Section (Modo Oscuro / Notificaciones) ---- */
+.options-section {
+  margin-top: 30px;
+  background: var(--app-card-bg);
+  border-radius: 16px;
+  padding: 8px 16px;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--app-border-light);
+  }
+
+  .option-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    mat-icon {
+      color: var(--app-accent);
+      font-size: 24px;
+    }
+
+    .option-title {
+      display: block;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--app-text);
+    }
+
+    .option-subtitle {
+      display: block;
+      color: var(--app-text-secondary);
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+  }
+
+  ion-toggle {
+    --background: #555;
+    --background-checked: var(--app-accent);
+    --handle-background: #fff;
+    --handle-background-checked: #fff;
+  }
+}
+
+/* ---- Change Password Section ---- */
+.change-password-section {
+  margin-top: 20px;
+  background: var(--app-card-bg);
+  border-radius: 16px;
+  padding: 8px 16px;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 0;
+    cursor: pointer;
+
+    .option-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      mat-icon {
+        color: var(--app-accent);
+        font-size: 24px;
+      }
+
+      .option-title {
+        display: block;
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--app-text);
+      }
+
+      .option-subtitle {
+        display: block;
+        color: var(--app-text-secondary);
+        font-size: 0.85rem;
+        margin-top: 2px;
+      }
+    }
+
+    .chevron {
+      color: var(--app-icon-color);
+      transition: transform 0.3s ease;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .password-form {
+    padding: 10px 0 20px;
+    animation: slideDown 0.3s ease;
+
+    .full-width {
+      width: 100%;
+      margin-bottom: 8px;
+
+      // Texto del input visible: blanco en oscuro, negro en claro
+      --mdc-outlined-text-field-outline-color: var(--app-input-border);
+      --mdc-outlined-text-field-focus-outline-color: var(--app-accent);
+      --mdc-outlined-text-field-label-text-color: var(--app-input-label);
+      --mdc-outlined-text-field-focus-label-text-color: var(--app-accent);
+      --mdc-outlined-text-field-input-text-color: var(--app-input-text);
+      --mdc-outlined-text-field-caret-color: var(--app-accent);
+      --mdc-outlined-text-field-hover-outline-color: var(--app-accent);
+
+      // Asegurar que la contraseña (puntos) sea visible
+      input {
+        color: var(--app-input-text) !important;
+        -webkit-text-fill-color: var(--app-input-text) !important;
+      }
+    }
+
+    // Botón de toggle de visibilidad de contraseña
+    button[matSuffix] {
+      mat-icon {
+        color: var(--app-icon-color) !important;
+      }
+    }
+
+    .save-password-btn {
+      width: 100%;
+      height: 48px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      margin-top: 8px;
+      background: var(--app-accent) !important;
+      color: white !important;
+
+      mat-icon {
+        margin-right: 8px;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+      }
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- Logout ---- */
+.logout-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 30px;
+  margin-bottom: 40px;
+  padding: 18px 16px;
+  background: var(--app-card-bg);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(244, 67, 54, 0.1);
+  }
+
+  mat-icon {
+    color: #ff5252;
+  }
+
+  span {
+    color: #ff5252;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+}
