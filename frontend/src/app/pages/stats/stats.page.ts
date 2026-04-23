@@ -121,21 +121,32 @@ export class StatsPage implements OnInit, AfterViewInit {
         }, 100);
       },
       error: (e) => {
-        console.error(e);
+        console.error('Error del servidor:', e);
+        alert('Error cargando estadísticas. Verifica tu conexión o el estado del backend.');
         this.loading = false;
       }
     });
   }
 
   initCharts() {
-    if (!this.statsData || !this.pieCanvas || !this.barCanvas) return;
+    try {
+      if (!this.statsData || !this.pieCanvas || !this.barCanvas) return;
 
     if (this.pieChart) this.pieChart.destroy();
     if (this.barChart) this.barChart.destroy();
 
-    // Pie Chart: Status
-    const statusLabels = this.statsData.by_status.map((item: any) => item.status);
-    const statusValues = this.statsData.by_status.map((item: any) => parseInt(item.count));
+    // Pie Chart: Status (Mostramos TODOS los posibles aunque estén en 0)
+    const allStatuses = ['Nuevo', 'Proceso', 'Resuelto', 'Cerrado'];
+    const statusCountsMap: { [key: string]: number } = {};
+    
+    if (this.statsData.by_status) {
+      this.statsData.by_status.forEach((item: any) => {
+        statusCountsMap[item.status] = parseInt(item.count) || 0;
+      });
+    }
+
+    const statusLabels = allStatuses;
+    const statusValues = allStatuses.map(status => statusCountsMap[status] || 0);
 
     const isDarkTheme = document.body.classList.contains('dark-theme');
     const textColor = isDarkTheme ? '#ffffff' : '#666666';
@@ -191,5 +202,8 @@ export class StatsPage implements OnInit, AfterViewInit {
         }
       }
     });
+    } catch (err) {
+      console.error('Error al inicializar los gráficos:', err);
+    }
   }
 }

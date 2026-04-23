@@ -30,7 +30,8 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const user = this.getUser();
+    return !!user;
   }
 
   register(userData: any): Observable<any> {
@@ -56,7 +57,19 @@ export class AuthService {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
 
-      return JSON.parse(jsonPayload);
+      const parsedData = JSON.parse(jsonPayload);
+      
+      // Comprobar expiración del token
+      if (parsedData.exp) {
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (parsedData.exp < currentTime) {
+          console.warn('El token JWT ha expirado. Limpiando credenciales locales...');
+          this.logout();
+          return null;
+        }
+      }
+
+      return parsedData;
     } catch (e) {
       console.error('Error decoding JWT:', e);
       return null;
