@@ -68,12 +68,14 @@ export class DashboardPage implements OnInit {
         
         this.stats.inProgress = tickets.filter((t: any) => {
           if (t.status !== 'En proceso') return false;
+          if (this.isAdmin) return true;
           if (isAgent) return t.agent && t.agent.email === userEmail;
           return true;
         }).length;
 
         this.stats.resolved = tickets.filter((t: any) => {
           if (t.status !== 'Resuelto' && t.status !== 'Cerrado') return false;
+          if (this.isAdmin) return true;
           if (isAgent) return t.agent && t.agent.email === userEmail;
           return true;
         }).length;

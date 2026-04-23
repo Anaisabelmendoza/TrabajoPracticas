@@ -35,6 +35,7 @@ export class TicketsPage implements OnInit {
   tickets: any[] = [];
   loading = true;
   isAgent = false;
+  isAdmin = false;
   selectedTabIndex = 0;
 
   constructor(
@@ -57,6 +58,7 @@ export class TicketsPage implements OnInit {
 
   ionViewWillEnter() {
     this.isAgent = this.authService.hasRole('ROLE_AGENT') || this.authService.hasRole('ROLE_ADMIN');
+    this.isAdmin = this.authService.hasRole('ROLE_ADMIN');
     this.loadTickets();
   }
 
@@ -74,10 +76,12 @@ export class TicketsPage implements OnInit {
         return t.status === 'Nuevo';
       } else if (status === 'Proceso') {
         if (t.status !== 'En proceso') return false;
+        if (this.isAdmin) return true;
         if (this.isAgent) return t.agent && t.agent.email === userEmail;
         return true;
       } else if (status === 'Resuelto') {
         if (t.status !== 'Resuelto' && t.status !== 'Cerrado') return false;
+        if (this.isAdmin) return true;
         if (this.isAgent) return t.agent && t.agent.email === userEmail;
         return true;
       }
