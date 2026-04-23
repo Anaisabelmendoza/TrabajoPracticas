@@ -40,10 +40,11 @@ export class StatsPage implements OnInit, AfterViewInit {
   selectedCategory: number | '' = '';
   selectedPriority: string = '';
 
-  kpis = {
+  kpis: any = {
     total: 0,
     open: 0,
-    criticalPending: 0
+    criticalPending: 0,
+    resolved: 0
   };
 
   categories: any[] = [];
@@ -94,14 +95,18 @@ export class StatsPage implements OnInit, AfterViewInit {
         this.statsData = data;
         
         let activeCount = 0;
+        let resolvedCount = 0;
         if (data.by_status) {
           data.by_status.forEach((s: any) => {
             if (s.status !== 'Resuelto' && s.status !== 'Cerrado') {
               activeCount += parseInt(s.count);
+            } else {
+              resolvedCount += parseInt(s.count);
             }
           });
         }
         this.kpis.total = activeCount;
+        this.kpis.resolved = resolvedCount;
         
         const statusNuevo = data.by_status.find((s: any) => s.status === 'Nuevo');
         this.kpis.open = statusNuevo ? parseInt(statusNuevo.count) : 0;
@@ -132,6 +137,10 @@ export class StatsPage implements OnInit, AfterViewInit {
     const statusLabels = this.statsData.by_status.map((item: any) => item.status);
     const statusValues = this.statsData.by_status.map((item: any) => parseInt(item.count));
 
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    const textColor = isDarkTheme ? '#ffffff' : '#666666';
+    const gridColor = isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
     this.pieChart = new Chart(this.pieCanvas.nativeElement, {
       type: 'doughnut',
       data: {
@@ -151,7 +160,7 @@ export class StatsPage implements OnInit, AfterViewInit {
       options: {
         responsive: true,
         plugins: {
-          legend: { position: 'bottom', labels: { color: 'white' } }
+          legend: { position: 'bottom', labels: { color: textColor } }
         }
       }
     });
@@ -174,8 +183,8 @@ export class StatsPage implements OnInit, AfterViewInit {
       options: {
         responsive: true,
         scales: {
-          y: { beginAtZero: true, ticks: { stepSize: 1, color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-          x: { ticks: { color: 'white' }, grid: { display: false } }
+          y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } },
+          x: { ticks: { color: textColor }, grid: { display: false } }
         },
         plugins: {
           legend: { display: false }

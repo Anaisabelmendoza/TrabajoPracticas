@@ -41,10 +41,12 @@ export class TicketDetailPage implements OnInit {
   newComment = '';
   loading = true;
   isAgent = false;
+  isAdmin = false;
   isEditingDescription = false;
   editedDescription = '';
   commentFile: File | null = null;
   commentFilePreview: string | null = null;
+  today = new Date();
 
   constructor(
     private route: ActivatedRoute,
@@ -67,6 +69,7 @@ export class TicketDetailPage implements OnInit {
 
   ionViewWillEnter() {
     this.isAgent = this.authService.hasRole('ROLE_AGENT') || this.authService.hasRole('ROLE_ADMIN');
+    this.isAdmin = this.authService.hasRole('ROLE_ADMIN');
   }
 
   isOwner(): boolean {
@@ -161,6 +164,10 @@ export class TicketDetailPage implements OnInit {
         this.showToast('Error al actualizar la descripción', 'danger');
       }
     });
+  }
+
+  generatePDF() {
+    window.print();
   }
 
   async showToast(message: string, color: string) {

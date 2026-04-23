@@ -62,6 +62,14 @@
           <mat-card-subtitle>Sin Asignar (Nuevos)</mat-card-subtitle>
         </mat-card-header>
       </mat-card>
+
+      <mat-card class="kpi-card" [routerLink]="['/stats/drilldown/resolved']" [queryParams]="{ category: selectedCategory, priority: selectedPriority }" style="cursor: pointer;">
+        <mat-card-header>
+          <div mat-card-avatar class="kpi-icon resolved"><mat-icon>task_alt</mat-icon></div>
+          <mat-card-title>{{ kpis.resolved }}</mat-card-title>
+          <mat-card-subtitle>Incidencias Resueltas</mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
     </div>
 
     <div class="charts-container">

@@ -14,20 +14,20 @@ ion-content {
       .mat-mdc-select-value-text, 
       .mat-mdc-select-arrow,
       .mdc-floating-label {
-        color: #ffffff !important;
+        color: var(--app-text) !important;
         opacity: 1 !important;
       }
 
       .mdc-notched-outline__leading,
       .mdc-notched-outline__notch,
       .mdc-notched-outline__trailing {
-        border-color: rgba(255, 255, 255, 0.5) !important;
+        border-color: var(--app-border) !important;
       }
 
       &.mat-focused .mdc-notched-outline__leading,
       &.mat-focused .mdc-notched-outline__notch,
       &.mat-focused .mdc-notched-outline__trailing {
-        border-color: #ffffff !important;
+        border-color: var(--app-text) !important;
       }
     }
   }
@@ -57,15 +57,18 @@ ion-content {
     background: var(--app-card-bg);
     border-radius: 12px;
     border: 1px solid var(--app-border);
+    padding: 15px;
 
     mat-card-title {
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 800;
       color: var(--app-text) !important;
+      margin-bottom: 8px !important;
     }
 
     mat-card-subtitle {
       color: var(--app-text-secondary) !important;
+      font-size: 0.95rem;
     }
 
     .kpi-icon {
@@ -84,6 +87,7 @@ ion-content {
       &.total { background: linear-gradient(135deg, #667eea, #764ba2); }
       &.critic { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
       &.time { background: linear-gradient(135deg, #f7b733, #fc4a1a); }
+      &.resolved { background: linear-gradient(135deg, #11998e, #38ef7d); }
     }
   }
 }
@@ -106,10 +110,16 @@ ion-content {
       font-weight: 700;
     }
 
+    mat-card-subtitle {
+      color: var(--app-text-secondary) !important;
+      font-size: 0.9rem;
+    }
+
     .chart-content {
       position: relative;
       height: 300px;
       width: 100%;
+      margin-top: 20px;
       display: flex;
       align-items: center;
       justify-content: center;

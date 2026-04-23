@@ -21,33 +21,37 @@ Este es un sistema de gestión de tickets (Helpdesk) completo, desarrollado con 
 
 ## ✨ Características Principales
 
-### 1. Sistema de Autenticación y Registro
-- **Doble Perfil de Registro:**
-  - **Cliente (ROLE_USER):** Registro público estándar.
-  - **Agente (ROLE_AGENT):** Requiere un código de validación especial (**`AGENT2026`**) para ser asignado como trabajador.
-- **Seguridad:** Encriptación de contraseñas mediante hashing y validaciones complejas (Mayúsculas, números, símbolos).
-- **Recuperar contraseña:** Flujo de recuperación en 3 pasos (email → código → nueva contraseña).
+### 1. Sistema de Autenticación y Registro Multi-Perfil
+- **Roles de Acceso:** 
+  - **Cliente (`ROLE_USER`):** Registro público estándar.
+  - **Agente (`ROLE_AGENT`):** Requiere un código de validación especial (**`AGENT2026`**).
+  - **Administrador (`ROLE_ADMIN`):** Jerarquía superior con visión panorámica del sistema.
+- **Seguridad:** Encriptación de contraseñas mediante hashing (OWASP compatible).
+- **Recuperación:** Flujo de recuperación en 3 pasos (email → código temporal → nueva contraseña).
 
-### 2. Gestión de Tickets
-- **Creación de Tickets:** Los clientes pueden abrir incidencias con título, descripción, categoría y prioridad.
-- **Seguimiento:** Historial de cambios y visualización de estados (Abierto, En Progreso, Resuelto, Cerrado).
-- **Categorías y Prioridades:** Clasificación dinámica de las incidencias.
+### 2. Gestión de Tickets e Incidencias
+- **Creación y Edición:** Los clientes pueden abrir modificar sus propias incidencias (título, descripción, categoría, prioridad).
+- **Borrado propio:** Eliminación de tickets segura (en cascada) solo permitida al autor.
+- **Seguimiento Ágil:** Visualización de estados (Abierto, En Progreso, Resuelto, Cerrado) con filtros de alta potencia.
 
-### 3. Comentarios y Comunicación
-- Sistema de comentarios en cada ticket para la interacción entre clientes y agentes.
-- Atribución automática del autor del comentario.
+### 3. Dashboard Analítico (Administración)
+- **Vista Protegida:** Página exclusiva de analíticas resguardada por Guards de navegación.
+- **Métricas KPI en tiempo real:**
+  - Tarjetas dinámicas (Activos, Críticos Pendientes, Nuevos Sin Asignar y Resueltos totales).
+  - Enlaces profundos (*Drill-down*) que redirigen al listado aplicando filtros en cascada al historial de forma automática.
+- **Gráficos Interactivos (Chart.js):**
+  - **Gráfico Circular:** Distribución general de uso según los estados de los tickets.
+  - **Gráfico de Barras:** Rendimiento laboral y carga de tickets asignados por cada empleado del sistema (agentes y admins).
+- **Control Visual Responsivo:** Integración elegante para adaptarse sin problemas al modo nocturno y modo diurno.
 
-### 4. Perfil de Usuario
-- **Avatar personalizable:** Subida de foto de perfil guardada en localStorage.
-- **Cambiar Contraseña:** Formulario integrado en el perfil con validación (mínimo 8 caracteres, confirmación).
-- **Modo Oscuro:** Toggle para alternar entre tema claro y oscuro.
-- **Notificaciones:** Toggle para activar/desactivar alertas del sistema.
-- **Cerrar Sesión:** Cierre seguro con eliminación del token JWT.
+### 4. Sistema Doctrine Integrado (Backend)
+- Endpoint dedicado de estadísticas a alta velocidad.
+- Contabilización y filtrado automático de seguridad usando `CurrentUserExtension` y `RoleHierarchy` para acotar la exposición de datos dependiendo de si se accede como cliente, técnico o director. 
 
-### 5. Diseño y UX
-- **Páginas Públicas (Login/Register):** Estética "Vibrant Violet" con degradados modernos y alta visibilidad.
-- **Dashboard Interno:** Modo oscuro (Dark Mode) profesional optimizado para la gestión de tickets.
-- Los toggles de Modo Oscuro y Notificaciones están claramente separados en filas independientes para evitar solapamientos.
+### 5. Configuración de Usuario y UX
+- **Perfil Personal:** Cambio de contraseñas y alteración de avatares guardados.
+- **Doble Tema de Interfaz (Diurno/Nocturno):** Diseño adaptativo robusto usando tokens y variables CSS lógicas para mantener alta legibilidad y jerarquización.
+- **UI Moderna:** Botones con *Vibrant Violet gradients* e implementaciones enriquecidas de Angular Material (desplegables, selectores, campos flotantes).
 
 ---
 
@@ -64,12 +68,12 @@ Este es un sistema de gestión de tickets (Helpdesk) completo, desarrollado con 
    ```bash
    composer install
    ```
-2. Configurar el archivo `.env` con tus credenciales de base de datos.
-3. Generar las claves JWT:
+2. Configurar el archivo `.env` (`DATABASE_URL`) con tus credenciales de base de MySQL/MariaDB.
+3. Generar las claves JWT de seguridad criptográfica:
    ```bash
    php bin/console lexik:jwt:generate-keypair
    ```
-4. Ejecutar migraciones:
+4. Ejecutar todas las migraciones para constuir el esquema en tu Base de datos local:
    ```bash
    php bin/console doctrine:migrations:migrate
    ```
@@ -78,13 +82,13 @@ Este es un sistema de gestión de tickets (Helpdesk) completo, desarrollado con 
    symfony server:start
    ```
 
-### Configurar Frontend
+### Configurar Frontend (Angular + Ionic)
 1. Ir a la carpeta `frontend`:
    ```bash
    cd frontend
    npm install
    ```
-2. Ejecutar la aplicación:
+2. Ejecutar la aplicación en modo desarrollo:
    ```bash
    ionic serve
    ```
@@ -92,7 +96,7 @@ Este es un sistema de gestión de tickets (Helpdesk) completo, desarrollado con 
 ---
 
 ## 🔑 Códigos Especiales
-- **Registro de Agente:** Para registrarte como trabajador en la pantalla de registro, debes introducir el código: `AGENT2026`.
+- **Registro de Agente:** Para registrarte como trabajador en la pantalla de registro de la app, debes introducir el código: `AGENT2026`.
 
 ---
 
@@ -100,19 +104,19 @@ Este es un sistema de gestión de tickets (Helpdesk) completo, desarrollado con 
 
 ```
 ├── src/                    # Backend Symfony
-│   ├── Entity/             # Entidades (User, Ticket, Comment, Category, Priority, etc.)
-│   ├── Controller/         # Controladores (AttachmentController, UploadEvidenceAction)
-│   ├── Repository/         # Repositorios Doctrine
-│   ├── State/              # State Processors (UserPasswordHasherProcessor, CommentOwnerProcessor)
-│   ├── Doctrine/           # Extensions (CurrentUserExtension)
-│   ├── EventListener/      # Listeners de eventos
-│   └── EventSubscriber/    # Subscribers de eventos
-├── config/                 # Configuración Symfony (security, api_platform, jwt, cors)
-├── migrations/             # Migraciones de la base de datos
+│   ├── Entity/             # Entidades (User, Ticket, Comment, Category, Priority)
+│   ├── Controller/         # Controladores Api personalizados
+│   ├── Repository/         # Repositorios Doctrine (TicketRepository - lógicas de conteo y KPI)
+│   ├── State/              # Proveedores de estado y encripción de UserPasswordHasher
+│   ├── Doctrine/           # Extensions (CurrentUserExtension limitando perfiles)
+│   └── EventListener/      # Listeners
+├── config/                 # Configuración Symfony (security, api_platform, jwt, cors, jerarquías)
+├── migrations/             # Migraciones de la BD
 ├── frontend/               # Aplicación Ionic/Angular
 │   └── src/app/
-│       ├── components/     # Componentes reutilizables (login)
-│       ├── pages/          # Páginas (dashboard, profile, register, tickets, forgot-password)
-│       └── services/       # Servicios (auth, theme)
+│       ├── components/     # Componentes 
+│       ├── pages/          # Páginas (stats, dashboard, tickets, profile, login, register)
+│       ├── services/       # Providers principales y consumo de la API PHP
+│       └── theme/          # Hojas de estilo generales (Vibrant/Dark logic variables)
 └── README.md
 ```

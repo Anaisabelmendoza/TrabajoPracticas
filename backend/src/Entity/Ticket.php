@@ -61,6 +61,10 @@ class Ticket
     #[Groups(['ticket:read', 'ticket:write'])]
     private ?string $priority = 'Media'; // Prioridad por defecto
 
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[Groups(['ticket:read', 'ticket:write'])]
+    private bool $deletedByUser = false;
+
     #[ORM\ManyToOne(inversedBy: 'authoredTickets')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['ticket:read'])]
@@ -148,6 +152,17 @@ class Ticket
     public function setPriority(string $priority): static
     {
         $this->priority = $priority;
+        return $this;
+    }
+
+    public function isDeletedByUser(): bool
+    {
+        return $this->deletedByUser;
+    }
+
+    public function setDeletedByUser(bool $deletedByUser): static
+    {
+        $this->deletedByUser = $deletedByUser;
         return $this;
     }
 

@@ -69,8 +69,8 @@
         </div>
       </mat-card-content>
       
-      <!-- Controles para Agentes -->
-      <mat-card-actions *ngIf="isAgent" class="agent-actions">
+      <!-- Controles para Agentes / Admin -->
+      <mat-card-actions *ngIf="isAgent || isAdmin" class="agent-actions">
         <button mat-flat-button color="accent" *ngIf="!ticket.agent" (click)="claimTicket()">
           <mat-icon>person_add</mat-icon> Asignarme este ticket
         </button>
@@ -86,6 +86,10 @@
             Cerrar Incidencia
           </button>
         </div>
+
+        <button mat-flat-button color="primary" *ngIf="isAdmin && (ticket.status === 'Resuelto' || ticket.status === 'Cerrado')" (click)="generatePDF()" style="margin-left: auto;">
+          <mat-icon>picture_as_pdf</mat-icon> Generar PDF
+        </button>
       </mat-card-actions>
     </mat-card>
 
@@ -166,6 +170,46 @@
       </mat-tab>
     </mat-tab-group>
 
+  </div>
+
+  <!-- Versión para Imprimir / PDF (Oculta por defecto) -->
+  <div class="print-area" *ngIf="ticket">
+    <div class="print-header">
+      <h1>Reporte de Incidencia #{{ ticket.id }}</h1>
+      <p class="print-date">Generado el {{ today | date:'medium' }}</p>
+    </div>
+    
+    <div class="print-section">
+      <h2>1. Información General</h2>
+      <p><strong>Título:</strong> {{ ticket.title }}</p>
+      <p><strong>Autor:</strong> {{ ticket.author.firstName }} {{ ticket.author.lastName }} ({{ ticket.author.email }})</p>
+      <p><strong>Fecha de Creación:</strong> {{ ticket.createdAt | date:'medium' }}</p>
+      <p><strong>Estado:</strong> {{ ticket.status }}</p>
+      <p><strong>Categoría:</strong> {{ ticket.category.name }}</p>
+      <p><strong>Prioridad:</strong> {{ ticket.priority }}</p>
+      <p><strong>Técnico Asignado:</strong> {{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : 'N/A' }}</p>
+    </div>
+
+    <div class="print-section" *ngIf="ticket.description">
+      <h2>2. Descripción del Problema</h2>
+      <p class="print-desc">{{ ticket.description }}</p>
+    </div>
+
+    <div class="print-section" *ngIf="ticket.comments?.length > 0">
+      <h2>3. Registro de Conversación</h2>
+      <div class="print-comment" *ngFor="let c of ticket.comments">
+        <p><strong>{{ c.author.firstName }} {{ c.author.lastName }}</strong> - {{ c.createdAt | date:'short' }}</p>
+        <p>{{ c.content }}</p>
+      </div>
+    </div>
+
+    <div class="print-section" *ngIf="ticket.history?.length > 0">
+      <h2>4. Historial de Resolución</h2>
+      <div class="print-history" *ngFor="let h of ticket.history">
+        <p><strong>{{ h.action }}</strong> - {{ h.createdAt | date:'short' }} <span *ngIf="h.user">(Usuario: {{ h.user.firstName }} {{ h.user.lastName }})</span><span *ngIf="!h.user">(Sistema)</span></p>
+        <p><em>Cambio:</em> {{ h.oldValue || 'N/A' }} ➔ {{ h.newValue }}</p>
+      </div>
+    </div>
   </div>
 
   <!-- Loading state -->

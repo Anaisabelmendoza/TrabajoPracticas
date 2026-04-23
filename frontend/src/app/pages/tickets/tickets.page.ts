@@ -64,31 +64,25 @@ export class TicketsPage implements OnInit {
     const user = this.authService.getUser();
     const userEmail = user?.email || user?.username;
 
-    if (status === 'Nuevo') {
-      // Mostrar todos los tickets nuevos
-      return this.tickets.filter(t => t.status === 'Nuevo');
-    } else if (status === 'Proceso') {
-      // Mostrar tickets en proceso (si es agente, solo los asignados a él)
-      return this.tickets.filter(t => {
+    return this.tickets.filter(t => {
+      // Filtrar tickets soft-deleted para usuarios normales
+      if (!this.isAgent && t.deletedByUser === true) {
+        return false;
+      }
+
+      if (status === 'Nuevo') {
+        return t.status === 'Nuevo';
+      } else if (status === 'Proceso') {
         if (t.status !== 'En proceso') return false;
-        
-        if (this.isAgent) {
-          return t.agent && t.agent.email === userEmail;
-        }
+        if (this.isAgent) return t.agent && t.agent.email === userEmail;
         return true;
-      });
-    } else if (status === 'Resuelto') {
-      // Mostrar tickets resueltos o cerrados (si es agente, solo los asignados a él)
-      return this.tickets.filter(t => {
+      } else if (status === 'Resuelto') {
         if (t.status !== 'Resuelto' && t.status !== 'Cerrado') return false;
-        
-        if (this.isAgent) {
-          return t.agent && t.agent.email === userEmail;
-        }
+        if (this.isAgent) return t.agent && t.agent.email === userEmail;
         return true;
-      });
-    }
-    return [];
+      }
+      return false;
+    });
   }
 
   logout() {
@@ -147,16 +141,31 @@ export class TicketsPage implements OnInit {
         {
           text: 'Eliminar',
           handler: () => {
-            this.ticketService.deleteTicket(ticket.id).subscribe({
-              next: () => {
-                this.tickets = this.tickets.filter(t => t.id !== ticket.id);
-                this.showToast('Ticket eliminado correctamente', 'success');
-              },
-              error: (err) => {
-                console.error('Error al eliminar', err);
-                this.showToast('Error al eliminar el ticket', 'danger');
-              }
-            });
+            if (!this.isAgent) {
+              // Soft delete para usuario
+              this.ticketService.updateTicket(ticket.id, { deletedByUser: true }).subscribe({
+                next: () => {
+                  this.tickets = this.tickets.filter(t => t.id !== ticket.id);
+                  this.showToast('Incidencia eliminada de tu perfil', 'success');
+                },
+                error: (err) => {
+                  console.error('Error al ocultar ticket', err);
+                  this.showToast('Error al eliminar la incidencia', 'danger');
+                }
+              });
+            } else {
+              // Hard delete normal para agentes o admins
+              this.ticketService.deleteTicket(ticket.id).subscribe({
+                next: () => {
+                  this.tickets = this.tickets.filter(t => t.id !== ticket.id);
+                  this.showToast('Ticket eliminado correctamente', 'success');
+                },
+                error: (err) => {
+                  console.error('Error al eliminar', err);
+                  this.showToast('Error al eliminar el ticket', 'danger');
+                }
+              });
+            }
           }
         }
       ]

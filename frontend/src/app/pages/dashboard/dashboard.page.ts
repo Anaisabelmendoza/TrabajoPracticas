@@ -60,6 +60,10 @@ export class DashboardPage implements OnInit {
 
     this.ticketService.getTickets().subscribe({
       next: (tickets) => {
+        if (!isAgent) {
+          tickets = tickets.filter((t: any) => !t.deletedByUser);
+        }
+
         this.stats.new = tickets.filter((t: any) => t.status === 'Nuevo').length;
         
         this.stats.inProgress = tickets.filter((t: any) => {

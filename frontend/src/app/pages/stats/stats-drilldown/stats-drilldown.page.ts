@@ -60,6 +60,9 @@ export class StatsDrilldownPage implements OnInit {
       case 'unassigned':
         this.pageTitle = 'Nuevas (Sin asignar)';
         break;
+      case 'resolved':
+        this.pageTitle = 'Incidencias Resueltas';
+        break;
       default:
         this.pageTitle = 'Listado de Incidencias';
     }
@@ -105,6 +108,9 @@ export class StatsDrilldownPage implements OnInit {
       case 'unassigned':
         // Sin asignar (Nuevas)
         return filtered.filter(t => t.status === 'Nuevo');
+      case 'resolved':
+        // Histórico de Resueltas (Resuelto y Cerrado)
+        return filtered.filter(t => t.status === 'Resuelto' || t.status === 'Cerrado');
       default:
         return filtered;
     }
