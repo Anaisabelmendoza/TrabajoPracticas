@@ -1,6 +1,11 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Inicio</ion-title>
+    <ion-title>
+      <div class="header-brand">
+        <img src="assets/logo.png" alt="Logo" class="header-logo">
+        <span>Inicio</span>
+      </div>
+    </ion-title>
     <ion-buttons slot="end">
       <ion-button routerLink="/profile">
         <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
@@ -47,12 +52,12 @@
       Ver todas las incidencias
     </button>
     
-    <button mat-stroked-button class="main-action outlined-violet" routerLink="/tickets/new">
+    <button *ngIf="!isAdmin" mat-stroked-button class="main-action outlined-violet" routerLink="/tickets/new">
       <mat-icon>add</mat-icon>
       Reportar nuevo problema
     </button>
 
-    <button *ngIf="isAdmin" mat-flat-button class="main-action primary-gradient" routerLink="/stats" style="margin-top: 10px;">
+    <button *ngIf="isAdmin" mat-stroked-button class="main-action outlined-violet" routerLink="/stats" style="margin-top: 10px;">
       <mat-icon>analytics</mat-icon>
       Panel Analítico de Control (Admin)
     </button>

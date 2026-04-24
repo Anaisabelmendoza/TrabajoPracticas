@@ -95,7 +95,8 @@ mat-card {
   display: none !important;
 }
 
-// CORRECCIÓN MAT-SELECT (MENÚS DESPLEGABLES) PARA MODO OSCURO
+// CORRECCIÓN MAT-SELECT (MENÚS DESPLEGABLES) PARA QUE SIGAN EL TEMA
+// Estilos para el menú desplegable (por defecto / modo oscuro)
 .cdk-overlay-pane {
   .mat-mdc-select-panel {
     background-color: #1a1a1a !important;
@@ -110,5 +111,23 @@ mat-card {
   .mat-mdc-option:hover,
   .mat-mdc-option.mdc-list-item--selected {
     background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+// Estilos para el menú desplegable en modo claro
+body.light-theme .cdk-overlay-pane {
+  .mat-mdc-select-panel {
+    background-color: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+  }
+  
+  .mat-mdc-option, 
+  .mdc-list-item__primary-text {
+    color: #1a1a1a !important;
+  }
+
+  .mat-mdc-option:hover,
+  .mat-mdc-option.mdc-list-item--selected {
+    background-color: rgba(0, 0, 0, 0.08) !important;
   }
 }
