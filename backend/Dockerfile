@@ -21,7 +21,7 @@ COPY . /var/www/html
 
 # Instalar Composer para gestionar las dependencias de Symfony
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --no-interaction --optimize-autoloader
+RUN composer install --no-interaction --optimize-autoloader --no-scripts
 
 # Dar permisos a las carpetas de caché y logs
 RUN chown -R www-data:www-data /var/www/html/var
