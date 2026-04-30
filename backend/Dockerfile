@@ -28,6 +28,10 @@ RUN mkdir -p /var/www/html/var
 # Instalar dependencias Symfony
 RUN composer install --no-interaction --optimize-autoloader --no-scripts
 
+# --- AÑADE ESTA LÍNEA NUEVA AQUÍ ---
+RUN touch .env && composer dump-env prod
+# -----------------------------------
+
 # Permisos (importante hacerlo al final)
 RUN chown -R www-data:www-data /var/www/html
 
