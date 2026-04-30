@@ -26,7 +26,7 @@ COPY . /var/www/html
 RUN mkdir -p /var/www/html/var
 
 # Instalar dependencias Symfony
-RUN composer install --no-interaction --optimize-autoloader
+RUN composer install --no-interaction --optimize-autoloader --no-scripts
 
 # Permisos (importante hacerlo al final)
 RUN chown -R www-data:www-data /var/www/html
