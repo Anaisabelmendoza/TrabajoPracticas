@@ -33,3 +33,6 @@ RUN chown -R www-data:www-data /var/www/html
 
 # Cambiar usuario (mejor práctica)
 USER www-data
+
+
+# cambio para forzar build

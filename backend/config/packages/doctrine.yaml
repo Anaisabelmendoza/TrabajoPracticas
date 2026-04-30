@@ -1,6 +1,7 @@
 doctrine:
     dbal:
-        url: 'mysql://root:root@127.0.0.1:8889/helpdesk_db?serverVersion=5.7'
+        # Aquí está el cambio: le decimos a Symfony que lea el .env
+        url: '%env(resolve:DATABASE_URL)%'
         driver: 'pdo_mysql'
 
         profiling_collect_backtrace: '%kernel.debug%'
