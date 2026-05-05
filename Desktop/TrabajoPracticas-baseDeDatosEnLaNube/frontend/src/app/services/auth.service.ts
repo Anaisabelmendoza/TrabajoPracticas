@@ -36,12 +36,12 @@ export class AuthService {
 
   register(userData: any): Observable<any> {
     return this.http.post(
-      `${this.apiUrl}/users`,
-      JSON.stringify(userData), // 👈 CLAVE
+      `${this.apiUrl}/api/register`,
+      userData,
       {
         headers: {
-          'Content-Type': 'application/ld+json',
-          'Accept': 'application/ld+json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
       }
     );

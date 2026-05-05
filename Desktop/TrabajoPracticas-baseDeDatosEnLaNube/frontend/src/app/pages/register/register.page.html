@@ -45,21 +45,27 @@
           <!-- Contraseña -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Contraseña</mat-label>
-            <input matInput formControlName="password" type="password" required />
+            <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" required />
             <mat-icon matPrefix>lock</mat-icon>
+            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" tabindex="-1">
+              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
             <mat-error *ngIf="registerForm.get('password')?.hasError('required')">
               La contraseña es obligatoria
             </mat-error>
             <mat-error *ngIf="registerForm.get('password')?.hasError('pattern')">
-              Debe incluir Mayúscula, Número y Símbolo (8+ carac.)
+              Debe incluir Mayúscula, Minúscula, Número y Símbolo (8+ carac.)
             </mat-error>
           </mat-form-field>
 
           <!-- Confirmar Contraseña -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Confirmar Contraseña</mat-label>
-            <input matInput formControlName="confirmPassword" type="password" required />
+            <input matInput formControlName="confirmPassword" [type]="hideConfirmPassword ? 'password' : 'text'" required />
             <mat-icon matPrefix>verified_user</mat-icon>
+            <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button" tabindex="-1">
+              <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
             <mat-error *ngIf="registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched">
               Las contraseñas no coinciden
             </mat-error>
@@ -68,20 +74,22 @@
           <!-- Tipo de Usuario -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>¿Quién eres?</mat-label>
-            <mat-select formControlName="userType">
+            <mat-select formControlName="userType" panelClass="white-select-panel">
               <mat-option value="cliente">Soy un Cliente</mat-option>
               <mat-option value="trabajador">Soy un Trabajador</mat-option>
+              <mat-option value="administrador">Soy un Administrador</mat-option>
             </mat-select>
             <mat-icon matPrefix>person</mat-icon>
           </mat-form-field>
 
-          <!-- Código de Agente (Solo si es trabajador) -->
-          <div *ngIf="registerForm.get('userType')?.value === 'trabajador'">
+          <!-- Código de Agente o Administrador (Solo si es trabajador o administrador) -->
+          <div *ngIf="registerForm.get('userType')?.value === 'trabajador' || registerForm.get('userType')?.value === 'administrador'">
             <mat-form-field appearance="outline" class="full-width agent-code-field">
-              <mat-label>Código de Seguridad de Agente</mat-label>
-              <input matInput formControlName="workerCode" placeholder="Introduce el código de empresa" />
+              <mat-label>{{ registerForm.get('userType')?.value === 'trabajador' ? 'Código de Agente' : 'Código de Administrador' }}</mat-label>
+              <input matInput formControlName="workerCode" 
+                     [placeholder]="registerForm.get('userType')?.value === 'trabajador' ? 'Introduce el código de agente' : 'Introduce el código de administrador'" />
               <mat-icon matPrefix>vpn_key</mat-icon>
-              <mat-hint>Campo obligatorio para personal técnico</mat-hint>
+              <mat-hint>Campo obligatorio para {{ registerForm.get('userType')?.value === 'trabajador' ? 'personal técnico' : 'administradores' }}</mat-hint>
             </mat-form-field>
           </div>
 

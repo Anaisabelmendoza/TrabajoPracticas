@@ -31,6 +31,8 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class RegisterPage implements OnInit {
   registerForm: FormGroup;
+  hidePassword = true;
+  hideConfirmPassword = true;
 
   constructor(
     private fb: FormBuilder,
@@ -63,6 +65,7 @@ export class RegisterPage implements OnInit {
 
   async onRegister() {
     const isWorker = this.registerForm.get('userType')?.value === 'trabajador';
+    const isAdministrator = this.registerForm.get('userType')?.value === 'administrador';
     const workerCode = this.registerForm.get('workerCode')?.value;
 
     if (isWorker && workerCode !== 'AGENT2026') { // aqui se asigna el codigo de agente
@@ -70,9 +73,14 @@ export class RegisterPage implements OnInit {
       return;
     }
 
+    if (isAdministrator && workerCode !== 'ADMIN2026') { // codigo de administrador
+      this.showPopup('Código de Administrador incorrecto. Contacta con soporte.', 'danger');
+      return;
+    }
+
     if (this.registerForm.invalid) {
       if (this.registerForm.get('password')?.errors?.['pattern']) {
-        this.showPopup('La contraseña debe tener: 8+ caracteres, Mayúscula, Número y Símbolo', 'danger');
+        this.showPopup('La contraseña debe tener: 8+ caracteres, Mayúscula, Minúscula, Número y Símbolo', 'danger');
       } else if (this.registerForm.hasError('mismatch')) {
         this.showPopup('Las contraseñas no coinciden', 'warning');
       } else {
@@ -83,12 +91,19 @@ export class RegisterPage implements OnInit {
 
     const { confirmPassword, ...formValues } = this.registerForm.value;
 
+    let userRoles = ['ROLE_USER'];
+    if (formValues.userType === 'trabajador') {
+      userRoles = ['ROLE_AGENT'];
+    } else if (formValues.userType === 'administrador') {
+      userRoles = ['ROLE_ADMIN'];
+    }
+
     const userData = {
       email: formValues.email,
       password: formValues.password,
       firstName: formValues.firstName,
       lastName: formValues.lastName,
-      roles: formValues.userType === 'trabajador' ? ['ROLE_AGENT'] : ['ROLE_USER']
+      roles: userRoles
     };
 
     const loading = await this.loadingCtrl.create({ message: 'Registrando cuenta...' });
