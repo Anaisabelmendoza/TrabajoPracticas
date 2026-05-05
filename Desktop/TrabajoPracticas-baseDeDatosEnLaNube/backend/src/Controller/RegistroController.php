@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class RegistrationController extends AbstractController
+class RegistroController extends AbstractController
 {
     #[Route('/api/register', name: 'app_register', methods: ['POST'])]
     public function register(
