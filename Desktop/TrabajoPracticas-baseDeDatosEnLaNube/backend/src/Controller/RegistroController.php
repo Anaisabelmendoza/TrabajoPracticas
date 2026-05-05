@@ -22,7 +22,7 @@ class RegistroController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['email']) || !isset($data['password']) || !isset($data['firstName']) || !isset($data['lastName'])) {
-            return $this->json(['error' => 'Todos los campos son obligatorios (email, password, firstName, lastName)'], 400);
+            return $this->json(['detail' => 'Todos los campos son obligatorios (email, password, firstName, lastName)'], 400);
         }
 
         // 2. Creamos la instancia del nuevo usuario
@@ -45,7 +45,7 @@ class RegistroController extends AbstractController
             $entityManager->flush();
         } catch (\Exception $e) {
             return $this->json([
-                'error' => 'Error al guardar en base de datos: ' . $e->getMessage()
+                'detail' => 'Error al guardar en base de datos: ' . $e->getMessage()
             ], 500);
         }
 
