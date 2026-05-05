@@ -2,113 +2,87 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
-
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
-use App\State\UserPasswordHasherProcessor;
-use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\Patch;
+use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ApiResource(
-    operations: [
-        new Get(security: "is_granted('ROLE_ADMIN') or object == user"),
-        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
-        new Post(processor: UserPasswordHasherProcessor::class, validationContext: ['groups' => ['Default', 'user:create']]),
-        new Patch(security: "is_granted('ROLE_ADMIN') or object == user", processor: UserPasswordHasherProcessor::class),
-        new Delete(security: "is_granted('ROLE_ADMIN')")
-    ],
     normalizationContext: ['groups' => ['user:read']],
-    denormalizationContext: ['groups' => ['user:write']]
+    denormalizationContext: ['groups' => ['user:write']],
+    operations: [
+        new GetCollection(),
+        new Post(processor: \App\State\UserPasswordHasher::class),
+        new Get(),
+        new Put(processor: \App\State\UserPasswordHasher::class),
+        new Patch(processor: \App\State\UserPasswordHasher::class),
+        new Delete(),
+    ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'ticket:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
-    #[Assert\NotBlank]
-    #[Assert\Email(message: 'El email "{{ value }}" no es válido.')]
+    #[ORM\Column(length: 180, nullable: false)]
     #[Groups(['user:read', 'user:write', 'ticket:read'])]
+    #[Assert\NotBlank]
     private ?string $email = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[ORM\Column(length: 100, nullable: false)]
+    #[Groups(['user:read', 'user:write', 'ticket:read'])]
+    #[SerializedName('firstName')]
     private ?string $firstName = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[ORM\Column(length: 100, nullable: false)]
+    #[Groups(['user:read', 'user:write', 'ticket:read'])]
+    #[SerializedName('lastName')]
     private ?string $lastName = null;
 
-    /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
+    #[ORM\Column(type: 'json')]
     #[Groups(['user:read', 'user:write'])]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
-    #[Groups(['user:write'])]
-    #[Assert\NotBlank(groups: ['user:create'])]
     private ?string $password = null;
 
-    public function getId(): ?int
+    #[Groups(['user:write'])]
+    #[SerializedName('password')]
+    private ?string $plainPassword = null;
+
+    #[ORM\OneToMany(mappedBy: 'author', targetEntity: Ticket::class)]
+    private Collection $authoredTickets;
+
+    #[ORM\OneToMany(mappedBy: 'agent', targetEntity: Ticket::class)]
+    private Collection $assignedTickets;
+
+    public function __construct()
     {
-        return $this->id;
+        $this->authoredTickets = new ArrayCollection();
+        $this->assignedTickets = new ArrayCollection();
     }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getFirstName(): ?string
-    {
-        return $this->firstName;
-    }
-
-    public function setFirstName(?string $firstName): static
-    {
-        $this->firstName = $firstName;
-        return $this;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName(?string $lastName): static
-    {
-        $this->lastName = $lastName;
-        return $this;
-    }
+    // ========== MÉTODOS OBLIGATORIOS DE SEGURIDAD ==========
 
     /**
-     * A visual identifier that represents this user.
-     *
      * @see UserInterface
      */
     public function getUserIdentifier(): string
@@ -118,26 +92,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @see UserInterface
-     *
-     * @return list<string>
      */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
+        // Garantizamos que cada usuario tenga al menos ROLE_USER
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
-    }
-
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
     }
 
     /**
@@ -148,19 +109,78 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function eraseCredentials(): void
     {
-        $this->password = $password;
+        $this->plainPassword = null;
+    }
+
+    // ========== GETTERS Y SETTERS NORMALES ==========
+
+    public function getId(): ?int { return $this->id; }
+
+    public function getEmail(): ?string { return $this->email; }
+
+    public function setEmail(string $email): static { $this->email = $email; return $this; }
+
+    public function getFirstName(): ?string { return $this->firstName; }
+
+    public function setFirstName(string $firstName): static { $this->firstName = $firstName; return $this; }
+
+    public function getLastName(): ?string { return $this->lastName; }
+
+    public function setLastName(string $lastName): static { $this->lastName = $lastName; return $this; }
+
+    public function setRoles(array $roles): static { $this->roles = $roles; return $this; }
+
+    public function setPassword(string $password): static { $this->password = $password; return $this; }
+
+    public function getPlainPassword(): ?string { return $this->plainPassword; }
+
+    public function setPlainPassword(?string $plainPassword): self { $this->plainPassword = $plainPassword; return $this; }
+
+    public function getAuthoredTickets(): Collection { return $this->authoredTickets; }
+
+    public function addAuthoredTicket(Ticket $ticket): static
+    {
+        if (!$this->authoredTickets->contains($ticket)) {
+            $this->authoredTickets->add($ticket);
+            $ticket->setAuthor($this);
+        }
 
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
+    public function removeAuthoredTicket(Ticket $ticket): static
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        if ($this->authoredTickets->removeElement($ticket)) {
+            if ($ticket->getAuthor() === $this) {
+                $ticket->setAuthor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAssignedTickets(): Collection { return $this->assignedTickets; }
+
+    public function addAssignedTicket(Ticket $ticket): static
+    {
+        if (!$this->assignedTickets->contains($ticket)) {
+            $this->assignedTickets->add($ticket);
+            $ticket->setAgent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignedTicket(Ticket $ticket): static
+    {
+        if ($this->assignedTickets->removeElement($ticket)) {
+            if ($ticket->getAgent() === $this) {
+                $ticket->setAgent(null);
+            }
+        }
+
+        return $this;
     }
 }
