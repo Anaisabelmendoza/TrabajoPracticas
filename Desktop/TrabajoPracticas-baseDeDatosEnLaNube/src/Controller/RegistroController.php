@@ -45,8 +45,8 @@ class RegistroController extends AbstractController
             $entityManager->flush();
         } catch (\Exception $e) {
             return $this->json([
-                'detail' => 'Error al guardar en base de datos: ' . $e->getMessage()
-            ], 500);
+                'detail' => 'Error de base de datos: ' . $e->getMessage()
+            ], 400);
         }
 
         return $this->json([
