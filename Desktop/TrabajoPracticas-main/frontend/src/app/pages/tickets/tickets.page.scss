@@ -1,0 +1,123 @@
+ion-content {
+  --background: var(--app-bg) !important;
+}
+
+.tickets-container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--app-bg);
+  min-height: 100%;
+}
+
+:host ::ng-deep {
+  .mat-mdc-tab-header {
+    margin: 20px 20px 10px;
+    border-bottom: none !important;
+    background: var(--app-card-bg);
+    border-radius: 12px;
+    padding: 4px;
+  }
+
+  .mat-mdc-tab {
+    .mdc-tab__text-label {
+      color: var(--app-text-secondary) !important;
+    }
+  }
+
+  .mat-mdc-tab.mdc-tab--active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-radius: 8px;
+    
+    .mdc-tab__text-label {
+      color: white !important;
+    }
+  }
+}
+
+ion-toolbar {
+  ion-button {
+    --color: #764ba2 !important;
+    --border-color: #764ba2 !important;
+    font-weight: 700;
+  }
+}
+
+.tab-content {
+  padding: 20px;
+}
+
+.tickets-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ticket-card {
+  background: var(--app-card-bg) !important;
+  border: 1px solid var(--app-border) !important;
+  color: var(--app-text) !important;
+  border-radius: 16px !important;
+  padding: 8px !important;
+
+  mat-card-header {
+    padding: 16px 16px 8px !important;
+  }
+
+  mat-card-title {
+    color: var(--app-text) !important;
+    font-size: 1.1rem !important;
+  }
+  
+  mat-card-subtitle, .description, .technician-info {
+    color: var(--app-text-secondary) !important;
+  }
+
+  mat-card-content {
+    padding: 0 16px !important;
+  }
+
+  mat-card-footer {
+    padding: 8px 16px 16px !important;
+  }
+
+  .badge-container {
+    display: flex;
+    gap: 8px;
+  }
+
+  mat-card-actions {
+    border-top: 1px solid var(--app-border);
+    padding: 4px 8px !important;
+    
+    button {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.8rem;
+    }
+
+    button[color="warn"] {
+      color: #ff5252;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--app-text-muted);
+
+  .large-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    color: var(--app-text-muted);
+  }
+
+  p {
+    font-size: 1rem;
+    margin: 0;
+  }
+}

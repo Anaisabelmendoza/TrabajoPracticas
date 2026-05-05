@@ -1,0 +1,122 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mi Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="profile-container">
+    <div class="profile-header">
+      <div class="avatar-wrapper" (click)="fileInput.click()">
+        <img *ngIf="profileImage" [src]="profileImage" class="profile-img">
+        <div *ngIf="!profileImage" class="avatar-circle">
+          {{ user?.firstName?.charAt(0) }}{{ user?.lastName?.charAt(0) }}
+        </div>
+        <div class="edit-badge">
+          <mat-icon>camera_alt</mat-icon>
+        </div>
+        <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" style="display: none">
+      </div>
+      
+      <h2 class="user-name">{{ user?.firstName }} {{ user?.lastName }}</h2>
+      <p class="user-role-label">{{ user?.roles?.includes('ROLE_AGENT') ? 'Soporte Técnico' : 'Usuario del Sistema' }}</p>
+    </div>
+
+    <div class="profile-details">
+      <div class="detail-item">
+        <mat-icon>email</mat-icon>
+        <div class="info">
+          <span class="label">Correo Electrónico</span>
+          <span class="value">{{ user?.email || user?.username }}</span>
+        </div>
+      </div>
+      
+      <div class="detail-item">
+        <mat-icon>verified_user</mat-icon>
+        <div class="info">
+          <span class="label">Rol de Acceso</span>
+          <span class="value">{{ user?.roles?.join(', ') }}</span>
+        </div>
+      </div>
+
+      <!-- Sección de opciones -->
+      <div class="options-section">
+        <div class="option-row">
+          <div class="option-info">
+            <mat-icon>dark_mode</mat-icon>
+            <div>
+              <span class="option-title">Modo Oscuro</span>
+              <span class="option-subtitle">Ajustar el brillo de la pantalla</span>
+            </div>
+          </div>
+          <ion-toggle [checked]="isDarkMode" (ionChange)="toggleTheme()"></ion-toggle>
+        </div>
+
+        <div class="option-row">
+          <div class="option-info">
+            <mat-icon>notifications</mat-icon>
+            <div>
+              <span class="option-title">Notificaciones</span>
+              <span class="option-subtitle">Gestionar alertas del sistema</span>
+            </div>
+          </div>
+          <ion-toggle checked="true"></ion-toggle>
+        </div>
+      </div>
+
+      <!-- Sección de Cambiar Contraseña -->
+      <div class="change-password-section">
+        <div class="section-header" (click)="showPasswordForm = !showPasswordForm">
+          <div class="option-info">
+            <mat-icon>lock</mat-icon>
+            <div>
+              <span class="option-title">Cambiar Contraseña</span>
+              <span class="option-subtitle">Actualizar tu clave de acceso</span>
+            </div>
+          </div>
+          <mat-icon class="chevron" [class.rotated]="showPasswordForm">expand_more</mat-icon>
+        </div>
+
+        <div class="password-form" *ngIf="showPasswordForm">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contraseña actual</mat-label>
+            <input matInput [type]="hideCurrentPwd ? 'password' : 'text'" [(ngModel)]="currentPassword">
+            <button mat-icon-button matSuffix (click)="hideCurrentPwd = !hideCurrentPwd" type="button">
+              <mat-icon>{{ hideCurrentPwd ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nueva contraseña</mat-label>
+            <input matInput [type]="hideNewPwd ? 'password' : 'text'" [(ngModel)]="newPassword">
+            <button mat-icon-button matSuffix (click)="hideNewPwd = !hideNewPwd" type="button">
+              <mat-icon>{{ hideNewPwd ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Confirmar nueva contraseña</mat-label>
+            <input matInput [type]="hideConfirmPwd ? 'password' : 'text'" [(ngModel)]="confirmPassword">
+            <button mat-icon-button matSuffix (click)="hideConfirmPwd = !hideConfirmPwd" type="button">
+              <mat-icon>{{ hideConfirmPwd ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" class="save-password-btn" (click)="changePassword()" [disabled]="changingPassword">
+            <mat-icon>save</mat-icon>
+            {{ changingPassword ? 'Guardando...' : 'Guardar Contraseña' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Cerrar Sesión -->
+      <div class="logout-section" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </div>
+    </div>
+  </div>
+</ion-content>

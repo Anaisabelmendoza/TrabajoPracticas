@@ -1,0 +1,46 @@
+<ion-content>
+  <div class="login-container">
+    <h1 class="brand-title">Helpdesk</h1>
+    <p class="brand-subtitle">Gestión integral de incidencias y soporte técnico especializado. Nuestro equipo de expertos está listo para resolver tus incidencias con la precisión y rapidez que tu negocio necesita.</p>
+    <mat-card class="login-card">
+      <mat-card-header>
+        <mat-card-title>Inicio de Sesión</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Correo Electrónico</mat-label>
+            <input matInput formControlName="email" type="email" required>
+            <mat-error *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+              Correo electrónico inválido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contraseña</mat-label>
+            <input matInput formControlName="password" [type]="showPassword ? 'text' : 'password'">
+            <button mat-icon-button matSuffix (click)="togglePasswordVisibility()" type="button">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+              Contraseña requerida
+            </mat-error>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" class="full-width submit-button" type="submit" [disabled]="loginForm.invalid">
+            Iniciar Sesión
+          </button>
+        </form>
+
+        <div class="forgot-container">
+          <a routerLink="/forgot-password">¿Has olvidado tu contraseña?</a>
+        </div>
+
+        <div class="register-link">
+          ¿No tienes una cuenta? <a routerLink="/register">Regístrate aquí</a>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</ion-content>
