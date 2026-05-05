@@ -40,8 +40,14 @@ class RegistroController extends AbstractController
         $user->setPassword($hashedPassword);
 
         // 4. Guardamos en la base de datos de Aiven
-        $entityManager->persist($user);
-        $entityManager->flush();
+        try {
+            $entityManager->persist($user);
+            $entityManager->flush();
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => 'Error al guardar en base de datos: ' . $e->getMessage()
+            ], 500);
+        }
 
         return $this->json([
             'message' => '¡Usuario creado con éxito!',
