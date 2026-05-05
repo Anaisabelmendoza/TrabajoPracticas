@@ -1,0 +1,147 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      {{ isAgent ? 'Todas las Incidencias' : 'Mis Incidencias' }}
+      <ion-badge color="success" *ngIf="isAgent" style="margin-left: 10px; vertical-align: middle;">MODO AGENTE</ion-badge>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/tickets/new" fill="outline" shape="round">
+        <ion-icon slot="start" name="add-outline"></ion-icon>
+        Nueva
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="main-container">
+    
+    <mat-tab-group dynamicHeight animationDuration="500ms" [selectedIndex]="selectedTabIndex" (selectedIndexChange)="selectedTabIndex = $event">
+      <!-- TAB: NUEVAS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div [matBadge]="getFilteredTickets('Nuevo').length" matBadgeOverlap="false" [matBadgeHidden]="getFilteredTickets('Nuevo').length === 0" matBadgeColor="warn">
+            <mat-icon style="margin-right: 8px;">new_releases</mat-icon>
+            Nuevas
+          </div>
+        </ng-template>
+        <div class="tab-content">
+          <div *ngIf="getFilteredTickets('Nuevo').length === 0" class="empty-state">
+            <mat-icon class="large-icon">check_circle_outline</mat-icon>
+            <p>No hay incidencias nuevas pendientes.</p>
+          </div>
+          <div class="tickets-grid">
+            <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card" [routerLink]="['/tickets', ticket.id]">
+              <mat-card-header>
+                <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
+                <mat-card-title>{{ ticket.title }}</mat-card-title>
+                <mat-card-subtitle>{{ ticket.category?.name }} • {{ ticket.createdAt | date:'short' }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <p class="description">{{ ticket.description | slice:0:100 }}{{ ticket.description.length > 100 ? '...' : '' }}</p>
+              </mat-card-content>
+              <mat-card-footer>
+                <div class="badge-container">
+                  <ion-badge color="medium">Nuevo</ion-badge>
+                  <ion-badge color="light" class="priority-badge">{{ ticket.priority }}</ion-badge>
+                </div>
+              </mat-card-footer>
+              <mat-card-actions align="end" *ngIf="!isAgent">
+                <button mat-button color="primary" (click)="editTicket(ticket, $event)">
+                  <mat-icon>edit</mat-icon> Editar
+                </button>
+                <button mat-button color="warn" (click)="deleteTicket(ticket, $event)">
+                  <mat-icon>delete</mat-icon> Eliminar
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB: EN PROCESO -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div [matBadge]="getFilteredTickets('Proceso').length" matBadgeOverlap="false" [matBadgeHidden]="getFilteredTickets('Proceso').length === 0" matBadgeColor="accent">
+            <mat-icon style="margin-right: 8px;">engineering</mat-icon>
+            En Proceso
+          </div>
+        </ng-template>
+        <div class="tab-content">
+          <div *ngIf="getFilteredTickets('Proceso').length === 0" class="empty-state">
+            <mat-icon class="large-icon">hourglass_empty</mat-icon>
+            <p>No hay trabajos en curso actualmente.</p>
+          </div>
+          <div class="tickets-grid">
+            <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card" [routerLink]="['/tickets', ticket.id]">
+              <mat-card-header>
+                <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
+                <mat-card-title>{{ ticket.title }}</mat-card-title>
+                <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <p class="technician-info" *ngIf="ticket.agent">
+                  <mat-icon>person</mat-icon> Técnico: {{ ticket.agent.firstName }} {{ ticket.agent.lastName }}
+                </p>
+              </mat-card-content>
+              <mat-card-footer>
+                <div class="badge-container">
+                  <ion-badge color="primary">En proceso</ion-badge>
+                </div>
+              </mat-card-footer>
+              <mat-card-actions align="end" *ngIf="!isAgent">
+                <button mat-button color="primary" (click)="editTicket(ticket, $event)">
+                  <mat-icon>edit</mat-icon> Editar
+                </button>
+                <button mat-button color="warn" (click)="deleteTicket(ticket, $event)">
+                  <mat-icon>delete</mat-icon> Eliminar
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB: FINALIZADAS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div [matBadge]="getFilteredTickets('Resuelto').length" matBadgeOverlap="false" [matBadgeHidden]="getFilteredTickets('Resuelto').length === 0" matBadgeColor="primary">
+            <mat-icon style="margin-right: 8px;">task_alt</mat-icon>
+            Finalizadas
+          </div>
+        </ng-template>
+        <div class="tab-content">
+          <div *ngIf="getFilteredTickets('Resuelto').length === 0" class="empty-state">
+            <mat-icon class="large-icon">archive</mat-icon>
+            <p>El historial de incidencias resueltas está vacío.</p>
+          </div>
+          <div class="tickets-grid">
+            <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card" [routerLink]="['/tickets', ticket.id]">
+              <mat-card-header>
+                <mat-card-title>{{ ticket.title }}</mat-card-title>
+                <mat-card-subtitle>Finalizada el {{ ticket.updatedAt | date:'short' }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-footer>
+                <div class="badge-container">
+                  <ion-badge color="success">{{ ticket.status }}</ion-badge>
+                </div>
+              </mat-card-footer>
+              <mat-card-actions align="end" *ngIf="!isAgent">
+                <button mat-button color="primary" (click)="editTicket(ticket, $event)">
+                  <mat-icon>edit</mat-icon> Editar
+                </button>
+                <button mat-button color="warn" (click)="deleteTicket(ticket, $event)">
+                  <mat-icon>delete</mat-icon> Eliminar
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+  </div>
+</ion-content>

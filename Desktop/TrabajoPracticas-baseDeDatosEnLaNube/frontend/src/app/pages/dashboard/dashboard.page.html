@@ -1,0 +1,65 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      <div class="header-brand">
+        <img src="assets/logo.png" alt="Logo" class="header-logo">
+        <span>Inicio</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/profile">
+        <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="welcome-section">
+    <h1>¡Hola, {{ userName }}! 👋</h1>
+    <p>Bienvenido al Centro de Soporte. Aquí tienes un resumen.</p>
+  </div>
+
+  <div class="stats-container">
+    <div class="stat-pill new" [routerLink]="['/tickets']" [queryParams]="{tab: 0}" style="cursor: pointer;">
+      <mat-icon>new_releases</mat-icon>
+      <div class="stat-info">
+        <span class="stat-num">{{ stats.new }}</span>
+        <span class="stat-label">Nuevas</span>
+      </div>
+    </div>
+
+    <div class="stat-pill process" [routerLink]="['/tickets']" [queryParams]="{tab: 1}" style="cursor: pointer;">
+      <mat-icon>engineering</mat-icon>
+      <div class="stat-info">
+        <span class="stat-num">{{ stats.inProgress }}</span>
+        <span class="stat-label">En Proceso</span>
+      </div>
+    </div>
+
+    <div class="stat-pill done" [routerLink]="['/tickets']" [queryParams]="{tab: 2}" style="cursor: pointer;">
+      <mat-icon>task_alt</mat-icon>
+      <div class="stat-info">
+        <span class="stat-num">{{ stats.resolved }}</span>
+        <span class="stat-label">Resueltas</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-section">
+    <button mat-flat-button class="main-action primary-gradient" routerLink="/tickets">
+      <mat-icon>list</mat-icon>
+      Ver todas las incidencias
+    </button>
+    
+    <button *ngIf="!isAdmin" mat-stroked-button class="main-action outlined-violet" routerLink="/tickets/new">
+      <mat-icon>add</mat-icon>
+      Reportar nuevo problema
+    </button>
+
+    <button *ngIf="isAdmin" mat-stroked-button class="main-action outlined-violet" routerLink="/stats" style="margin-top: 10px;">
+      <mat-icon>analytics</mat-icon>
+      Panel Analítico de Control (Admin)
+    </button>
+  </div>
+</ion-content>

@@ -1,0 +1,74 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tickets"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nueva Incidencia</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="form-container">
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Asunto / Título corto</mat-label>
+            <input matInput formControlName="title" placeholder="Ej: No funciona la impresora">
+            <mat-error *ngIf="ticketForm.get('title')?.invalid">El título es demasiado corto</mat-error>
+          </mat-form-field>
+
+          <div class="row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Categoría</mat-label>
+              <mat-select formControlName="category">
+                <mat-option *ngFor="let cat of categories" [value]="cat.id">
+                  {{ cat.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Prioridad</mat-label>
+              <mat-select formControlName="priority">
+                <mat-option value="Baja">Baja</mat-option>
+                <mat-option value="Media">Media</mat-option>
+                <mat-option value="Alta">Alta</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Descripción detallada</mat-label>
+            <textarea matInput formControlName="description" rows="5" placeholder="Explica el problema..."></textarea>
+          </mat-form-field>
+
+          <!-- SECCIÓN DE EVIDENCIAS -->
+          <div class="evidence-section">
+            <span class="section-title"><mat-icon>photo_camera</mat-icon> Evidencias / Fotos</span>
+            <div class="files-container">
+              <div *ngFor="let file of selectedFiles; let i = index" class="file-preview">
+                <img [src]="file.preview" />
+                <button type="button" class="remove-btn" (click)="removeFile(i)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+              <label class="add-file-btn">
+                <input type="file" (change)="onFileSelected($event)" accept="image/*" multiple hidden #fileInput>
+                <mat-icon>add_a_photo</mat-icon>
+                <span>Añadir</span>
+              </label>
+            </div>
+          </div>
+
+          <button mat-raised-button color="primary" class="submit-button" type="submit" [disabled]="ticketForm.invalid || loading">
+            <span *ngIf="!loading">Enviar Incidencia</span>
+            <ion-spinner *ngIf="loading" name="dots"></ion-spinner>
+          </button>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</ion-content>

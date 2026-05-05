@@ -1,0 +1,128 @@
+ion-content {
+  --background: var(--app-bg) !important;
+}
+
+.filters-container {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  
+  mat-form-field {
+    flex: 1;
+
+    ::ng-deep {
+      .mat-mdc-select-value-text, 
+      .mat-mdc-select-arrow,
+      .mdc-floating-label {
+        color: var(--app-text) !important;
+        opacity: 1 !important;
+      }
+
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: var(--app-border) !important;
+      }
+
+      &.mat-focused .mdc-notched-outline__leading,
+      &.mat-focused .mdc-notched-outline__notch,
+      &.mat-focused .mdc-notched-outline__trailing {
+        border-color: var(--app-text) !important;
+      }
+    }
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  color: var(--app-text-secondary);
+  
+  ion-spinner {
+    margin-bottom: 15px;
+    transform: scale(1.5);
+  }
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+
+  .kpi-card {
+    background: var(--app-card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--app-border);
+    padding: 15px;
+
+    mat-card-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--app-text) !important;
+      margin-bottom: 8px !important;
+    }
+
+    mat-card-subtitle {
+      color: var(--app-text-secondary) !important;
+      font-size: 0.95rem;
+    }
+
+    .kpi-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+
+      mat-icon {
+        color: white;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      &.total { background: linear-gradient(135deg, #667eea, #764ba2); }
+      &.critic { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+      &.time { background: linear-gradient(135deg, #f7b733, #fc4a1a); }
+      &.resolved { background: linear-gradient(135deg, #11998e, #38ef7d); }
+    }
+  }
+}
+
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+
+  .chart-box {
+    background: var(--app-card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--app-border);
+    padding: 15px;
+
+    mat-card-title {
+      color: var(--app-text);
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    mat-card-subtitle {
+      color: var(--app-text-secondary) !important;
+      font-size: 0.9rem;
+    }
+
+    .chart-content {
+      position: relative;
+      height: 300px;
+      width: 100%;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}

@@ -1,0 +1,219 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tickets"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Ticket #{{ ticket?.id }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-badge *ngIf="ticket" [color]="getStatusColor(ticket.status)">{{ ticket.status }}</ion-badge>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="detail-container" *ngIf="!loading && ticket">
+    
+    <!-- Info Principal -->
+    <mat-card class="main-card">
+      <mat-card-header>
+        <div mat-card-avatar class="category-icon">
+          <mat-icon>confirmation_number</mat-icon>
+        </div>
+        <mat-card-title>{{ ticket.title }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ ticket.author.firstName }} {{ ticket.author.lastName }} • {{ ticket.createdAt | date:'medium' }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="description-section">
+          <div class="description-header" *ngIf="!isAgent && isOwner()">
+            <span class="label">Descripción del Problema</span>
+            <button mat-icon-button (click)="toggleEditDescription()" color="primary" *ngIf="!isEditingDescription">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+          
+          <p class="ticket-description" *ngIf="!isEditingDescription">{{ ticket.description }}</p>
+          
+          <div class="edit-description-area" *ngIf="isEditingDescription">
+            <mat-form-field appearance="outline" class="full-width">
+              <textarea matInput rows="6" [(ngModel)]="editedDescription"></textarea>
+            </mat-form-field>
+            <div class="edit-actions">
+              <button mat-button (click)="toggleEditDescription()">Cancelar</button>
+              <button mat-flat-button color="primary" (click)="saveDescription()">Guardar Cambios</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- GALERÍA DE EVIDENCIAS DEL TICKET -->
+        <div class="ticket-evidence" *ngIf="ticket.attachments?.length > 0">
+          <span class="evidence-label"><mat-icon>collections</mat-icon> Evidencias del reporte</span>
+          <div class="evidence-grid">
+            <div *ngFor="let img of ticket.attachments" class="evidence-thumb" (click)="openImage(img)">
+              <img [src]="getServerUrl() + img" />
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-meta">
+          <div class="meta-item">
+            <strong>Categoría:</strong> <span>{{ ticket.category.name }}</span>
+          </div>
+          <div class="meta-item">
+            <strong>Prioridad:</strong> <span [class]="'priority-' + ticket.priority.toLowerCase()">{{ ticket.priority }}</span>
+          </div>
+          <div class="meta-item">
+            <strong>Técnico Asignado:</strong> <span>{{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : 'Pendiente de asignar' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+      
+      <!-- Controles para Agentes / Admin -->
+      <mat-card-actions *ngIf="isAgent || isAdmin" class="agent-actions">
+        <button mat-flat-button color="accent" *ngIf="!ticket.agent" (click)="claimTicket()">
+          <mat-icon>person_add</mat-icon> Asignarme este ticket
+        </button>
+        
+        <div class="status-buttons" *ngIf="ticket.agent">
+          <button mat-stroked-button (click)="updateStatus('En proceso')" *ngIf="ticket.status === 'Nuevo'">
+            Empezar trabajo
+          </button>
+          <button mat-stroked-button color="primary" (click)="updateStatus('Resuelto')" *ngIf="ticket.status === 'En proceso'">
+            Marcar como Resuelto
+          </button>
+          <button mat-stroked-button color="warn" (click)="updateStatus('Cerrado')" *ngIf="ticket.status === 'Resuelto'">
+            Cerrar Incidencia
+          </button>
+        </div>
+
+        <button mat-flat-button color="primary" *ngIf="isAdmin && (ticket.status === 'Resuelto' || ticket.status === 'Cerrado')" (click)="generatePDF()" style="margin-left: auto;">
+          <mat-icon>picture_as_pdf</mat-icon> Generar PDF
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Pestañas: Diálogo e Historial -->
+    <mat-tab-group class="detail-tabs">
+      <mat-tab label="Conversación">
+        <div class="tab-content">
+          <!-- Lista de Comentarios -->
+          <div class="comments-list">
+            <div *ngIf="ticket.comments.length === 0" class="empty-list">
+              <p>No hay mensajes todavía.</p>
+            </div>
+            
+            <div *ngFor="let comment of ticket.comments" class="comment-item">
+              <div class="comment-header">
+                <strong>{{ comment.author.firstName }} {{ comment.author.lastName }}</strong>
+                <span class="comment-date">{{ comment.createdAt | date:'short' }}</span>
+              </div>
+              <p class="comment-content">{{ comment.content }}</p>
+              
+              <!-- IMAGEN EN EL COMENTARIO -->
+              <div class="comment-attachment" *ngIf="comment.attachment">
+                <img [src]="getServerUrl() + comment.attachment" (click)="openImage(comment.attachment)" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Input Nuevo Comentario -->
+          <div class="comment-input-area">
+            <!-- Miniatura de archivo seleccionado -->
+            <div class="selected-attachment-preview" *ngIf="commentFile">
+              <img [src]="commentFilePreview" />
+              <button (click)="removeCommentFile()"><mat-icon>close</mat-icon></button>
+            </div>
+
+            <ion-item lines="none" class="comment-item-input">
+              <ion-button slot="start" fill="clear" (click)="fileInput.click()" class="attach-btn">
+                <mat-icon>add_a_photo</mat-icon>
+                <input type="file" #fileInput (change)="onCommentFileSelected($event)" accept="image/*" hidden>
+              </ion-button>
+              
+              <ion-textarea 
+                placeholder="Escribe un mensaje..." 
+                [(ngModel)]="newComment"
+                auto-grow="true"
+                rows="1">
+              </ion-textarea>
+              
+              <ion-button slot="end" fill="clear" (click)="sendComment()" [disabled]="!newComment.trim() && !commentFile">
+                <ion-icon name="send-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Historial">
+        <div class="tab-content">
+          <div class="history-list">
+            <div *ngFor="let item of ticket.history" class="history-item">
+              <div class="history-marker"></div>
+              <div class="history-body">
+                <div class="history-title">
+                  <strong>{{ item.action }}</strong> • {{ item.createdAt | date:'short' }}
+                </div>
+                <div class="history-values">
+                  <span class="old">{{ item.oldValue || 'N/A' }}</span>
+                  <mat-icon>arrow_forward</mat-icon>
+                  <span class="new">{{ item.newValue }}</span>
+                </div>
+                <div class="history-user" *ngIf="item.user">
+                  Por: {{ item.user.firstName }} {{ item.user.lastName }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+  </div>
+
+  <!-- Versión para Imprimir / PDF (Oculta por defecto) -->
+  <div class="print-area" *ngIf="ticket">
+    <div class="print-header">
+      <h1>Reporte de Incidencia #{{ ticket.id }}</h1>
+      <p class="print-date">Generado el {{ today | date:'medium' }}</p>
+    </div>
+    
+    <div class="print-section">
+      <h2>1. Información General</h2>
+      <p><strong>Título:</strong> {{ ticket.title }}</p>
+      <p><strong>Autor:</strong> {{ ticket.author.firstName }} {{ ticket.author.lastName }} ({{ ticket.author.email }})</p>
+      <p><strong>Fecha de Creación:</strong> {{ ticket.createdAt | date:'medium' }}</p>
+      <p><strong>Estado:</strong> {{ ticket.status }}</p>
+      <p><strong>Categoría:</strong> {{ ticket.category.name }}</p>
+      <p><strong>Prioridad:</strong> {{ ticket.priority }}</p>
+      <p><strong>Técnico Asignado:</strong> {{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : 'N/A' }}</p>
+    </div>
+
+    <div class="print-section" *ngIf="ticket.description">
+      <h2>2. Descripción del Problema</h2>
+      <p class="print-desc">{{ ticket.description }}</p>
+    </div>
+
+    <div class="print-section" *ngIf="ticket.comments?.length > 0">
+      <h2>3. Registro de Conversación</h2>
+      <div class="print-comment" *ngFor="let c of ticket.comments">
+        <p><strong>{{ c.author.firstName }} {{ c.author.lastName }}</strong> - {{ c.createdAt | date:'short' }}</p>
+        <p>{{ c.content }}</p>
+      </div>
+    </div>
+
+    <div class="print-section" *ngIf="ticket.history?.length > 0">
+      <h2>4. Historial de Resolución</h2>
+      <div class="print-history" *ngFor="let h of ticket.history">
+        <p><strong>{{ h.action }}</strong> - {{ h.createdAt | date:'short' }} <span *ngIf="h.user">(Usuario: {{ h.user.firstName }} {{ h.user.lastName }})</span><span *ngIf="!h.user">(Sistema)</span></p>
+        <p><em>Cambio:</em> {{ h.oldValue || 'N/A' }} ➔ {{ h.newValue }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="spinner-container">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+</ion-content>

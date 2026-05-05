@@ -1,0 +1,114 @@
+ion-content {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column; // Añadido para apilar título y card
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  padding: 20px;
+}
+
+.brand-title {
+  color: white;
+  font-size: 3.5rem;
+  font-weight: 900;
+  margin-bottom: 10px; // Espacio reducido para el subtítulo
+  margin-top: -20px;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -1px;
+}
+
+.brand-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-style: italic;
+  font-size: 1.05rem;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.5;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 450px;
+  border-radius: 20px !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+  background: #ffffff !important; // Blanco sólido de la Imagen 2
+  padding: 12px;
+}
+
+mat-card-header {
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+mat-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.submit-button {
+  height: 52px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px !important;
+  margin-top: 10px;
+  text-transform: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  transition: all 0.3s ease;
+
+  &:not([disabled]):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(118, 75, 162, 0.3);
+  }
+}
+
+.register-link, .forgot-container {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  
+  a {
+    color: #764ba2;
+    text-decoration: none;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.forgot-container {
+  margin-top: 15px;
+  margin-bottom: -5px;
+}
+
+/* Material Field Customization */
+mat-form-field {
+  --mdc-outlined-text-field-container-shape: 12px;
+  
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    background-color: white !important;
+  }
+}
+
+mat-icon[matPrefix] {
+  margin-right: 8px;
+  color: #764ba2;
+}

@@ -1,0 +1,133 @@
+// 1. PRIMERO SIEMPRE LOS @USE
+@use '@angular/material' as mat;
+
+// 2. LUEGO LOS @IMPORT DE IONIC
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+// 3. CONFIGURACIÓN DEL TEMA (FORZADO IMAGEN 2)
+@include mat.core();
+
+$my-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$blue-palette,
+  ),
+  typography: (
+    brand-family: 'Roboto',
+    plain-family: 'Roboto',
+  ),
+  density: (
+    scale: 0
+  )
+));
+
+// ===== VARIABLES DE TEMA =====
+// Por defecto: oscuro (se aplica siempre y cuando tenga dark-theme o al inicio)
+:root, body.dark-theme {
+  --app-bg: #000000;
+  --app-text: #ffffff;
+  --app-text-secondary: rgba(255, 255, 255, 0.6);
+  --app-text-muted: #666;
+  --app-card-bg: rgba(255, 255, 255, 0.05);
+  --app-border: #222;
+  --app-border-light: rgba(255, 255, 255, 0.08);
+  --app-icon-color: #888;
+  --app-accent: #4A90E2;
+  --app-input-text: #ffffff;
+  --app-input-border: #444;
+  --app-input-label: #aaa;
+
+  --ion-background-color: #000000;
+  --ion-text-color: #ffffff;
+  --ion-toolbar-background: #000000;
+  --ion-toolbar-color: #ffffff;
+}
+
+// Modo claro
+body.light-theme {
+  --app-bg: #f5f5f5;
+  --app-text: #1a1a1a;
+  --app-text-secondary: rgba(0, 0, 0, 0.6);
+  --app-text-muted: #888;
+  --app-card-bg: #ffffff;
+  --app-border: #e0e0e0;
+  --app-border-light: rgba(0, 0, 0, 0.08);
+  --app-icon-color: #666;
+  --app-accent: #2979FF;
+  --app-input-text: #1a1a1a;
+  --app-input-border: #ccc;
+  --app-input-label: #666;
+
+  --ion-background-color: #f5f5f5;
+  --ion-text-color: #1a1a1a;
+  --ion-toolbar-background: #ffffff;
+  --ion-toolbar-color: #1a1a1a;
+}
+
+// Estilos base
+html, body {
+  @include mat.all-component-themes($my-theme);
+  height: 100%;
+  margin: 0;
+  background-color: var(--app-bg) !important;
+  color: var(--app-text) !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Personalización de tarjetas (Se ajustarán en cada página)
+mat-card {
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+}
+
+// LIMPIEZA DE INTERFAZ
+.header-md::after, .footer-md::before {
+  display: none !important;
+}
+
+// CORRECCIÓN MAT-SELECT (MENÚS DESPLEGABLES) PARA QUE SIGAN EL TEMA
+// Estilos para el menú desplegable (por defecto / modo oscuro)
+.cdk-overlay-pane {
+  .mat-mdc-select-panel {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333 !important;
+  }
+  
+  .mat-mdc-option, 
+  .mdc-list-item__primary-text {
+    color: #ffffff !important;
+  }
+
+  .mat-mdc-option:hover,
+  .mat-mdc-option.mdc-list-item--selected {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+// Estilos para el menú desplegable en modo claro
+body.light-theme .cdk-overlay-pane {
+  .mat-mdc-select-panel {
+    background-color: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+  }
+  
+  .mat-mdc-option, 
+  .mdc-list-item__primary-text {
+    color: #1a1a1a !important;
+  }
+
+  .mat-mdc-option:hover,
+  .mat-mdc-option.mdc-list-item--selected {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+  }
+}
