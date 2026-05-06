@@ -5,14 +5,7 @@ ion-content {
 .header-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-
-  .header-logo {
-    height: 32px;
-    width: auto;
-    object-fit: contain;
-    border-radius: 6px;
-  }
+  padding-left: 20px;
 }
 
 
