@@ -180,7 +180,7 @@ export class TicketDetailPage implements OnInit {
   }
 
   getServerUrl() {
-    return 'https://trabajopracticas.onrender.com';
+    return environment.apiUrl;
   }
 
   onCommentFileSelected(event: any) {
