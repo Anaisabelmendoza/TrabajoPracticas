@@ -30,6 +30,25 @@
         <mat-option value="Crítica">Crítica</mat-option>
       </mat-select>
     </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput [matDatepicker]="pickerStart" [(ngModel)]="startDate" (dateChange)="onFilterChange()">
+      <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
+      <mat-datepicker #pickerStart></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta</mat-label>
+      <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="endDate" (dateChange)="onFilterChange()">
+      <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+      <mat-datepicker #pickerEnd></mat-datepicker>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" class="search-btn" (click)="searchTickets()">
+      <mat-icon>search</mat-icon>
+      Buscar Incidencias
+    </button>
   </div>
 
   <div *ngIf="loading" class="loading-state">

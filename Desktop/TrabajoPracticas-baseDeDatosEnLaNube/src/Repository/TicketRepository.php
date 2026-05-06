@@ -16,7 +16,7 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
-    public function getDashboardStatistics(?int $categoryId, ?string $status, ?string $priority, ?int $agentId): array
+    public function getDashboardStatistics(?int $categoryId, ?string $status, ?string $priority, ?int $agentId, ?string $startDate = null, ?string $endDate = null): array
     {
         $qb = $this->createQueryBuilder('t');
 
@@ -31,6 +31,12 @@ class TicketRepository extends ServiceEntityRepository
         }
         if ($agentId) {
             $qb->andWhere('t.agent = :agent')->setParameter('agent', $agentId);
+        }
+        if ($startDate) {
+            $qb->andWhere('t.createdAt >= :startDate')->setParameter('startDate', new \DateTime($startDate.' 00:00:00'));
+        }
+        if ($endDate) {
+            $qb->andWhere('t.createdAt <= :endDate')->setParameter('endDate', new \DateTime($endDate.' 23:59:59'));
         }
 
         $baseQb = clone $qb;

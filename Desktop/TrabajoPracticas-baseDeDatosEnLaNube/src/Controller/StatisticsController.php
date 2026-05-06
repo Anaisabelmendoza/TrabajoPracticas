@@ -19,8 +19,10 @@ class StatisticsController extends AbstractController
         $status = $request->query->get('status');
         $priority = $request->query->get('priority');
         $agentId = $request->query->get('agent') ? (int) $request->query->get('agent') : null;
+        $startDate = $request->query->get('startDate');
+        $endDate = $request->query->get('endDate');
 
-        $stats = $ticketRepository->getDashboardStatistics($categoryId, $status, $priority, $agentId);
+        $stats = $ticketRepository->getDashboardStatistics($categoryId, $status, $priority, $agentId, $startDate, $endDate);
 
         return $this->json($stats);
     }

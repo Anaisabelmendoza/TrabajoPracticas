@@ -7,8 +7,26 @@ import { AuthService } from '../../services/auth.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule, MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
 import { HttpClient } from '@angular/common/http';
+
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
 import Chart from 'chart.js/auto';
 
 @Component({
@@ -23,7 +41,16 @@ import Chart from 'chart.js/auto';
     FormsModule,
     MatCardModule,
     MatIconModule,
-    MatSelectModule
+    MatSelectModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule
+  ],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
+    { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }
   ]
 })
 export class StatsPage implements OnInit, AfterViewInit {
@@ -39,6 +66,8 @@ export class StatsPage implements OnInit, AfterViewInit {
   // Filtros interactivos
   selectedCategory: number | '' = '';
   selectedPriority: string = '';
+  startDate: string = '';
+  endDate: string = '';
 
   kpis: any = {
     total: 0,
@@ -51,7 +80,8 @@ export class StatsPage implements OnInit, AfterViewInit {
 
   constructor(
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -78,6 +108,17 @@ export class StatsPage implements OnInit, AfterViewInit {
     this.fetchStats();
   }
 
+  searchTickets() {
+    this.router.navigate(['/stats/drilldown/search'], {
+      queryParams: {
+        category: this.selectedCategory,
+        priority: this.selectedPriority,
+        startDate: this.startDate,
+        endDate: this.endDate
+      }
+    });
+  }
+
   fetchStats() {
     this.loading = true;
     let url = `${environment.apiUrl}/api/statistics?`;
@@ -85,7 +126,15 @@ export class StatsPage implements OnInit, AfterViewInit {
       url += `category=${this.selectedCategory}&`;
     }
     if (this.selectedPriority) {
-      url += `priority=${this.selectedPriority}`;
+      url += `priority=${this.selectedPriority}&`;
+    }
+    if (this.startDate) {
+      const start = new Date(this.startDate);
+      url += `startDate=${start.toISOString().split('T')[0]}&`;
+    }
+    if (this.endDate) {
+      const end = new Date(this.endDate);
+      url += `endDate=${end.toISOString().split('T')[0]}&`;
     }
 
     this.http.get<any>(url, {

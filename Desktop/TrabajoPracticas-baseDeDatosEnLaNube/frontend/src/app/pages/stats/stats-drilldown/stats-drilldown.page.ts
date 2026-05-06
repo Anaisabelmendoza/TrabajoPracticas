@@ -26,6 +26,8 @@ export class StatsDrilldownPage implements OnInit {
   // Filtros aplicados desde el Dashboard principal
   filterCategory: string | null = null;
   filterPriority: string | null = null;
+  filterStartDate: string | null = null;
+  filterEndDate: string | null = null;
   
   tickets: any[] = [];
   loading = true;
@@ -44,6 +46,8 @@ export class StatsDrilldownPage implements OnInit {
       this.route.queryParamMap.subscribe(queryParams => {
         this.filterCategory = queryParams.get('category');
         this.filterPriority = queryParams.get('priority');
+        this.filterStartDate = queryParams.get('startDate');
+        this.filterEndDate = queryParams.get('endDate');
         this.loadTickets();
       });
     });
@@ -62,6 +66,9 @@ export class StatsDrilldownPage implements OnInit {
         break;
       case 'resolved':
         this.pageTitle = 'Incidencias Resueltas';
+        break;
+      case 'search':
+        this.pageTitle = 'Resultados de Búsqueda';
         break;
       default:
         this.pageTitle = 'Listado de Incidencias';
@@ -92,6 +99,18 @@ export class StatsDrilldownPage implements OnInit {
     
     if (this.filterPriority) {
       filtered = filtered.filter(t => t.priority === this.filterPriority);
+    }
+
+    if (this.filterStartDate) {
+      const start = new Date(this.filterStartDate);
+      start.setHours(0, 0, 0, 0);
+      filtered = filtered.filter(t => new Date(t.createdAt) >= start);
+    }
+
+    if (this.filterEndDate) {
+      const end = new Date(this.filterEndDate);
+      end.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(t => new Date(t.createdAt) <= end);
     }
 
     // 2. Segundo, aplicar el filtro forzado por la tarjeta clickeada
