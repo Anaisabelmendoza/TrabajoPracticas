@@ -12,7 +12,7 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   login(credentials: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login_check`, credentials).pipe(
+    return this.http.post(`${this.apiUrl}/api/login_check`, credentials).pipe(
       tap((response: any) => {
         if (response.token) {
           localStorage.setItem('auth_token', response.token);
