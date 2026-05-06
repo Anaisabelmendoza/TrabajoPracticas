@@ -136,7 +136,7 @@ export class StatsPage implements OnInit, AfterViewInit {
     if (this.barChart) this.barChart.destroy();
 
     // Pie Chart: Status (Mostramos TODOS los posibles aunque estén en 0)
-    const allStatuses = ['Nuevo', 'Proceso', 'Resuelto', 'Cerrado'];
+    const allStatuses = ['Nuevo', 'En proceso', 'Resuelto', 'Cerrado'];
     const statusCountsMap: { [key: string]: number } = {};
     
     if (this.statsData.by_status) {
