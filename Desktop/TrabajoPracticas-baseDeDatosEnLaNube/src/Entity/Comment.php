@@ -7,17 +7,18 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Repository\CommentRepository;
-use App\State\CommentOwnerProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 #[ApiResource(
+    normalizationContext: ['groups' => ['comment:read']],
+    denormalizationContext: ['groups' => ['comment:write']],
     operations: [
-        new Get(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_AGENT') or object.getTicket().getOwner() == user or object.getTicket().getAssignee() == user"),
-        new GetCollection(), // Filtering per-user could be added to an extension, but since this is phase III, standard filters usually suffice.
-        new Post(security: "is_granted('ROLE_USER')", processor: CommentOwnerProcessor::class)
+        new GetCollection(),
+        new Post(processor: \App\State\CommentAuthorProcessor::class),
+        new Get(),
     ]
 )]
 class Comment
@@ -25,22 +26,30 @@ class Comment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['comment:read', 'ticket:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: 'El comentario no puede estar vacío.')]
+    #[Groups(['comment:read', 'comment:write', 'ticket:read'])]
     private ?string $content = null;
 
     #[ORM\Column]
+    #[Groups(['comment:read', 'ticket:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Groups(['comment:read', 'comment:write'])]
+    private ?Ticket $ticket = null;
+
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['comment:read', 'ticket:read'])]
     private ?User $author = null;
 
-    #[ORM\ManyToOne(targetEntity: Ticket::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?Ticket $ticket = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['comment:read', 'comment:write', 'ticket:read'])]
+    private ?string $attachment = null;
 
     public function __construct()
     {
@@ -60,6 +69,7 @@ class Comment
     public function setContent(string $content): static
     {
         $this->content = $content;
+
         return $this;
     }
 
@@ -71,17 +81,7 @@ class Comment
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-        return $this;
-    }
 
-    public function getAuthor(): ?User
-    {
-        return $this->author;
-    }
-
-    public function setAuthor(?User $author): static
-    {
-        $this->author = $author;
         return $this;
     }
 
@@ -93,6 +93,31 @@ class Comment
     public function setTicket(?Ticket $ticket): static
     {
         $this->ticket = $ticket;
+
+        return $this;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
+    public function getAttachment(): ?string
+    {
+        return $this->attachment;
+    }
+
+    public function setAttachment(?string $attachment): static
+    {
+        $this->attachment = $attachment;
+
         return $this;
     }
 }

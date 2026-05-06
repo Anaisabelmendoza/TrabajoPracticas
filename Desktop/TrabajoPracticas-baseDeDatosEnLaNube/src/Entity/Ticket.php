@@ -3,38 +3,40 @@
 namespace App\Entity;
 
 use App\Repository\TicketRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use App\State\TicketOwnerProcessor;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 #[ApiResource(
-    operations: [
-        new Get(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_AGENT') or object.getOwner() == user or object.getAssignee() == user"),
-        new GetCollection(),
-        new Post(security: "is_granted('ROLE_USER')", processor: TicketOwnerProcessor::class),
-        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_AGENT') or object.getOwner() == user or object.getAssignee() == user"),
-        new Delete(security: "is_granted('ROLE_ADMIN') or object.getOwner() == user")
-    ],
     normalizationContext: ['groups' => ['ticket:read']],
     denormalizationContext: ['groups' => ['ticket:write']],
+    operations: [
+        new GetCollection(),
+        new Post(processor: \App\State\TicketAuthorProcessor::class),
+        new Get(security: "is_granted('ROLE_AGENT') or object.getAuthor() == user"),
+        new Put(security: "is_granted('ROLE_AGENT') or object.getAuthor() == user"),
+        new Patch(security: "is_granted('ROLE_AGENT') or object.getAuthor() == user"),
+        new Delete(security: "is_granted('ROLE_ADMIN') or object.getAuthor() == user"),
+        new Post(
+            uriTemplate: '/tickets-claim/{id}',
+            processor: \App\State\TicketClaimProcessor::class,
+            security: "is_granted('ROLE_AGENT')",
+            input: false,
+            read: true,
+            status: 200
+        ),
+    ]
 )]
-#[ApiFilter(SearchFilter::class, properties: ['status' => 'exact', 'priority.id' => 'exact', 'category.id' => 'exact'])]
-#[ApiFilter(OrderFilter::class, properties: ['createdAt', 'priority'])]
 class Ticket
 {
     #[ORM\Id]
@@ -45,37 +47,34 @@ class Ticket
 
     #[ORM\Column(length: 255)]
     #[Groups(['ticket:read', 'ticket:write'])]
-    #[Assert\NotBlank(message: 'El título no puede estar vacío.')]
-    #[Assert\Length(min: 3, minMessage: 'El título debe tener al menos {{ limit }} caracteres.')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['ticket:read', 'ticket:write'])]
-    #[Assert\NotBlank(message: 'La descripción no puede estar vacía.')]
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['ticket:read', 'ticket:write'])]
-    #[Assert\NotBlank]
-    private ?string $status = 'Nuevo';
+    private ?string $status = 'Nuevo'; // Estado por defecto
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\Column(length: 255)]
     #[Groups(['ticket:read', 'ticket:write'])]
-    #[Assert\NotNull(message: 'La prioridad es obligatoria.')]
-    private ?Priority $priority = null;
+    private ?string $priority = 'Media'; // Prioridad por defecto
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[Groups(['ticket:read', 'ticket:write'])]
+    private bool $deletedByUser = false;
+
+    #[ORM\ManyToOne(inversedBy: 'authoredTickets')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['ticket:read'])]
-    private ?User $owner = null;
+    private ?User $author = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\ManyToOne(inversedBy: 'assignedTickets')]
     #[Groups(['ticket:read', 'ticket:write'])]
-    private ?User $assignee = null;
+    private ?User $agent = null;
 
-    #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['ticket:read', 'ticket:write'])]
     private ?Category $category = null;
@@ -84,14 +83,27 @@ class Ticket
     #[Groups(['ticket:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\OneToMany(mappedBy: 'ticket', targetEntity: Evidence::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'ticket', targetEntity: Comment::class, cascade: ['remove'])]
     #[Groups(['ticket:read'])]
-    private Collection $evidences;
+    #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    private Collection $comments;
+
+    #[ORM\OneToMany(mappedBy: 'ticket', targetEntity: TicketHistory::class, cascade: ['remove'])]
+    #[Groups(['ticket:read'])]
+    #[ORM\OrderBy(['createdAt' => 'DESC'])]
+    private Collection $history;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['ticket:read', 'ticket:write'])]
+    private ?array $attachments = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->evidences = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+        $this->history = new ArrayCollection();
+        $this->status = 'Nuevo';
+        $this->priority = 'Media';
     }
 
     public function getId(): ?int
@@ -132,25 +144,47 @@ class Ticket
         return $this;
     }
 
-    public function getPriority(): ?Priority
+    public function getPriority(): ?string
     {
         return $this->priority;
     }
 
-    public function setPriority(?Priority $priority): static
+    public function setPriority(string $priority): static
     {
         $this->priority = $priority;
         return $this;
     }
 
-    public function getOwner(): ?User
+    public function isDeletedByUser(): bool
     {
-        return $this->owner;
+        return $this->deletedByUser;
     }
 
-    public function setOwner(?User $owner): static
+    public function setDeletedByUser(bool $deletedByUser): static
     {
-        $this->owner = $owner;
+        $this->deletedByUser = $deletedByUser;
+        return $this;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
+        return $this;
+    }
+
+    public function getAgent(): ?User
+    {
+        return $this->agent;
+    }
+
+    public function setAgent(?User $agent): static
+    {
+        $this->agent = $agent;
         return $this;
     }
 
@@ -162,17 +196,6 @@ class Ticket
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
-        return $this;
-    }
-
-    public function getAssignee(): ?User
-    {
-        return $this->assignee;
-    }
-
-    public function setAssignee(?User $assignee): static
-    {
-        $this->assignee = $assignee;
         return $this;
     }
 
@@ -188,45 +211,74 @@ class Ticket
     }
 
     /**
-     * @return Collection<int, Evidence>
+     * @return Collection<int, Comment>
      */
-    public function getEvidences(): Collection
+    public function getComments(): Collection
     {
-        return $this->evidences;
+        return $this->comments;
     }
 
-    public function addEvidence(Evidence $evidence): static
+    public function addComment(Comment $comment): static
     {
-        if (!$this->evidences->contains($evidence)) {
-            $this->evidences->add($evidence);
-            $evidence->setTicket($this);
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setTicket($this);
         }
 
         return $this;
     }
 
-    public function removeEvidence(Evidence $evidence): static
+    public function removeComment(Comment $comment): static
     {
-        if ($this->evidences->removeElement($evidence)) {
+        if ($this->comments->removeElement($comment)) {
             // set the owning side to null (unless already changed)
-            if ($evidence->getTicket() === $this) {
-                $evidence->setTicket(null);
+            if ($comment->getTicket() === $this) {
+                $comment->setTicket(null);
             }
         }
 
         return $this;
     }
 
-    #[Assert\Callback]
-    public function validateAssignee(ExecutionContextInterface $context): void
+    /**
+     * @return Collection<int, TicketHistory>
+     */
+    public function getHistory(): Collection
     {
-        if ($this->assignee !== null) {
-            $roles = $this->assignee->getRoles();
-            if (!in_array('ROLE_AGENT', $roles) && !in_array('ROLE_ADMIN', $roles)) {
-                $context->buildViolation('Solo se puede asignar el ticket a un Agente o Administrador.')
-                    ->atPath('assignee')
-                    ->addViolation();
+        return $this->history;
+    }
+
+    public function addHistory(TicketHistory $history): static
+    {
+        if (!$this->history->contains($history)) {
+            $this->history->add($history);
+            $history->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHistory(TicketHistory $history): static
+    {
+        if ($this->history->removeElement($history)) {
+            // set the owning side to null (unless already changed)
+            if ($history->getTicket() === $this) {
+                $history->setTicket(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAttachments(): ?array
+    {
+        return $this->attachments;
+    }
+
+    public function setAttachments(?array $attachments): static
+    {
+        $this->attachments = $attachments;
+
+        return $this;
     }
 }
