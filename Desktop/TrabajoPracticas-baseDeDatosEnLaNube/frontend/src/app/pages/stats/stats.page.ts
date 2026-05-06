@@ -67,7 +67,7 @@ export class StatsPage implements OnInit, AfterViewInit {
   }
 
   loadCategories() {
-    this.http.get<any>(`${environment.apiUrl}/categories`, {
+    this.http.get<any>(`${environment.apiUrl}/api/categories`, {
       headers: { 'Authorization': `Bearer ${this.authService.getToken()}` }
     }).subscribe(res => {
       this.categories = res['member'] || res['hydra:member'] || [];
@@ -80,7 +80,7 @@ export class StatsPage implements OnInit, AfterViewInit {
 
   fetchStats() {
     this.loading = true;
-    let url = `${environment.apiUrl}/statistics?`;
+    let url = `${environment.apiUrl}/api/statistics?`;
     if (this.selectedCategory) {
       url += `category=${this.selectedCategory}&`;
     }

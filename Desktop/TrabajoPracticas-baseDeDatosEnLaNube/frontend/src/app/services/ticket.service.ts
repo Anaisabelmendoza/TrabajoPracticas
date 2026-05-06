@@ -30,17 +30,17 @@ export class TicketService {
   }
 
   getTickets(): Observable<any[]> {
-    return this.http.get<any>(`${this.apiUrl}/tickets`, { headers: this.getHeaders() }).pipe(
+    return this.http.get<any>(`${this.apiUrl}/api/tickets`, { headers: this.getHeaders() }).pipe(
       map(response => response['member'] || response['hydra:member'] || [])
     );
   }
 
   getTicket(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/tickets/${id}`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${this.apiUrl}/api/tickets/${id}`, { headers: this.getHeaders() });
   }
 
   createTicket(ticketData: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/tickets`, JSON.stringify(ticketData), { headers: this.getHeaders() });
+    return this.http.post<any>(`${this.apiUrl}/api/tickets`, JSON.stringify(ticketData), { headers: this.getHeaders() });
   }
 
   addComment(ticketId: number, content: string, attachment: string | null = null): Observable<any> {
@@ -51,24 +51,24 @@ export class TicketService {
     if (attachment) {
       commentData.attachment = attachment;
     }
-    return this.http.post<any>(`${this.apiUrl}/comments`, JSON.stringify(commentData), { headers: this.getHeaders() });
+    return this.http.post<any>(`${this.apiUrl}/api/comments`, JSON.stringify(commentData), { headers: this.getHeaders() });
   }
 
   claimTicket(ticketId: number): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/tickets-claim/${ticketId}`, {}, { headers: this.getHeaders() });
+    return this.http.post<any>(`${this.apiUrl}/api/tickets-claim/${ticketId}`, {}, { headers: this.getHeaders() });
   }
 
   updateTicket(ticketId: number, data: any): Observable<any> {
     const headers = this.getHeaders().set('Content-Type', 'application/merge-patch+json');
-    return this.http.patch<any>(`${this.apiUrl}/tickets/${ticketId}`, JSON.stringify(data), { headers });
+    return this.http.patch<any>(`${this.apiUrl}/api/tickets/${ticketId}`, JSON.stringify(data), { headers });
   }
 
   deleteTicket(ticketId: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/tickets/${ticketId}`, { headers: this.getHeaders() });
+    return this.http.delete<any>(`${this.apiUrl}/api/tickets/${ticketId}`, { headers: this.getHeaders() });
   }
 
   getCategories(): Observable<any[]> {
-    return this.http.get<any>(`${this.apiUrl}/categories`, { headers: this.getHeaders() }).pipe(
+    return this.http.get<any>(`${this.apiUrl}/api/categories`, { headers: this.getHeaders() }).pipe(
       map(response => response['member'] || response['hydra:member'] || [])
     );
   }
@@ -76,7 +76,7 @@ export class TicketService {
   uploadFile(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<any>(`${this.apiUrl}/upload`, formData, {
+    return this.http.post<any>(`${this.apiUrl}/api/upload`, formData, {
       headers: this.getAuthHeader()
     });
   }
