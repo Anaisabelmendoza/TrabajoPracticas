@@ -6,7 +6,10 @@
       </div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/profile">
+      <ion-button *ngIf="isAdmin" routerLink="/admin-control" title="Panel Admin">
+        <ion-icon slot="icon-only" name="shield-checkmark-outline"></ion-icon>
+      </ion-button>
+      <ion-button routerLink="/profile" title="Mi Perfil">
         <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
       </ion-button>
     </ion-buttons>

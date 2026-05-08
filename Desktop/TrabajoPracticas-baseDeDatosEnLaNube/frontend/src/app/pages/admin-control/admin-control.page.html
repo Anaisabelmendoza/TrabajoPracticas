@@ -1,0 +1,87 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Panel de Control Admin</ion-title>
+    <ion-buttons slot="end">
+      <ion-badge color="danger" style="margin-right: 15px;">ADMIN</ion-badge>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="admin-container">
+    <div class="welcome-header">
+      <h1>Panel de Administración 🛡️</h1>
+      <p>Gestiona el sistema y revisa el rendimiento global.</p>
+    </div>
+
+    <div class="admin-grid">
+      <!-- Gestión de Usuarios -->
+      <mat-card class="admin-card" routerLink="/user-management">
+        <mat-card-header>
+          <div mat-card-avatar class="admin-icon users"><mat-icon>group_add</mat-icon></div>
+          <mat-card-title>Usuarios</mat-card-title>
+          <mat-card-subtitle>Registrar personal o admin</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Acceso rápido para dar de alta nuevos agentes o administradores en el sistema.</p>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Estadísticas y Rendimiento -->
+      <mat-card class="admin-card" routerLink="/stats">
+        <mat-card-header>
+          <div mat-card-avatar class="admin-icon stats"><mat-icon>analytics</mat-icon></div>
+          <mat-card-title>Métricas</mat-card-title>
+          <mat-card-subtitle>Rendimiento y KPIs</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Visualiza gráficos detallados, carga de trabajo y tiempos de respuesta de los agentes.</p>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Gestión de Tickets -->
+      <mat-card class="admin-card" routerLink="/tickets">
+        <mat-card-header>
+          <div mat-card-avatar class="admin-icon tickets"><mat-icon>confirmation_number</mat-icon></div>
+          <mat-card-title>Incidencias</mat-card-title>
+          <mat-card-subtitle>Supervisión global</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Revisa y gestiona todas las incidencias abiertas, asignadas y cerradas en el sistema.</p>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Configuración del Sistema -->
+      <mat-card class="admin-card">
+        <mat-card-header>
+          <div mat-card-avatar class="admin-icon settings"><mat-icon>settings</mat-icon></div>
+          <mat-card-title>Configuración</mat-card-title>
+          <mat-card-subtitle>Parámetros globales</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Configura categorías, prioridades y otros parámetros técnicos del servicio técnico.</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="quick-actions">
+      <h2>Acciones Rápidas</h2>
+      <mat-list>
+        <mat-list-item routerLink="/profile">
+          <mat-icon matListItemIcon>person</mat-icon>
+          <div matListItemTitle>Mi Perfil</div>
+          <div matListItemLine>Editar mis datos de administrador y cambiar contraseña</div>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item routerLink="/tickets/new">
+          <mat-icon matListItemIcon>add_circle</mat-icon>
+          <div matListItemTitle>Nueva Incidencia</div>
+          <div matListItemLine>Crear un ticket de soporte de forma manual en el sistema</div>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </div>
+</ion-content>

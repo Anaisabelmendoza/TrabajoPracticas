@@ -62,6 +62,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = [];
 
     #[ORM\Column]
+    #[Groups(['user:read', 'user:write'])]
+    private bool $isActive = true;
+
+    #[ORM\Column]
+    #[Groups(['user:read', 'user:write'])]
+    private bool $isOnDuty = true;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['user:read'])]
+    private ?\DateTimeInterface $lastActivityAt = null;
+
+    #[ORM\Column]
     private ?string $password = null;
 
     #[Groups(['user:write'])]
@@ -181,6 +193,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): self
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
+
+    public function isOnDuty(): bool
+    {
+        return $this->isOnDuty;
+    }
+
+    public function setIsOnDuty(bool $isOnDuty): self
+    {
+        $this->isOnDuty = $isOnDuty;
+        return $this;
+    }
+
+    public function getLastActivityAt(): ?\DateTimeInterface
+    {
+        return $this->lastActivityAt;
+    }
+
+    public function setLastActivityAt(?\DateTimeInterface $lastActivityAt): self
+    {
+        $this->lastActivityAt = $lastActivityAt;
         return $this;
     }
 }

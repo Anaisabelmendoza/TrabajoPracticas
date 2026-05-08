@@ -64,6 +64,16 @@ const routes: Routes = [
     path: 'stats/drilldown/:type',
     loadComponent: () => import('./pages/stats/stats-drilldown/stats-drilldown.page').then(m => m.StatsDrilldownPage),
     canActivate: [AdminGuard]
+  },
+  {
+    path: 'admin-control',
+    loadComponent: () => import('./pages/admin-control/admin-control.page').then(m => m.AdminControlPage),
+    canActivate: [AdminGuard]
+  },
+  {
+    path: 'user-management',
+    loadComponent: () => import('./pages/user-management/user-management.page').then(m => m.UserManagementPage),
+    canActivate: [AdminGuard]
   }
 ];
 
