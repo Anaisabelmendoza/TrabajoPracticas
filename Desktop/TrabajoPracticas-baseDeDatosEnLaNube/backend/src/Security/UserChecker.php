@@ -15,7 +15,7 @@ class UserChecker implements UserCheckerInterface
             return;
         }
 
-        if (!$user->isActive()) {
+        if (!$user->getIsActive()) {
             // the message passed to this exception is meant to be displayed to the user
             throw new CustomUserMessageAccountStatusException('Tu cuenta ha sido desactivada por un administrador.');
         }

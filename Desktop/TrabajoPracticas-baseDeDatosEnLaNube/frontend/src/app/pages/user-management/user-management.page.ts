@@ -78,7 +78,7 @@ export class UserManagementPage implements OnInit {
     this.clients = this.users.filter(u => !u.roles || (!u.roles.includes('ROLE_AGENT') && !u.roles.includes('ROLE_ADMIN')));
   }
 
-  toggleActive(user: User) {
+  toggleActive(user: any) {
     const newState = !user.isActive;
     this.userService.updateUser(user.id, { isActive: newState }).subscribe({
       next: () => {
@@ -91,7 +91,7 @@ export class UserManagementPage implements OnInit {
     });
   }
 
-  toggleDuty(user: User) {
+  toggleDuty(user: any) {
     const newState = !user.isOnDuty;
     this.userService.updateUser(user.id, { isOnDuty: newState }).subscribe({
       next: () => {
@@ -104,7 +104,7 @@ export class UserManagementPage implements OnInit {
     });
   }
 
-  isConnected(user: User): boolean {
+  isConnected(user: any): boolean {
     if (!user.lastActivityAt) return false;
     const lastActivity = new Date(user.lastActivityAt);
     const now = new Date();

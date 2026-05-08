@@ -61,7 +61,11 @@ export class LoginComponent implements OnInit {
         },
         error: (err: any) => {
           console.error('Error en el login:', err);
-          alert('Credenciales incorrectas o error en el servidor');
+          if (err.status === 401) {
+            alert('Credenciales incorrectas. Verifica tu email y contraseña.');
+          } else {
+            alert('Error de conexión con el servidor. Asegúrate de que el backend esté corriendo y sea accesible.');
+          }
         }
       });
     }

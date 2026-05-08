@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController } from '@ionic/angular';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -49,16 +50,40 @@ export class ProfilePage implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private userService: UserService,
     private router: Router,
+    private route: ActivatedRoute,
     private http: HttpClient,
     private toastCtrl: ToastController,
     public themeService: ThemeService
   ) { }
 
   ngOnInit() {
-    this.user = this.authService.getUser();
     this.isDarkMode = this.themeService.getDarkMode();
-    // Cargar imagen guardada si existe
+    
+    this.route.queryParams.subscribe(params => {
+      const targetUserId = params['userId'];
+      if (targetUserId) {
+        // Cargar el perfil de otro usuario (modo administrador)
+        this.userService.getUserById(targetUserId).subscribe({
+          next: (userData) => {
+            this.user = userData;
+            this.profileImage = localStorage.getItem('profile_image_' + this.user?.email);
+          },
+          error: (err) => {
+            console.error('Error al cargar perfil de usuario:', err);
+            this.showToast('No se pudo cargar el perfil solicitado', 'danger');
+            this.loadCurrentUser();
+          }
+        });
+      } else {
+        this.loadCurrentUser();
+      }
+    });
+  }
+
+  private loadCurrentUser() {
+    this.user = this.authService.getUser();
     this.profileImage = localStorage.getItem('profile_image_' + this.user?.email);
   }
 

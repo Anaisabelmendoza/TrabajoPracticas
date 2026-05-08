@@ -90,6 +90,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->authoredTickets = new ArrayCollection();
         $this->assignedTickets = new ArrayCollection();
+        $this->isActive = true;
+        $this->isOnDuty = true;
     }
 
     // ========== MÉTODOS OBLIGATORIOS DE SEGURIDAD ==========
@@ -196,28 +198,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isActive(): bool
+    #[Groups(['user:read'])]
+    #[SerializedName('isActive')]
+    public function getIsActive(): bool
     {
         return $this->isActive;
     }
 
+    #[Groups(['user:write'])]
+    #[SerializedName('isActive')]
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
         return $this;
     }
 
-    public function isOnDuty(): bool
+    #[Groups(['user:read'])]
+    #[SerializedName('isOnDuty')]
+    public function getIsOnDuty(): bool
     {
         return $this->isOnDuty;
     }
 
+    #[Groups(['user:write'])]
+    #[SerializedName('isOnDuty')]
     public function setIsOnDuty(bool $isOnDuty): self
     {
         $this->isOnDuty = $isOnDuty;
         return $this;
     }
 
+    #[Groups(['user:read'])]
+    #[SerializedName('lastActivityAt')]
     public function getLastActivityAt(): ?\DateTimeInterface
     {
         return $this->lastActivityAt;

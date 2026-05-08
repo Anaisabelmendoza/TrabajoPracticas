@@ -10,8 +10,8 @@ export interface User {
   firstName: string;
   lastName: string;
   roles: string[];
-  isActive: boolean;
-  isOnDuty: boolean;
+  isActive?: boolean;
+  isOnDuty?: boolean;
   lastActivityAt?: string;
 }
 
@@ -61,5 +61,9 @@ export class UserService {
     return this.getUsers().pipe(
       map(users => users.filter(u => u.roles.includes('ROLE_AGENT') && !u.roles.includes('ROLE_ADMIN')))
     );
+  }
+
+  getUserById(id: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 }

@@ -20,7 +20,7 @@ class TicketClaimProcessor implements ProcessorInterface
             $user = $this->security->getUser();
             if ($user && !$data->getAgent()) {
                 // Verificar si el agente está de turno/vacaciones
-                if ($user instanceof \App\Entity\User && !$user->isOnDuty()) {
+                if ($user instanceof \App\Entity\User && !$user->getOnDuty()) {
                     throw new \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException("Estás marcado como fuera de servicio (vacaciones/inactivo) y no puedes recibir incidencias.");
                 }
 
