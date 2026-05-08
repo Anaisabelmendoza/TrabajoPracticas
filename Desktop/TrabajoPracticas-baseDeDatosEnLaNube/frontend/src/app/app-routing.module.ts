@@ -73,7 +73,12 @@ const routes: Routes = [
   {
     path: 'user-management',
     loadComponent: () => import('./pages/user-management/user-management.page').then(m => m.UserManagementPage),
-    canActivate: [AdminGuard]
+    canActivate: [AuthGuard, AdminGuard]
+  },
+  {
+    path: 'pdf-archive',
+    loadComponent: () => import('./pages/pdf-archive/pdf-archive.page').then(m => m.PdfArchivePage),
+    canActivate: [AuthGuard, AdminGuard]
   }
 ];
 

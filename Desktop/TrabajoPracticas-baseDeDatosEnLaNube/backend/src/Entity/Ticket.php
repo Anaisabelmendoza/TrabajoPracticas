@@ -66,13 +66,18 @@ class Ticket
     private bool $deletedByUser = false;
 
     #[ORM\ManyToOne(inversedBy: 'authoredTickets')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     #[Groups(['ticket:read'])]
     private ?User $author = null;
 
     #[ORM\ManyToOne(inversedBy: 'assignedTickets')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     #[Groups(['ticket:read', 'ticket:write'])]
     private ?User $agent = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['ticket:read'])]
+    private ?string $agentNameFallback = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -185,6 +190,20 @@ class Ticket
     public function setAgent(?User $agent): static
     {
         $this->agent = $agent;
+        if ($agent !== null) {
+            $this->agentNameFallback = trim($agent->getFirstName() . ' ' . $agent->getLastName());
+        }
+        return $this;
+    }
+
+    public function getAgentNameFallback(): ?string
+    {
+        return $this->agentNameFallback;
+    }
+
+    public function setAgentNameFallback(?string $agentNameFallback): static
+    {
+        $this->agentNameFallback = $agentNameFallback;
         return $this;
     }
 

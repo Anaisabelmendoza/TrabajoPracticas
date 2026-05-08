@@ -83,8 +83,8 @@
                 <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
               </mat-card-header>
               <mat-card-content>
-                <p class="technician-info" *ngIf="ticket.agent">
-                  <mat-icon>person</mat-icon> Técnico: {{ ticket.agent.firstName }} {{ ticket.agent.lastName }}
+                <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
+                  <mat-icon>person</mat-icon> Técnico: {{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : ticket.agentNameFallback + ' (Agente Eliminado)' }}
                 </p>
               </mat-card-content>
               <mat-card-footer>

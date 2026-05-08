@@ -36,7 +36,7 @@ export class UserService {
 
   getUsers(): Observable<User[]> {
     return this.http.get<any>(this.apiUrl, { headers: this.getHeaders() }).pipe(
-      map(response => response['hydra:member'] || response)
+      map(response => response['hydra:member'] || response['member'] || (Array.isArray(response) ? response : []))
     );
   }
 
@@ -45,6 +45,14 @@ export class UserService {
       headers: new HttpHeaders({
         'Authorization': `Bearer ${this.authService.getToken()}`,
         'Content-Type': 'application/merge-patch+json'
+      })
+    });
+  }
+
+  deleteUser(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`, {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${this.authService.getToken()}`
       })
     });
   }

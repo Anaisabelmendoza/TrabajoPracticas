@@ -64,7 +64,7 @@
             <strong>Prioridad:</strong> <span [class]="'priority-' + ticket.priority.toLowerCase()">{{ ticket.priority }}</span>
           </div>
           <div class="meta-item">
-            <strong>Técnico Asignado:</strong> <span>{{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : 'Pendiente de asignar' }}</span>
+            <strong>Técnico Asignado:</strong> <span>{{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : (ticket.agentNameFallback ? ticket.agentNameFallback + ' (Agente Eliminado)' : 'Pendiente de asignar') }}</span>
           </div>
         </div>
       </mat-card-content>
@@ -187,7 +187,7 @@
       <p><strong>Estado:</strong> {{ ticket.status }}</p>
       <p><strong>Categoría:</strong> {{ ticket.category.name }}</p>
       <p><strong>Prioridad:</strong> {{ ticket.priority }}</p>
-      <p><strong>Técnico Asignado:</strong> {{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : 'N/A' }}</p>
+      <p><strong>Técnico Asignado:</strong> {{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : (ticket.agentNameFallback ? ticket.agentNameFallback + ' (Agente Eliminado)' : 'N/A') }}</p>
     </div>
 
     <div class="print-section" *ngIf="ticket.description">

@@ -43,7 +43,7 @@ class Comment
     private ?Ticket $ticket = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     #[Groups(['comment:read', 'ticket:read'])]
     private ?User $author = null;
 

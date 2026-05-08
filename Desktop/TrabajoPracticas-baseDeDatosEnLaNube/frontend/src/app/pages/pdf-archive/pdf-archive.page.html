@@ -1,0 +1,59 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin-control"></ion-back-button>
+    </ion-buttons>
+    <ion-title>PDF de Trabajos Realizados</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="archive-container">
+    <div class="header-section">
+      <h1>Archivo Histórico 🗄️</h1>
+      <p>Todos los trabajos finalizados, guardados y agrupados por cliente. Selecciona un cliente para imprimir o guardar sus reportes en PDF.</p>
+    </div>
+
+    <div *ngIf="loading" class="spinner-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando archivo histórico...</p>
+    </div>
+
+    <div *ngIf="!loading && clientsWithTickets.length === 0" class="empty-state">
+      <mat-icon class="large-icon">archive</mat-icon>
+      <h2>Sin documentos</h2>
+      <p>Aún no hay trabajos resueltos o cerrados en el sistema.</p>
+    </div>
+
+    <mat-accordion *ngIf="!loading && clientsWithTickets.length > 0" multi="false">
+      <mat-expansion-panel *ngFor="let group of clientsWithTickets">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon style="margin-right: 10px; color: #43a047;">folder_shared</mat-icon>
+            <strong>{{ group.client.firstName }} {{ group.client.lastName }}</strong>
+          </mat-panel-title>
+          <mat-panel-description>
+            {{ group.tickets.length }} trabajo(s) completado(s)
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <mat-list>
+          <ng-container *ngFor="let ticket of group.tickets; let last = last">
+            <mat-list-item>
+              <mat-icon matListItemIcon color="primary">picture_as_pdf</mat-icon>
+              <div matListItemTitle>{{ ticket.title }}</div>
+              <div matListItemLine>Finalizado el {{ ticket.updatedAt | date:'mediumDate' }}</div>
+              
+              <button mat-flat-button color="primary" [routerLink]="['/tickets', ticket.id]" class="print-button" style="margin-left: auto;">
+                <mat-icon>print</mat-icon> Ver PDF
+              </button>
+            </mat-list-item>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </ng-container>
+        </mat-list>
+        
+      </mat-expansion-panel>
+    </mat-accordion>
+
+  </div>
+</ion-content>

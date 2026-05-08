@@ -30,6 +30,8 @@ class RegistroController extends AbstractController
         $user->setEmail($data['email']);
         $user->setFirstName($data['firstName']);
         $user->setLastName($data['lastName']);
+        $user->setIsActive(true);
+        $user->setIsOnDuty(true);
 
         // Asignamos los roles que vienen del frontend, o ROLE_USER por defecto
         $roles = $data['roles'] ?? ['ROLE_USER'];

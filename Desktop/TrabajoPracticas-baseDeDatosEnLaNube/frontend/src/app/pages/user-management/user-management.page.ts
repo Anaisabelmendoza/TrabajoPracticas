@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, AlertController } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 import { UserService, User } from '../../services/user.service';
 import { MatTableModule } from '@angular/material/table';
@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-user-management',
@@ -27,7 +28,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatButtonModule,
     MatSnackBarModule,
     FormsModule,
-    MatTabsModule
+    MatTabsModule,
+    MatMenuModule
   ]
 })
 export class UserManagementPage implements OnInit {
@@ -40,7 +42,8 @@ export class UserManagementPage implements OnInit {
 
   constructor(
     private userService: UserService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private alertController: AlertController
   ) {}
 
   ngOnInit() {
@@ -107,5 +110,38 @@ export class UserManagementPage implements OnInit {
     const now = new Date();
     const diff = (now.getTime() - lastActivity.getTime()) / 1000 / 60; // diff in minutes
     return diff < 15; // Consider connected if active in the last 15 minutes
+  }
+
+  async confirmDelete(user: User) {
+    const alert = await this.alertController.create({
+      header: 'Eliminar Usuario',
+      message: `¿Estás seguro de que deseas eliminar a ${user.firstName || 'este usuario'}? Esta acción no se puede deshacer. Los tickets en los que haya participado se mantendrán en el historial (se mostrarán sin agente).`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { 
+          text: 'Eliminar', 
+          role: 'destructive',
+          handler: () => {
+            this.deleteUser(user);
+          } 
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  deleteUser(user: User) {
+    this.loading = true;
+    this.userService.deleteUser(user.id).subscribe({
+      next: () => {
+        this.snackBar.open('Usuario eliminado correctamente', 'Cerrar', { duration: 3000 });
+        this.loadUsers(); // Reload the lists
+      },
+      error: (err) => {
+        console.error('Error al eliminar:', err);
+        this.snackBar.open('Error al eliminar usuario', 'Cerrar', { duration: 3000 });
+        this.loading = false;
+      }
+    });
   }
 }

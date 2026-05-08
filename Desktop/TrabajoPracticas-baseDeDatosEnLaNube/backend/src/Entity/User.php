@@ -61,11 +61,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private array $roles = [];
 
-    #[ORM\Column]
+    #[ORM\Column(options: ['default' => true])]
     #[Groups(['user:read', 'user:write'])]
     private bool $isActive = true;
 
-    #[ORM\Column]
+    #[ORM\Column(options: ['default' => true])]
     #[Groups(['user:read', 'user:write'])]
     private bool $isOnDuty = true;
 
