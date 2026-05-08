@@ -61,6 +61,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private array $roles = [];
 
+    // --- AQUÍ ESTÁ EL PRIMER CAMBIO MÁGICO (type: 'boolean') ---
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    #[Groups(['user:read', 'user:write'])]
+    private bool $isActive = true;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    #[Groups(['user:read', 'user:write'])]
+    private bool $isOnDuty = true;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['user:read'])]
+    private ?\DateTimeInterface $lastActivityAt = null;
+
     #[ORM\Column]
     private ?string $password = null;
 
@@ -78,32 +91,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->authoredTickets = new ArrayCollection();
         $this->assignedTickets = new ArrayCollection();
+        $this->isActive = true;
+        $this->isOnDuty = true;
     }
 
     // ========== MÉTODOS OBLIGATORIOS DE SEGURIDAD ==========
 
-    /**
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // Garantizamos que cada usuario tenga al menos ROLE_USER
         $roles[] = 'ROLE_USER';
         return array_unique($roles);
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -181,6 +186,51 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
+        return $this;
+    }
+
+    // --- AQUÍ ESTÁ EL SEGUNDO CAMBIO MÁGICO (Nombres compatibles con la API) ---
+
+    #[Groups(['user:read'])]
+    #[SerializedName('isActive')]
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    #[Groups(['user:write'])]
+    #[SerializedName('isActive')]
+    public function setIsActive(bool $isActive): self
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
+
+    #[Groups(['user:read'])]
+    #[SerializedName('isOnDuty')]
+    public function isOnDuty(): bool
+    {
+        return $this->isOnDuty;
+    }
+
+    #[Groups(['user:write'])]
+    #[SerializedName('isOnDuty')]
+    public function setIsOnDuty(bool $isOnDuty): self
+    {
+        $this->isOnDuty = $isOnDuty;
+        return $this;
+    }
+
+    #[Groups(['user:read'])]
+    #[SerializedName('lastActivityAt')]
+    public function getLastActivityAt(): ?\DateTimeInterface
+    {
+        return $this->lastActivityAt;
+    }
+
+    public function setLastActivityAt(?\DateTimeInterface $lastActivityAt): self
+    {
+        $this->lastActivityAt = $lastActivityAt;
         return $this;
     }
 }
