@@ -30,7 +30,8 @@
         "symfony/serializer": "8.0.*",
         "symfony/twig-bundle": "8.0.*",
         "symfony/validator": "8.0.*",
-        "symfony/yaml": "8.0.*"
+        "symfony/yaml": "8.0.*",
+        "webklex/php-imap": "^6.2"
     },
     "config": {
         "allow-plugins": {
@@ -80,7 +81,7 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": true,
             "require": "8.0.*"
         }
     },

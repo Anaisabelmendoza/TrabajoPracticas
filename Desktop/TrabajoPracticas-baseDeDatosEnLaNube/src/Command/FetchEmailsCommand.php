@@ -42,7 +42,7 @@ class FetchEmailsCommand extends Command
         $io->note("Conectando a Gmail para sincronizar correos...");
 
         try {
-            $stats = $this->emailFetchService.fetchAndSyncEmails($emailUser, $emailPass);
+            $stats = $this->emailFetchService->fetchAndSyncEmails($emailUser, $emailPass);
             
             if ($stats['created'] > 0) {
                 $io->success(sprintf('Se han creado %d tickets nuevos desde Gmail.', $stats['created']));

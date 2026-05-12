@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Entity\Category;
 use Doctrine\ORM\EntityManagerInterface;
 
+use Webklex\PHPIMAP\ClientManager;
+
 class EmailFetchService
 {
     private EntityManagerInterface $entityManager;
@@ -20,48 +22,42 @@ class EmailFetchService
     {
         $stats = ['created' => 0, 'errors' => 0, 'messages' => []];
 
-        if (!function_exists('imap_open')) {
-            throw new \Exception('La extensión PHP-IMAP no está instalada.');
-        }
+        $cm = new ClientManager();
+        $client = $cm->make([
+            'host'          => 'imap.gmail.com',
+            'port'          => 993,
+            'encryption'    => 'ssl',
+            'validate_cert' => false,
+            'username'      => $emailUser,
+            'password'      => $emailPass,
+            'protocol'      => 'imap'
+        ]);
 
-        $host = '{imap.gmail.com:993/imap/ssl}INBOX';
-        $inbox = @imap_open($host, $emailUser, $emailPass);
+        try {
+            $client->connect();
+            $folder = $client->getFolder('INBOX');
+            $messages = $folder->query()->unseen()->get();
 
-        if (!$inbox) {
-            throw new \Exception('No se pudo conectar a Gmail: ' . imap_last_error());
-        }
-
-        $emails = imap_search($inbox, 'UNSEEN');
-
-        if ($emails) {
-            foreach ($emails as $emailNumber) {
+            foreach ($messages as $message) {
                 try {
-                    $overview = imap_fetch_overview($inbox, $emailNumber, 0)[0];
-                    $body = imap_fetchbody($inbox, $emailNumber, 1);
-                    $body = quoted_printable_decode($body);
-                    
-                    $subject = isset($overview->subject) ? imap_utf8($overview->subject) : 'Nueva incidencia por Email';
-                    $from = $overview->from;
-                    
-                    if (preg_match('/<([^>]+)>/', $from, $matches)) {
-                        $senderEmail = $matches[1];
-                    } else {
-                        $senderEmail = $from;
-                    }
+                    $subject = (string) $message->getSubject();
+                    $body = $message->getTextBody() ?: $message->getHTMLBody(true);
+                    $from = $message->getFrom()[0]->mail;
 
-                    $this->createTicketFromEmail($senderEmail, $subject, $body);
+                    $this->createTicketFromEmail($from, $subject, $body);
                     
-                    imap_setflag_full($inbox, $emailNumber, "\\Seen");
+                    $message->setFlag('Seen');
                     $stats['created']++;
                 } catch (\Exception $e) {
                     $stats['errors']++;
                     $stats['messages'][] = $e->getMessage();
                 }
             }
-        }
 
-        imap_close($inbox);
-        return $stats;
+            return $stats;
+        } catch (\Exception $e) {
+            throw new \Exception('Error de conexión con Gmail: ' . $e->getMessage());
+        }
     }
 
     private function createTicketFromEmail(string $email, string $subject, string $body): void

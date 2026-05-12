@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Service\EmailFetchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class EmailSyncController extends AbstractController
 {
@@ -22,7 +22,7 @@ class EmailSyncController extends AbstractController
         }
 
         try {
-            $stats = $emailFetchService.fetchAndSyncEmails($emailUser, $emailPass);
+            $stats = $emailFetchService->fetchAndSyncEmails($emailUser, $emailPass);
             return new JsonResponse($stats);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);

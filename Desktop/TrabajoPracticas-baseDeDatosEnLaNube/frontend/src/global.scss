@@ -118,6 +118,12 @@ mat-card {
   }
 }
 
+.search-btn-unified {
+  height: 54px !important;
+  padding: 0 30px !important;
+  margin-top: -20px !important; // Compensa el espacio inferior de mat-form-field
+}
+
 .primary-gradient {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: white !important;
