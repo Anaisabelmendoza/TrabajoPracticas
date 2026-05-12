@@ -11,11 +11,17 @@ use Webklex\PHPIMAP\ClientManager;
 
 class EmailFetchService
 {
-    private EntityManagerInterface $entityManager;
+    private \Symfony\Component\String\Slugger\SluggerInterface $slugger;
+    private string $projectDir;
 
-    public function __construct(EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager, 
+        \Symfony\Component\String\Slugger\SluggerInterface $slugger,
+        \Symfony\Component\HttpKernel\KernelInterface $kernel
+    ) {
         $this->entityManager = $entityManager;
+        $this->slugger = $slugger;
+        $this->projectDir = $kernel->getProjectDir();
     }
 
     public function fetchAndSyncEmails(string $emailUser, string $emailPass): array
@@ -44,7 +50,32 @@ class EmailFetchService
                     $body = $message->getTextBody() ?: $message->getHTMLBody(true);
                     $from = $message->getFrom()[0]->mail;
 
-                    $this->createTicketFromEmail($from, $subject, $body);
+                    // Procesar adjuntos
+                    $attachments = [];
+                    foreach ($message->getAttachments() as $attachment) {
+                        $filename = $attachment->getName();
+                        $extension = pathinfo($filename, PATHINFO_EXTENSION) ?: 'bin';
+                        
+                        // Solo permitimos ciertos formatos igual que en el controlador
+                        $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+                        if (!in_array(strtolower($extension), $allowedExtensions)) {
+                            continue;
+                        }
+
+                        $safeFilename = $this->slugger->slug(pathinfo($filename, PATHINFO_FILENAME));
+                        $newFilename = $safeFilename.'-'.uniqid().'.'.$extension;
+                        $uploadDir = $this->projectDir . '/public/uploads/attachments';
+                        
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+
+                        // Guardar el contenido del adjunto
+                        file_put_contents($uploadDir . '/' . $newFilename, $attachment->getContent());
+                        $attachments[] = '/uploads/attachments/' . $newFilename;
+                    }
+
+                    $this->createTicketFromEmail($from, $subject, $body, $attachments);
                     
                     $message->setFlag('Seen');
                     $stats['created']++;
@@ -60,7 +91,7 @@ class EmailFetchService
         }
     }
 
-    private function createTicketFromEmail(string $email, string $subject, string $body): void
+    private function createTicketFromEmail(string $email, string $subject, string $body, array $attachments = []): void
     {
         $author = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
         
@@ -69,11 +100,13 @@ class EmailFetchService
             $author->setEmail($email);
             $author->setFirstName('Cliente');
             $author->setLastName('Externo (Gmail)');
+            // Password aleatoria para cumplir con la base de datos
             $author->setPassword(bin2hex(random_bytes(10)));
             $author->setRoles(['ROLE_USER']);
             $this->entityManager->persist($author);
         }
 
+        // Buscamos la categoría "Email" o la primera que exista
         $category = $this->entityManager->getRepository(Category::class)->findOneBy(['name' => 'Email'])
                  ?? $this->entityManager->getRepository(Category::class)->findOneBy([]);
         
@@ -85,12 +118,12 @@ class EmailFetchService
 
         $ticket = new Ticket();
         $ticket->setTitle($subject);
-        // Marcamos que viene de email en la descripción para detectarlo en el frontend
-        $ticket->setDescription("[ORIGEN: EMAIL]\n\n" . $body);
+        $ticket->setDescription("[ORIGEN: EMAIL]\n\n" . strip_tags($body));
         $ticket->setAuthor($author);
         $ticket->setCategory($category);
         $ticket->setStatus('Nuevo');
         $ticket->setPriority('Media');
+        $ticket->setAttachments($attachments);
 
         $this->entityManager->persist($ticket);
         $this->entityManager->flush();

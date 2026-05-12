@@ -72,8 +72,8 @@
         </div>
       </mat-card-content>
       
-      <!-- Controles para Agentes / Admin -->
-      <mat-card-actions *ngIf="isAgent || isAdmin" class="agent-actions">
+      <!-- Controles para Agentes / Admin (Ocultos si está cerrado) -->
+      <mat-card-actions *ngIf="(isAgent || isAdmin) && ticket.status !== 'Cerrado'" class="agent-actions">
         <button mat-flat-button color="accent" *ngIf="isAgent && !ticket.agent" (click)="claimTicket()">
           <mat-icon>person_add</mat-icon> Asignarme esta incidencia
         </button>
@@ -122,6 +122,20 @@
         <button mat-flat-button color="primary" *ngIf="isAdmin && (ticket.status === 'Resuelto' || ticket.status === 'Cerrado')" (click)="generatePDF()" style="margin-left: auto;">
           <mat-icon>picture_as_pdf</mat-icon> Generar PDF
         </button>
+
+        <button mat-icon-button color="warn" *ngIf="isAdmin" (click)="deleteTicket()" title="Eliminar Incidencia">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-card-actions>
+
+      <!-- Botón PDF y Eliminar solo si está cerrado -->
+      <mat-card-actions *ngIf="ticket.status === 'Cerrado'" class="agent-actions">
+        <button mat-stroked-button color="warn" *ngIf="isAdmin" (click)="deleteTicket()" style="margin-right: 10px;">
+          <mat-icon>delete_forever</mat-icon> Eliminar Permanente
+        </button>
+        <button mat-flat-button color="primary" (click)="generatePDF()" style="margin-left: auto;">
+          <mat-icon>picture_as_pdf</mat-icon> Generar PDF del Reporte Cerrado
+        </button>
       </mat-card-actions>
     </mat-card>
 
@@ -149,8 +163,8 @@
             </div>
           </div>
 
-          <!-- Input Nuevo Comentario -->
-          <div class="comment-input-area">
+          <!-- Input Nuevo Comentario (Oculto si está cerrado) -->
+          <div class="comment-input-area" *ngIf="ticket.status !== 'Cerrado'">
             <!-- Miniatura de archivo seleccionado -->
             <div class="selected-attachment-preview" *ngIf="commentFile">
               <img [src]="commentFilePreview" />
@@ -174,6 +188,11 @@
                 <ion-icon name="send-outline"></ion-icon>
               </ion-button>
             </ion-item>
+          </div>
+
+          <div class="ticket-closed-notice" *ngIf="ticket.status === 'Cerrado'">
+            <mat-icon>lock</mat-icon>
+            <p>Esta incidencia está cerrada y archivada. No se admiten más comentarios.</p>
           </div>
         </div>
       </mat-tab>

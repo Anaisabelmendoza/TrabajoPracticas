@@ -1,59 +1,20 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+      <ion-back-button defaultHref="/tickets"></ion-back-button>
     </ion-buttons>
-    <ion-title>Dashboard de Rendimiento</ion-title>
+    <ion-title>
+      <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <span style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">| Estadísticas Avanzadas</span>
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-badge color="danger" style="margin-right: 15px;">ADMIN</ion-badge>
+      <ion-badge style="margin-right: 15px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);">ADMIN</ion-badge>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  <div class="filters-container">
-    <mat-form-field appearance="outline">
-      <mat-label>Filtrar por Área</mat-label>
-      <mat-select [(ngModel)]="selectedCategory" (selectionChange)="onFilterChange()">
-        <mat-option value="">Todas las Áreas</mat-option>
-        <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</mat-option>
-      </mat-select>
-    </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Prioridad</mat-label>
-      <mat-select [(ngModel)]="selectedPriority" (selectionChange)="onFilterChange()">
-        <mat-option value="">Todas</mat-option>
-        <mat-option value="Baja">Baja</mat-option>
-        <mat-option value="Media">Media</mat-option>
-        <mat-option value="Alta">Alta</mat-option>
-        <mat-option value="Crítica">Crítica</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Desde</mat-label>
-      <input matInput [matDatepicker]="pickerStart" [(ngModel)]="startDate" (dateChange)="onFilterChange()">
-      <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
-      <mat-datepicker #pickerStart></mat-datepicker>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Hasta</mat-label>
-      <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="endDate" (dateChange)="onFilterChange()">
-      <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
-      <mat-datepicker #pickerEnd></mat-datepicker>
-    </mat-form-field>
-
-    <button mat-stroked-button class="btn-clear-filters" (click)="clearFilters()" title="Limpiar Filtros">
-      <mat-icon>filter_alt_off</mat-icon>
-    </button>
-
-    <button mat-stroked-button class="outlined-primary search-btn-unified" (click)="searchTickets()">
-      <mat-icon>search</mat-icon>
-      BUSCAR
-    </button>
-  </div>
 
   <!-- Estado de Carga Global -->
   <div *ngIf="loading && !statsData" class="loading-state">

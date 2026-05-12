@@ -45,7 +45,7 @@ ion-toolbar {
 
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   padding: 0 15px 20px;
   align-items: flex-start;
@@ -98,6 +98,7 @@ ion-toolbar {
     &.nuevas { color: #d32f2f; }
     &.proceso { color: #f57c00; }
     &.resuelto { color: #388e3c; }
+    &.cerradas { color: #7f8c8d; }
   }
 
   .column-content {
@@ -200,6 +201,7 @@ ion-toolbar {
         font-weight: 700;
         &.process { background: #e3f2fd; color: #1565c0; }
         &.success { background: #e8f5e9; color: #2e7d32; }
+        &.closed { background: #eeeeee; color: #666666; }
       }
     }
   }

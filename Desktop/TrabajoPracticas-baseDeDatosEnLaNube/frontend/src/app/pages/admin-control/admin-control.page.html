@@ -1,11 +1,14 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+      <ion-back-button defaultHref="/tickets"></ion-back-button>
     </ion-buttons>
-    <ion-title>Panel de Control Admin</ion-title>
+    <ion-title>
+      <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <span style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">| Gestión del Sistema</span>
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-badge color="danger" style="margin-right: 15px;">ADMIN</ion-badge>
+      <ion-badge style="margin-right: 15px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);">ADMIN</ion-badge>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -13,8 +16,8 @@
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="admin-container">
     <div class="welcome-header">
-      <h1>Panel de Administración 🛡️</h1>
-      <p>Gestiona el sistema y revisa el rendimiento global.</p>
+      <h1 style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px;">Panel de Administración</h1>
+      <p style="color: #666; font-size: 1.1rem; font-weight: 500;">Gestiona el sistema y revisa el rendimiento global.</p>
     </div>
 
     <!-- Banner de Sincronización de Correo (NUEVO) -->

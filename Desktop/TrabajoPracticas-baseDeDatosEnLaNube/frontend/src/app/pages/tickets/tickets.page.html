@@ -1,16 +1,18 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard"></ion-back-button>
-    </ion-buttons>
     <ion-title>
-      {{ isAgent ? 'Todas las Incidencias' : 'Mis Incidencias' }}
-      <ion-badge color="success" *ngIf="isAgent" style="margin-left: 10px; vertical-align: middle;">MODO AGENTE</ion-badge>
+      <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <ion-badge color="tertiary" *ngIf="isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO ADMINISTRADOR</ion-badge>
+      <ion-badge color="success" *ngIf="isAgent && !isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO AGENTE</ion-badge>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/tickets/new" fill="outline" shape="round">
-        <ion-icon slot="start" name="add-outline"></ion-icon>
-        Nueva
+      <!-- ACCESO A PANEL DE CONTROL (SOLO ADMIN) -->
+      <ion-button *ngIf="isAdmin" routerLink="/admin-control" title="Gestión del Sistema">
+        <ion-icon slot="icon-only" name="shield-checkmark-outline" style="color: #000;"></ion-icon>
+      </ion-button>
+
+      <ion-button routerLink="/profile" title="Mi Perfil">
+        <ion-icon slot="icon-only" name="person-circle" style="color: #000; font-size: 28px;"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -19,8 +21,27 @@
 <ion-content [fullscreen]="true">
   <div class="main-container">
 
-    <!-- Buscador Global / Filtros -->
-    <div class="filters-panel">
+    <!-- BIENVENIDA UNIFICADA -->
+    <div class="welcome-section" style="padding: 20px 20px 20px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+      <div>
+        <h1 style="margin: 0; font-size: 2.2rem; font-weight: 900; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">¡Hola, {{ userName }}! <span style="filter: grayscale(1) brightness(0); display: inline-block;">👋</span></h1>
+        <p style="margin: 5px 0 0 0; color: #666; font-size: 1.1rem; font-weight: 500;">Bienvenido al Centro de Soporte.</p>
+      </div>
+      
+      <!-- BOTÓN PRINCIPAL (PANEL PARA ADMIN, CREAR PARA USUARIO) -->
+      <button *ngIf="isAdmin" mat-flat-button color="primary" routerLink="/stats" style="padding: 15px 30px; font-size: 1rem; font-weight: bold; border-radius: 30px; box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3); background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);">
+        <mat-icon style="margin-right: 8px;">analytics</mat-icon>
+        PANEL ANALÍTICO
+      </button>
+
+      <button *ngIf="!isAdmin" mat-stroked-button class="create-ticket-btn" routerLink="/tickets/new" style="color: #6a11cb; border: 2px solid #6a11cb; padding: 15px 30px; font-size: 1rem; font-weight: bold; border-radius: 30px; background: transparent;">
+        <mat-icon style="margin-right: 8px;">add_circle</mat-icon>
+        CREAR NUEVA INCIDENCIA
+      </button>
+    </div>
+
+    <!-- Buscador Global / Filtros (Solo se muestra si se activa por parámetro) -->
+    <div class="filters-panel" *ngIf="showFilters">
       <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
         <mat-label>Área / Categoría</mat-label>
         <mat-select [(ngModel)]="searchCategory">
@@ -132,19 +153,48 @@
         </div>
       </div>
 
-      <!-- COLUMNA: FINALIZADAS -->
+      <!-- COLUMNA: RESUELTAS -->
       <div class="kanban-column">
         <div class="column-header resuelto">
           <mat-icon>task_alt</mat-icon>
-          <h2>Finalizadas</h2>
+          <h2>Resueltas</h2>
           <span class="count-badge">{{ getFilteredTickets('Resuelto').length }}</span>
         </div>
         
         <div class="column-content">
           <div *ngIf="getFilteredTickets('Resuelto').length === 0" class="empty-state-small">
-            <p>Historial vacío</p>
+            <p>No hay resueltas</p>
           </div>
           <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
+                {{ ticket.title }}
+              </mat-card-title>
+              <mat-card-subtitle>Resuelta el {{ ticket.updatedAt | date:'dd/MM/yyyy' }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="card-meta">
+                <span class="status-pill success">Resuelto</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- COLUMNA: CERRADAS -->
+      <div class="kanban-column">
+        <div class="column-header cerradas">
+          <mat-icon>archive</mat-icon>
+          <h2>Cerradas</h2>
+          <span class="count-badge">{{ getFilteredTickets('Cerrado').length }}</span>
+        </div>
+        
+        <div class="column-content">
+          <div *ngIf="getFilteredTickets('Cerrado').length === 0" class="empty-state-small">
+            <p>Sin archivadas</p>
+          </div>
+          <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
             <mat-card-header>
               <mat-card-title>
                 <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
@@ -154,7 +204,7 @@
             </mat-card-header>
             <mat-card-content>
               <div class="card-meta">
-                <span class="status-pill success">Resuelto</span>
+                <span class="status-pill closed">Cerrado</span>
               </div>
             </mat-card-content>
           </mat-card>

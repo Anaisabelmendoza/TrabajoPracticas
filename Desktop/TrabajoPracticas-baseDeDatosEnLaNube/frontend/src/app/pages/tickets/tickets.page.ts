@@ -61,6 +61,15 @@ export class TicketsPage implements OnInit {
   searchStartDate: Date | null = null;
   searchEndDate: Date | null = null;
 
+  showFilters: boolean = false;
+
+  userName: string = '';
+  stats = {
+    new: 0,
+    inProgress: 0,
+    resolved: 0
+  };
+
   constructor(
     private ticketService: TicketService,
     private authService: AuthService,
@@ -82,7 +91,13 @@ export class TicketsPage implements OnInit {
       if (params['tab'] !== undefined) {
         this.selectedTabIndex = parseInt(params['tab'], 10);
       }
+      this.showFilters = params['filters'] === 'true';
     });
+
+    const user = this.authService.getUser();
+    if (user) {
+      this.userName = user.firstName || user.username || 'Usuario';
+    }
   }
 
   loadCurrentUser() {
@@ -132,7 +147,9 @@ export class TicketsPage implements OnInit {
       } else if (status === 'Proceso') {
         statusMatch = currentStatus === 'en proceso' || currentStatus === 'proceso' || currentStatus === 'doing';
       } else if (status === 'Resuelto') {
-        statusMatch = currentStatus === 'resuelto' || currentStatus === 'cerrado' || currentStatus === 'done' || currentStatus === 'resolved';
+        statusMatch = currentStatus === 'resuelto' || currentStatus === 'done' || currentStatus === 'resolved';
+      } else if (status === 'Cerrado') {
+        statusMatch = currentStatus === 'cerrado';
       }
       
       if (!statusMatch) return false;
@@ -207,6 +224,7 @@ export class TicketsPage implements OnInit {
     this.ticketService.getTickets().subscribe({
       next: (data) => {
         this.tickets = data;
+        this.calculateStats(data);
         this.loading = false;
       },
       error: (err) => {
@@ -214,6 +232,34 @@ export class TicketsPage implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  calculateStats(tickets: any[]) {
+    const isAgent = this.authService.hasRole('ROLE_AGENT') || this.authService.hasRole('ROLE_ADMIN');
+    const isAdmin = this.authService.hasRole('ROLE_ADMIN');
+    const user = this.authService.getUser();
+    const userEmail = user?.email || user?.username;
+
+    let filtered = tickets;
+    if (!isAgent) {
+      filtered = tickets.filter((t: any) => !t.deletedByUser);
+    }
+
+    this.stats.new = filtered.filter((t: any) => t.status === 'Nuevo').length;
+    
+    this.stats.inProgress = filtered.filter((t: any) => {
+      if (t.status !== 'En proceso') return false;
+      if (isAdmin) return true;
+      if (isAgent) return t.agent && t.agent.email === userEmail;
+      return true;
+    }).length;
+
+    this.stats.resolved = filtered.filter((t: any) => {
+      if (t.status !== 'Resuelto' && t.status !== 'Cerrado') return false;
+      if (isAdmin) return true;
+      if (isAgent) return t.agent && t.agent.email === userEmail;
+      return true;
+    }).length;
   }
 
   getStatusColor(status: string): string {

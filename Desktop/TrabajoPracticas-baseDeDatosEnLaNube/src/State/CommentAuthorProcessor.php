@@ -16,10 +16,23 @@ class CommentAuthorProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
-        if ($data instanceof Comment && !$data->getAuthor()) {
-            $user = $this->security->getUser();
-            if ($user) {
-                $data->setAuthor($user);
+        if ($data instanceof Comment) {
+            // Asignar autor si no tiene
+            if (!$data->getAuthor()) {
+                $user = $this->security->getUser();
+                if ($user) {
+                    $data->setAuthor($user);
+                }
+            }
+
+            // REAPERTURA AUTOMÁTICA
+            $ticket = $data->getTicket();
+            if ($ticket && in_array($ticket->getStatus(), ['Resuelto', 'Cerrado'])) {
+                $oldStatus = $ticket->getStatus();
+                $ticket->setStatus('Nuevo');
+                
+                // Forzamos actualización de timestamp para que suba en el kanban
+                $ticket->updateTimestamps();
             }
         }
 

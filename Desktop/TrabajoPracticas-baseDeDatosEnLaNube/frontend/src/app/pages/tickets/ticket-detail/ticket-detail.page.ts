@@ -494,6 +494,40 @@ export class TicketDetailPage implements OnInit, OnDestroy {
     });
   }
 
+  async deleteTicket() {
+    if (!this.isAdmin) return;
+
+    const alert = await this.alertCtrl.create({
+      header: 'Eliminar Incidencia',
+      message: '¿Estás seguro de que quieres eliminar permanentemente esta incidencia? Esta acción no se puede deshacer.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: () => {
+            this.loading = true;
+            this.ticketService.deleteTicket(this.ticket.id).subscribe({
+              next: () => {
+                this.loading = false;
+                this.showToast('Incidencia eliminada con éxito', 'success');
+                // Redirigir al listado
+                window.location.href = '/tickets';
+              },
+              error: (err) => {
+                this.loading = false;
+                console.error(err);
+                this.showToast('Error al eliminar la incidencia', 'danger');
+              }
+            });
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
   getStatusColor(status: string): string {
     switch (status?.toLowerCase()) {
       case 'nuevo': return 'primary';

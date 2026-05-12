@@ -442,3 +442,30 @@ mat-card-subtitle {
   }
 }
 
+
+.ticket-closed-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: rgba(0,0,0,0.03);
+  border-radius: 12px;
+  border: 1px dashed #ccc;
+  margin-top: 20px;
+  color: #666;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+}

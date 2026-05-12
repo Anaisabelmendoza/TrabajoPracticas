@@ -49,17 +49,12 @@
   </div>
 
   <div class="actions-section">
-    <button mat-flat-button class="main-action primary-gradient" routerLink="/tickets">
-      <mat-icon>list</mat-icon>
-      Ver todas las incidencias
-    </button>
-    
     <button *ngIf="!isAdmin" mat-stroked-button class="main-action outlined-primary" routerLink="/tickets/new">
       <mat-icon>add</mat-icon>
       Reportar nuevo problema
     </button>
 
-    <button *ngIf="isAdmin" mat-stroked-button class="main-action outlined-primary" routerLink="/stats" style="margin-top: 10px;">
+    <button *ngIf="isAdmin" mat-stroked-button class="main-action outlined-primary" routerLink="/stats">
       <mat-icon>analytics</mat-icon>
       Panel Analítico de Control (Admin)
     </button>

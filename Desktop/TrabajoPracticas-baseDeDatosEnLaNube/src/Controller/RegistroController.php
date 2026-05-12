@@ -25,9 +25,17 @@ class RegistroController extends AbstractController
             return $this->json(['detail' => 'Todos los campos son obligatorios (email, password, firstName, lastName)'], 400);
         }
 
-        // 2. Creamos la instancia del nuevo usuario
-        $user = new User();
-        $user->setEmail($data['email']);
+        // 2. Comprobamos si el usuario ya existe (por ejemplo, creado por sincronización de email)
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+        $isNew = false;
+
+        if (!$user) {
+            $user = new User();
+            $user->setEmail($data['email']);
+            $isNew = true;
+        }
+
+        // Actualizamos los datos (esto sirve tanto para nuevos como para "activar" cuentas de email)
         $user->setFirstName($data['firstName']);
         $user->setLastName($data['lastName']);
 
@@ -41,7 +49,9 @@ class RegistroController extends AbstractController
 
         // 4. Guardamos en la base de datos de Aiven
         try {
-            $entityManager->persist($user);
+            if ($isNew) {
+                $entityManager->persist($user);
+            }
             $entityManager->flush();
         } catch (\Exception $e) {
             return $this->json([

@@ -17,6 +17,7 @@ use ApiPlatform\Metadata\Delete;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     normalizationContext: ['groups' => ['ticket:read']],
     denormalizationContext: ['groups' => ['ticket:write']],
@@ -102,14 +103,37 @@ class Ticket
     #[ORM\OrderBy(['createdAt' => 'DESC'])]
     private Collection $workLogs;
 
+    #[ORM\Column(nullable: true)]
+    #[Groups(['ticket:read'])]
+    private ?\DateTimeImmutable $updatedAt = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
         $this->comments = new ArrayCollection();
         $this->history = new ArrayCollection();
         $this->workLogs = new ArrayCollection();
         $this->status = 'Nuevo';
         $this->priority = 'Media';
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updateTimestamps(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
     }
 
     public function getId(): ?int
