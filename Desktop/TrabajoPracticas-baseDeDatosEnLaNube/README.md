@@ -24,7 +24,7 @@ Este es un sistema de gestión de tickets (Helpdesk) completo, desarrollado con 
 ### 1. Sistema de Autenticación y Registro Multi-Perfil
 - **Roles de Acceso:** 
   - **Cliente (`ROLE_USER`):** Registro público estándar.
-  - **Agente (`ROLE_AGENT`):** Requiere un código de validación especial (**`AGENT2026`**).
+  - **Agente (`ROLE_AGENT`):** Requiere un código de validación especial.
   - **Administrador (`ROLE_ADMIN`):** Jerarquía superior con visión panorámica del sistema.
 - **Seguridad:** Encriptación de contraseñas mediante hashing (OWASP compatible).
 - **Recuperación:** Flujo de recuperación en 3 pasos (email → código temporal → nueva contraseña).
