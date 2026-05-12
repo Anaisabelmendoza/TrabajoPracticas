@@ -87,10 +87,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'agent', targetEntity: Ticket::class)]
     private Collection $assignedTickets;
 
+    #[ORM\OneToMany(mappedBy: 'agent', targetEntity: WorkLog::class, cascade: ['remove'])]
+    private Collection $workLogs;
+
+    #[ORM\ManyToMany(targetEntity: Category::class)]
+    #[Groups(['user:read', 'user:write'])]
+    private Collection $categories;
+
     public function __construct()
     {
         $this->authoredTickets = new ArrayCollection();
         $this->assignedTickets = new ArrayCollection();
+        $this->workLogs = new ArrayCollection();
+        $this->categories = new ArrayCollection();
         $this->isActive = true;
         $this->isOnDuty = true;
     }
@@ -189,6 +198,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, WorkLog>
+     */
+    public function getWorkLogs(): Collection
+    {
+        return $this->workLogs;
+    }
+
+    public function addWorkLog(WorkLog $workLog): static
+    {
+        if (!$this->workLogs->contains($workLog)) {
+            $this->workLogs->add($workLog);
+            $workLog->setAgent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWorkLog(WorkLog $workLog): static
+    {
+        if ($this->workLogs->removeElement($workLog)) {
+            // set the owning side to null (unless already changed)
+            if ($workLog->getAgent() === $this) {
+                $workLog->setAgent(null);
+            }
+        }
+
+        return $this;
+    }
+
     // --- AQUÍ ESTÁ EL SEGUNDO CAMBIO MÁGICO (Nombres compatibles con la API) ---
 
     #[Groups(['user:read'])]
@@ -231,6 +270,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastActivityAt(?\DateTimeInterface $lastActivityAt): self
     {
         $this->lastActivityAt = $lastActivityAt;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        $this->categories->removeElement($category);
+
         return $this;
     }
 }

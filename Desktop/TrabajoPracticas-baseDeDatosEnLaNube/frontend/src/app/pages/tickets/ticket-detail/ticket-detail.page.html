@@ -21,7 +21,7 @@
         </div>
         <mat-card-title>{{ ticket.title }}</mat-card-title>
         <mat-card-subtitle>
-          {{ ticket.author.firstName }} {{ ticket.author.lastName }} • {{ ticket.createdAt | date:'medium' }}
+          {{ ticket.author.firstName }} {{ ticket.author.lastName }} • {{ ticket.createdAt | date:'dd/MM/yyyy HH:mm' }}
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
@@ -66,15 +66,22 @@
           <div class="meta-item">
             <strong>Técnico Asignado:</strong> <span>{{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : (ticket.agentNameFallback ? ticket.agentNameFallback + ' (Agente Eliminado)' : 'Pendiente de asignar') }}</span>
           </div>
+          <div class="meta-item" *ngIf="isAgent || isAdmin">
+            <strong>Tiempo Invertido:</strong> <span>{{ getTotalTimeSpent() }}</span>
+          </div>
         </div>
       </mat-card-content>
       
       <!-- Controles para Agentes / Admin -->
       <mat-card-actions *ngIf="isAgent || isAdmin" class="agent-actions">
-        <button mat-flat-button color="accent" *ngIf="!ticket.agent" (click)="claimTicket()">
-          <mat-icon>person_add</mat-icon> Asignarme este ticket
+        <button mat-flat-button color="accent" *ngIf="isAgent && !ticket.agent" (click)="claimTicket()">
+          <mat-icon>person_add</mat-icon> Asignarme esta incidencia
         </button>
-        
+
+        <button mat-stroked-button color="primary" *ngIf="isAgent" (click)="assignTicket()" style="margin-left: 10px;">
+          <mat-icon>assignment_ind</mat-icon> {{ ticket.agent ? 'Reasignar' : 'Asignar a...' }}
+        </button>
+
         <div class="status-buttons" *ngIf="ticket.agent">
           <button mat-stroked-button (click)="updateStatus('En proceso')" *ngIf="ticket.status === 'Nuevo'">
             Empezar trabajo
@@ -86,6 +93,31 @@
             Cerrar Incidencia
           </button>
         </div>
+
+        <!-- Cronómetro (Solo para el responsable) -->
+        <div class="stopwatch-container" *ngIf="ticket.agent && (authService.getUser()?.id === ticket.agent?.id)" style="margin-left: 10px; display: flex; align-items: center; gap: 4px; background: #e3f2fd; padding: 4px 10px; border-radius: 20px; border: 1px solid #bbdefb;">
+          <mat-icon style="color: #1976d2; font-size: 18px; width: 18px; height: 18px;">timer</mat-icon>
+          <span style="font-weight: bold; font-family: monospace; min-width: 65px; color: #1565c0; font-size: 1rem;">{{ formatTimer(timerSeconds) }}</span>
+          
+          <!-- Botón PAUSAR (Solo si está corriendo) -->
+          <button mat-icon-button color="warn" *ngIf="isTimerRunning" (click)="pauseTimer()" style="width: 28px; height: 28px; line-height: 28px;" title="Pausar trabajo">
+            <mat-icon style="font-size: 18px;">pause</mat-icon>
+          </button>
+          
+          <!-- Botón REANUDAR/INICIAR (Solo si está parado) -->
+          <button mat-icon-button color="primary" *ngIf="!isTimerRunning" (click)="resumeTimer()" style="width: 28px; height: 28px; line-height: 28px;" title="Reanudar/Iniciar">
+            <mat-icon style="font-size: 18px;">play_arrow</mat-icon>
+          </button>
+
+          <!-- Botón GUARDAR TIEMPO (Siempre disponible si hay tiempo acumulado) -->
+          <button mat-icon-button style="color: #2e7d32; width: 28px; height: 28px; line-height: 28px;" (click)="stopTimerAndLog()" *ngIf="timerSeconds > 0" title="Guardar tiempo en historial">
+            <mat-icon style="font-size: 18px;">save</mat-icon>
+          </button>
+        </div>
+
+        <button mat-stroked-button color="primary" *ngIf="ticket.agent && isAgent" (click)="logTime()" style="margin-left: 10px;">
+          <mat-icon>post_add</mat-icon> Manual
+        </button>
 
         <button mat-flat-button color="primary" *ngIf="isAdmin && (ticket.status === 'Resuelto' || ticket.status === 'Cerrado')" (click)="generatePDF()" style="margin-left: auto;">
           <mat-icon>picture_as_pdf</mat-icon> Generar PDF
@@ -106,7 +138,7 @@
             <div *ngFor="let comment of ticket.comments" class="comment-item">
               <div class="comment-header">
                 <strong>{{ comment.author.firstName }} {{ comment.author.lastName }}</strong>
-                <span class="comment-date">{{ comment.createdAt | date:'short' }}</span>
+                <span class="comment-date">{{ comment.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
               </div>
               <p class="comment-content">{{ comment.content }}</p>
               
@@ -153,7 +185,7 @@
               <div class="history-marker"></div>
               <div class="history-body">
                 <div class="history-title">
-                  <strong>{{ item.action }}</strong> • {{ item.createdAt | date:'short' }}
+                  <strong>{{ item.action }}</strong> • {{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}
                 </div>
                 <div class="history-values">
                   <span class="old">{{ item.oldValue || 'N/A' }}</span>
@@ -176,18 +208,19 @@
   <div class="print-area" *ngIf="ticket">
     <div class="print-header">
       <h1>Reporte de Incidencia #{{ ticket.id }}</h1>
-      <p class="print-date">Generado el {{ today | date:'medium' }}</p>
+      <p class="print-date">Generado el {{ today | date:'dd/MM/yyyy HH:mm' }}</p>
     </div>
     
     <div class="print-section">
       <h2>1. Información General</h2>
       <p><strong>Título:</strong> {{ ticket.title }}</p>
       <p><strong>Autor:</strong> {{ ticket.author.firstName }} {{ ticket.author.lastName }} ({{ ticket.author.email }})</p>
-      <p><strong>Fecha de Creación:</strong> {{ ticket.createdAt | date:'medium' }}</p>
+      <p><strong>Fecha de Creación:</strong> {{ ticket.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
       <p><strong>Estado:</strong> {{ ticket.status }}</p>
       <p><strong>Categoría:</strong> {{ ticket.category.name }}</p>
       <p><strong>Prioridad:</strong> {{ ticket.priority }}</p>
       <p><strong>Técnico Asignado:</strong> {{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : (ticket.agentNameFallback ? ticket.agentNameFallback + ' (Agente Eliminado)' : 'N/A') }}</p>
+      <p><strong>Tiempo Total Invertido:</strong> {{ getTotalTimeSpent() }}</p>
     </div>
 
     <div class="print-section" *ngIf="ticket.description">
@@ -198,7 +231,7 @@
     <div class="print-section" *ngIf="ticket.comments?.length > 0">
       <h2>3. Registro de Conversación</h2>
       <div class="print-comment" *ngFor="let c of ticket.comments">
-        <p><strong>{{ c.author.firstName }} {{ c.author.lastName }}</strong> - {{ c.createdAt | date:'short' }}</p>
+        <p><strong>{{ c.author.firstName }} {{ c.author.lastName }}</strong> - {{ c.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
         <p>{{ c.content }}</p>
       </div>
     </div>
@@ -206,7 +239,7 @@
     <div class="print-section" *ngIf="ticket.history?.length > 0">
       <h2>4. Historial de Resolución</h2>
       <div class="print-history" *ngFor="let h of ticket.history">
-        <p><strong>{{ h.action }}</strong> - {{ h.createdAt | date:'short' }} <span *ngIf="h.user">(Usuario: {{ h.user.firstName }} {{ h.user.lastName }})</span><span *ngIf="!h.user">(Sistema)</span></p>
+        <p><strong>{{ h.action }}</strong> - {{ h.createdAt | date:'dd/MM/yyyy HH:mm' }} <span *ngIf="h.user">(Usuario: {{ h.user.firstName }} {{ h.user.lastName }})</span><span *ngIf="!h.user">(Sistema)</span></p>
         <p><em>Cambio:</em> {{ h.oldValue || 'N/A' }} ➔ {{ h.newValue }}</p>
       </div>
     </div>

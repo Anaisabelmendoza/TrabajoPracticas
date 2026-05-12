@@ -19,6 +19,99 @@
   }
 }
 
+.sync-banner {
+  background: transparent !important;
+  border: 2px solid #764ba2 !important;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #764ba2 !important;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-4px);
+    background: rgba(118, 75, 162, 0.05) !important;
+    box-shadow: 0 12px 24px rgba(118, 75, 162, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .sync-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .sync-icon-wrapper {
+    position: relative;
+    background: rgba(118, 75, 162, 0.1);
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .email-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #764ba2;
+    }
+
+    .sync-status-dot {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 14px;
+      height: 14px;
+      background: #43e97b;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(67, 233, 123, 0.5);
+    }
+  }
+
+  .sync-text {
+    h2 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #764ba2;
+    }
+    p {
+      margin: 4px 0 0;
+      opacity: 0.8;
+      font-size: 1rem;
+      color: #555;
+    }
+  }
+
+  .sync-button {
+    background: transparent !important;
+    color: #764ba2 !important;
+    border: 2px solid #764ba2 !important;
+    border-radius: 12px;
+    font-weight: 700;
+    padding: 0 24px;
+    height: 48px;
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+
+    &:hover {
+      background: rgba(118, 75, 162, 0.1) !important;
+    }
+  }
+}
+
 .admin-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -63,9 +156,9 @@
     }
 
     &.users { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    &.stats { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-    &.tickets { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-    &.settings { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    &.stats { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); }
+    &.tickets { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    &.settings { background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); }
   }
 
   mat-card-title {
@@ -93,11 +186,7 @@
 }
 
 .quick-actions {
-  background: var(--app-card-bg, #fff);
-  border-radius: 20px;
-  padding: 25px;
-  border: 1px solid var(--app-border, rgba(0,0,0,0.05));
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  padding: 25px 0;
 
   h2 {
     font-size: 1.4rem;
@@ -107,30 +196,40 @@
     color: var(--app-text, #333);
   }
 
-  mat-list-item {
-    height: auto !important;
-    padding: 12px 0 !important;
-    cursor: pointer;
-    border-radius: 12px;
-    transition: background 0.2s;
+  .quick-actions-grid {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
 
-    &:hover {
-      background: rgba(0,0,0,0.03);
-    }
+  .quick-btn-white {
+    background: #ffffff !important;
+    color: #764ba2 !important;
+    border-radius: 14px !important;
+    height: 54px !important;
+    padding: 0 25px !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: none !important;
 
     mat-icon {
+      margin-right: 10px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
       color: #764ba2;
-      margin-right: 15px;
     }
 
-    [matListItemTitle] {
-      font-weight: 600 !important;
-      font-size: 1.05rem !important;
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+      background: #fdfdfd !important;
     }
 
-    [matListItemLine] {
-      font-size: 0.9rem !important;
-      opacity: 0.7;
+    &:active {
+      transform: translateY(-1px);
     }
   }
 }
@@ -141,5 +240,20 @@
   }
   .admin-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .sync-banner {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+    
+    .sync-content {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sync-button {
+      width: 100%;
+    }
   }
 }

@@ -12,6 +12,9 @@ import { FormsModule } from '@angular/forms';
 
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-user-management',
@@ -40,14 +43,86 @@ export class UserManagementPage implements OnInit {
   loading = true;
   displayedColumns: string[] = ['name', 'email', 'status', 'duty', 'connected', 'actions'];
 
+  selectedAgentForMetrics: User | null = null;
+  selectedUserForCategories: User | null = null;
+  allCategories: any[] = [];
+  agentChart: any = null;
+  saving = false;
+
   constructor(
     private userService: UserService,
     private snackBar: MatSnackBar,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
     this.loadUsers();
+    this.loadAllCategories();
+  }
+
+  loadAllCategories() {
+    const tokenStr = localStorage.getItem('auth_token');
+    this.http.get<any>(`${environment.apiUrl}/api/categories`, {
+      headers: { 'Authorization': `Bearer ${tokenStr}` }
+    }).subscribe(res => {
+      this.allCategories = res['hydra:member'] || res['member'] || (Array.isArray(res) ? res : []);
+    });
+  }
+
+  openCategoryManager(user: User) {
+    this.selectedUserForCategories = { ...user };
+    // Normalizar categorías para que sean IDs simples si vienen como objetos
+    if (this.selectedUserForCategories.categories) {
+      this.selectedUserForCategories.categories = this.selectedUserForCategories.categories.map(c => 
+        typeof c === 'string' ? c : c['@id'] || `/api/categories/${c.id}`
+      );
+    } else {
+      this.selectedUserForCategories.categories = [];
+    }
+  }
+
+  isCategorySelected(catId: number): boolean {
+    if (!this.selectedUserForCategories?.categories) return false;
+    const uri = `/api/categories/${catId}`;
+    return this.selectedUserForCategories.categories.includes(uri);
+  }
+
+  toggleCategory(catId: number) {
+    if (!this.selectedUserForCategories) return;
+    const uri = `/api/categories/${catId}`;
+    const index = this.selectedUserForCategories.categories!.indexOf(uri);
+    
+    if (index > -1) {
+      this.selectedUserForCategories.categories!.splice(index, 1);
+    } else {
+      this.selectedUserForCategories.categories!.push(uri);
+    }
+  }
+
+  saveCategories() {
+    if (!this.selectedUserForCategories) return;
+    this.saving = true;
+    
+    this.userService.updateUser(this.selectedUserForCategories.id, {
+      categories: this.selectedUserForCategories.categories
+    }).subscribe({
+      next: () => {
+        this.snackBar.open('Categorías actualizadas correctamente', 'Cerrar', { duration: 3000 });
+        this.loadUsers(); // Recargar para ver cambios
+        this.selectedUserForCategories = null;
+        this.saving = false;
+      },
+      error: (err) => {
+        console.error('Error al guardar categorías:', err);
+        this.snackBar.open('Error al guardar los cambios', 'Cerrar', { duration: 3000 });
+        this.saving = false;
+      }
+    });
+  }
+
+  closeCategoryManager() {
+    this.selectedUserForCategories = null;
   }
 
   loadUsers() {
@@ -143,5 +218,93 @@ export class UserManagementPage implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  closeMetrics() {
+    this.selectedAgentForMetrics = null;
+    if (this.agentChart) {
+      this.agentChart.destroy();
+      this.agentChart = null;
+    }
+  }
+
+  openMetrics(user: User) {
+    this.selectedAgentForMetrics = user;
+    this.snackBar.open('Cargando métricas...', '', { duration: 1500 });
+    
+    const tokenStr = localStorage.getItem('auth_token');
+    
+    this.http.get<any>(`${environment.apiUrl}/api/work_logs?agent=/api/users/${user.id}`, {
+      headers: {
+        'Authorization': `Bearer ${tokenStr}`,
+        'Accept': 'application/ld+json'
+      }
+    }).subscribe({
+      next: (res) => {
+        const logs = res['hydra:member'] || res['member'] || (Array.isArray(res) ? res : []);
+        this.drawChart(logs);
+      },
+      error: (err) => {
+        console.error('Error cargando métricas:', err);
+        this.snackBar.open('No se pudieron cargar los registros. Revisa el backend.', 'Cerrar', { duration: 3000 });
+      }
+    });
+  }
+
+  drawChart(logs: any[]) {
+    // Agrupar por fecha
+    const hoursByDate: { [key: string]: number } = {};
+    
+    // Rellenar ultimos 7 días con 0 por defecto
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      hoursByDate[dateStr] = 0;
+    }
+
+    logs.forEach(log => {
+      const dateStr = new Date(log.date).toISOString().split('T')[0];
+      if (hoursByDate[dateStr] !== undefined) {
+        hoursByDate[dateStr] += log.minutesSpent / 60; // Convertir a horas
+      } else {
+        hoursByDate[dateStr] = log.minutesSpent / 60;
+      }
+    });
+
+    const labels = Object.keys(hoursByDate).sort();
+    const data = labels.map(l => hoursByDate[l]);
+
+    setTimeout(() => {
+      const canvas = document.getElementById('agentMetricsCanvas') as HTMLCanvasElement;
+      if (!canvas) return;
+
+      if (this.agentChart) {
+        this.agentChart.destroy();
+      }
+
+      this.agentChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Horas Trabajadas',
+            data: data,
+            backgroundColor: '#1976d2',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Horas' }
+            }
+          }
+        }
+      });
+    }, 100);
   }
 }

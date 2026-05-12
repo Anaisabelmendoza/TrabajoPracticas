@@ -23,6 +23,7 @@ security:
             pattern: ^/api/login
             stateless: true
             provider: app_user_provider
+            user_checker: App\Security\UserChecker
             json_login:
                 check_path: /api/login_check
                 username_path: email
@@ -33,6 +34,8 @@ security:
         api:
             pattern:   ^/api
             stateless: true
+            provider: app_user_provider
+            user_checker: App\Security\UserChecker
             jwt: ~  # Activa la protección jwt
 
         main:

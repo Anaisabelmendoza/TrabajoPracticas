@@ -61,11 +61,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private array $roles = [];
 
-    #[ORM\Column(options: ['default' => true])]
+    // --- AQUÍ ESTÁ EL PRIMER CAMBIO MÁGICO (type: 'boolean') ---
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
     #[Groups(['user:read', 'user:write'])]
     private bool $isActive = true;
 
-    #[ORM\Column(options: ['default' => true])]
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
     #[Groups(['user:read', 'user:write'])]
     private bool $isOnDuty = true;
 
@@ -96,28 +97,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     // ========== MÉTODOS OBLIGATORIOS DE SEGURIDAD ==========
 
-    /**
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // Garantizamos que cada usuario tenga al menos ROLE_USER
         $roles[] = 'ROLE_USER';
         return array_unique($roles);
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;

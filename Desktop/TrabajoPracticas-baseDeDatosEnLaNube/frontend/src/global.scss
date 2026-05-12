@@ -42,7 +42,7 @@ $my-theme: mat.define-theme((
   --app-border: #222;
   --app-border-light: rgba(255, 255, 255, 0.08);
   --app-icon-color: #888;
-  --app-accent: #4A90E2;
+  --app-accent: #764ba2;
   --app-input-text: #ffffff;
   --app-input-border: #444;
   --app-input-label: #aaa;
@@ -51,6 +51,12 @@ $my-theme: mat.define-theme((
   --ion-text-color: #ffffff;
   --ion-toolbar-background: #000000;
   --ion-toolbar-color: #ffffff;
+  --ion-color-primary: #764ba2;
+  --ion-color-primary-rgb: 118, 75, 162;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #68428f;
+  --ion-color-primary-tint: #845db3;
 }
 
 // Modo claro
@@ -63,7 +69,7 @@ body.light-theme {
   --app-border: #e0e0e0;
   --app-border-light: rgba(0, 0, 0, 0.08);
   --app-icon-color: #666;
-  --app-accent: #2979FF;
+  --app-accent: #764ba2;
   --app-input-text: #1a1a1a;
   --app-input-border: #ccc;
   --app-input-label: #666;
@@ -72,6 +78,12 @@ body.light-theme {
   --ion-text-color: #1a1a1a;
   --ion-toolbar-background: #ffffff;
   --ion-toolbar-color: #1a1a1a;
+  --ion-color-primary: #764ba2;
+  --ion-color-primary-rgb: 118, 75, 162;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #68428f;
+  --ion-color-primary-tint: #845db3;
 }
 
 // Estilos base
@@ -88,6 +100,28 @@ html, body {
 mat-card {
   border-radius: 20px !important;
   box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+}
+
+.outlined-primary {
+  border: 2px solid #764ba2 !important;
+  color: #764ba2 !important;
+  background: transparent !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  
+  &:hover {
+    background: rgba(118, 75, 162, 0.05) !important;
+  }
+  
+  mat-icon {
+    color: #764ba2 !important;
+  }
+}
+
+.primary-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border: none !important;
 }
 
 // LIMPIEZA DE INTERFAZ
@@ -149,5 +183,33 @@ body.light-theme .cdk-overlay-pane {
   
   .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text {
     color: #764ba2 !important;
+  }
+}
+
+.btn-clear-filters {
+  border: 2px solid #764ba2 !important;
+  color: #764ba2 !important;
+  background: transparent !important;
+  height: 54px !important;
+  width: 54px !important;
+  min-width: 54px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease;
+
+  mat-icon {
+    margin: 0 !important;
+    color: #764ba2 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  &:hover {
+    background: rgba(118, 75, 162, 0.05) !important;
+    transform: translateY(-2px);
   }
 }

@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
 import { HttpClient } from '@angular/common/http';
 
 export const MY_FORMATS = {
@@ -46,7 +47,8 @@ import Chart from 'chart.js/auto';
     MatFormFieldModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatButtonModule
+    MatButtonModule,
+    MatTableModule
   ],
   providers: [
     { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
@@ -59,9 +61,10 @@ export class StatsPage implements OnInit, AfterViewInit {
 
   pieChart: any;
   barChart: any;
-
   statsData: any = null;
+  agentLogsData: any[] = [];
   loading = true;
+  displayedColumns: string[] = ['name', 'email', 'time'];
 
   // Filtros interactivos
   selectedCategory: number | '' = '';
@@ -87,11 +90,11 @@ export class StatsPage implements OnInit, AfterViewInit {
   ngOnInit() {
     this.loadCategories();
     this.fetchStats();
+    this.fetchAgentLogs();
   }
 
   ngAfterViewInit() {
-    // Si la data llego muy rapido, dibuja. Si no, `fetchStats` lo hara.
-    if (this.statsData && !this.pieChart) {
+    if (this.statsData && !this.barChart) {
       this.initCharts();
     }
   }
@@ -108,6 +111,21 @@ export class StatsPage implements OnInit, AfterViewInit {
     this.fetchStats();
   }
 
+  downloadFullReport() {
+    const token = this.authService.getToken();
+    // Abrimos el informe en una pestaña nueva pasando el token para autenticarnos
+    const url = `${environment.apiUrl}/api/reports/full?token=${token}`;
+    window.open(url, '_blank');
+  }
+
+  clearFilters() {
+    this.selectedCategory = '';
+    this.selectedPriority = '';
+    this.startDate = '';
+    this.endDate = '';
+    this.fetchStats();
+  }
+
   searchTickets() {
     this.router.navigate(['/stats/drilldown/search'], {
       queryParams: {
@@ -121,59 +139,89 @@ export class StatsPage implements OnInit, AfterViewInit {
 
   fetchStats() {
     this.loading = true;
+    this.statsData = null; // Reiniciar para mostrar carga
+    
     let url = `${environment.apiUrl}/api/statistics?`;
-    if (this.selectedCategory) {
-      url += `category=${this.selectedCategory}&`;
-    }
-    if (this.selectedPriority) {
-      url += `priority=${this.selectedPriority}&`;
-    }
-    if (this.startDate) {
-      const start = new Date(this.startDate);
-      url += `startDate=${start.toISOString().split('T')[0]}&`;
-    }
-    if (this.endDate) {
-      const end = new Date(this.endDate);
-      url += `endDate=${end.toISOString().split('T')[0]}&`;
-    }
+    if (this.selectedCategory) url += `category=${this.selectedCategory}&`;
+    if (this.selectedPriority) url += `priority=${this.selectedPriority}&`;
+    if (this.startDate) url += `startDate=${new Date(this.startDate).toISOString().split('T')[0]}&`;
+    if (this.endDate) url += `endDate=${new Date(this.endDate).toISOString().split('T')[0]}&`;
 
     this.http.get<any>(url, {
       headers: { 'Authorization': `Bearer ${this.authService.getToken()}` }
     }).subscribe({
       next: (data) => {
-        this.statsData = data;
+        this.statsData = data || { by_status: [], by_agent: [], critical_pending_count: 0 };
         
         let activeCount = 0;
         let resolvedCount = 0;
-        if (data.by_status) {
-          data.by_status.forEach((s: any) => {
+        
+        if (this.statsData.by_status && Array.isArray(this.statsData.by_status)) {
+          this.statsData.by_status.forEach((s: any) => {
             if (s.status !== 'Resuelto' && s.status !== 'Cerrado') {
-              activeCount += parseInt(s.count);
+              activeCount += parseInt(s.count) || 0;
             } else {
-              resolvedCount += parseInt(s.count);
+              resolvedCount += parseInt(s.count) || 0;
             }
           });
+          
+          const statusNuevo = this.statsData.by_status.find((s: any) => s.status === 'Nuevo');
+          this.kpis.open = statusNuevo ? parseInt(statusNuevo.count) : 0;
         }
+        
         this.kpis.total = activeCount;
         this.kpis.resolved = resolvedCount;
-        
-        const statusNuevo = data.by_status.find((s: any) => s.status === 'Nuevo');
-        this.kpis.open = statusNuevo ? parseInt(statusNuevo.count) : 0;
-
-        this.kpis.criticalPending = data.critical_pending_count || 0;
+        this.kpis.criticalPending = this.statsData.critical_pending_count || 0;
 
         this.loading = false;
-        
-        // Timeout to ensure canvas exists in DOM if it was hidden by *ngIf="loading"
-        setTimeout(() => {
-          this.initCharts();
-        }, 100);
+        setTimeout(() => this.initCharts(), 100);
       },
       error: (e) => {
-        console.error('Error del servidor:', e);
-        alert('Error cargando estadísticas. Verifica tu conexión o el estado del backend.');
+        console.error('Error loading stats:', e);
+        this.statsData = { by_status: [], by_agent: [], critical_pending_count: 0 };
         this.loading = false;
       }
+    });
+  }
+
+  fetchAgentLogs() {
+    this.http.get<any>(`${environment.apiUrl}/api/users`, {
+      headers: { 'Authorization': `Bearer ${this.authService.getToken()}`, 'Accept': 'application/ld+json' }
+    }).subscribe({
+      next: (usersRes) => {
+        const users = usersRes['hydra:member'] || usersRes['member'] || (Array.isArray(usersRes) ? usersRes : []);
+        const agents = users.filter((u: any) => u.roles && u.roles.includes('ROLE_AGENT') && !u.roles.includes('ROLE_ADMIN'));
+        
+        this.http.get<any>(`${environment.apiUrl}/api/work_logs`, {
+          headers: { 'Authorization': `Bearer ${this.authService.getToken()}`, 'Accept': 'application/ld+json' }
+        }).subscribe({
+          next: (logsRes) => {
+            const logs = logsRes['hydra:member'] || logsRes['member'] || (Array.isArray(logsRes) ? logsRes : []);
+            
+            this.agentLogsData = agents.map((agent: any) => {
+              const agentIdStr = `/api/users/${agent.id}`;
+              const agentLogs = logs.filter((l: any) => {
+                if (typeof l.agent === 'string') return l.agent === agentIdStr;
+                if (l.agent && l.agent.id) return l.agent.id === agent.id;
+                return false;
+              });
+
+              const totalMinutes = agentLogs.reduce((acc: number, l: any) => acc + (l.minutesSpent || 0), 0);
+              const hours = Math.floor(totalMinutes / 60);
+              const minutes = totalMinutes % 60;
+
+              return {
+                ...agent,
+                totalMinutes,
+                totalHoursFormatted: `${hours}h ${minutes}m`
+              };
+            });
+            this.agentLogsData.sort((a, b) => b.totalMinutes - a.totalMinutes);
+          },
+          error: (err) => console.error('Error loading work logs:', err)
+        });
+      },
+      error: (err) => console.error('Error loading users:', err)
     });
   }
 
@@ -181,76 +229,70 @@ export class StatsPage implements OnInit, AfterViewInit {
     try {
       if (!this.statsData || !this.pieCanvas || !this.barCanvas) return;
 
-    if (this.pieChart) this.pieChart.destroy();
-    if (this.barChart) this.barChart.destroy();
+      if (this.pieChart) this.pieChart.destroy();
+      if (this.barChart) this.barChart.destroy();
 
-    // Pie Chart: Status (Mostramos TODOS los posibles aunque estén en 0)
-    const allStatuses = ['Nuevo', 'En proceso', 'Resuelto', 'Cerrado'];
-    const statusCountsMap: { [key: string]: number } = {};
-    
-    if (this.statsData.by_status) {
-      this.statsData.by_status.forEach((item: any) => {
-        statusCountsMap[item.status] = parseInt(item.count) || 0;
-      });
-    }
-
-    const statusLabels = allStatuses;
-    const statusValues = allStatuses.map(status => statusCountsMap[status] || 0);
-
-    const isDarkTheme = document.body.classList.contains('dark-theme');
-    const textColor = isDarkTheme ? '#ffffff' : '#666666';
-    const gridColor = isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-
-    this.pieChart = new Chart(this.pieCanvas.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: statusLabels,
-        datasets: [{
-          data: statusValues,
-          backgroundColor: [
-            '#ff9800', // Nuevo
-            '#2196f3', // Proceso
-            '#4caf50', // Resuelto
-            '#9e9e9e'  // Cerrado
-          ],
-          borderWidth: 0,
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom', labels: { color: textColor } }
-        }
+      const allStatuses = ['Nuevo', 'En proceso', 'Resuelto', 'Cerrado'];
+      const statusCountsMap: { [key: string]: number } = {};
+      
+      if (this.statsData && this.statsData.by_status) {
+        this.statsData.by_status.forEach((item: any) => {
+          statusCountsMap[item.status] = parseInt(item.count) || 0;
+        });
       }
-    });
 
-    // Bar Chart: Employees
-    const agentLabels = this.statsData.by_agent.map((item: any) => `${item.firstName} ${item.lastName}`);
-    const agentValues = this.statsData.by_agent.map((item: any) => parseInt(item.count));
+      const statusLabels = allStatuses;
+      const statusValues = allStatuses.map(status => statusCountsMap[status] || 0);
 
-    this.barChart = new Chart(this.barCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: agentLabels,
-        datasets: [{
-          label: 'Incidencias Asignadas',
-          data: agentValues,
-          backgroundColor: '#764ba2',
-          borderRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } },
-          x: { ticks: { color: textColor }, grid: { display: false } }
+      const isDarkTheme = document.body.classList.contains('dark-theme');
+      const textColor = isDarkTheme ? '#ffffff' : '#666666';
+      const gridColor = isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+      this.pieChart = new Chart(this.pieCanvas.nativeElement, {
+        type: 'doughnut',
+        data: {
+          labels: statusLabels,
+          datasets: [{
+            data: statusValues,
+            backgroundColor: ['#ff9800', '#2196f3', '#4caf50', '#9e9e9e'],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
         },
-        plugins: {
-          legend: { display: false }
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor } }
+          }
         }
-      }
-    });
+      });
+
+      const agentData = this.statsData && this.statsData.by_agent ? this.statsData.by_agent : [];
+      const agentLabels = agentData.map((item: any) => `${item.firstName} ${item.lastName}`);
+      const agentValues = agentData.map((item: any) => parseInt(item.count));
+
+      this.barChart = new Chart(this.barCanvas.nativeElement, {
+        type: 'bar',
+        data: {
+          labels: agentLabels,
+          datasets: [{
+            label: 'Incidencias Asignadas',
+            data: agentValues,
+            backgroundColor: '#764ba2',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } },
+            x: { ticks: { color: textColor }, grid: { display: false } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
     } catch (err) {
       console.error('Error al inicializar los gráficos:', err);
     }

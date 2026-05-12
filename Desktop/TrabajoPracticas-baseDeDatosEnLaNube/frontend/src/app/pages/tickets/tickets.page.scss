@@ -1,123 +1,261 @@
-ion-content {
-  --background: var(--app-bg) !important;
-}
-
-.tickets-container {
-  padding: 16px;
-  max-width: 1200px;
-  margin: 0 auto;
-  background: var(--app-bg);
-  min-height: 100%;
-}
-
-:host ::ng-deep {
-  .mat-mdc-tab-header {
-    margin: 20px 20px 10px;
-    border-bottom: none !important;
-    background: var(--app-card-bg);
-    border-radius: 12px;
-    padding: 4px;
-  }
-
-  .mat-mdc-tab {
-    .mdc-tab__text-label {
-      color: var(--app-text-secondary) !important;
-    }
-  }
-
-  .mat-mdc-tab.mdc-tab--active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    border-radius: 8px;
-    
-    .mdc-tab__text-label {
-      color: white !important;
-    }
-  }
+.main-container {
+  padding: 10px 0;
 }
 
 ion-toolbar {
-  ion-button {
-    --color: #764ba2 !important;
-    --border-color: #764ba2 !important;
-    font-weight: 700;
+  --color: var(--app-text, #333);
+}
+
+.filters-panel {
+  background: transparent;
+  padding: 10px 0;
+  margin: 10px 15px 25px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+
+  ::ng-deep {
+    .mat-mdc-form-field-label { color: #555555 !important; }
+    .mat-mdc-select-value-text, .mat-mdc-input-element { 
+      color: #000000 !important; // Texto negro solicitado
+      font-weight: 500;
+    }
+    .mat-mdc-select-arrow { color: #666666 !important; }
+    
+    // Bordes grises que se aprecien
+    .mdc-notched-outline__leading, 
+    .mdc-notched-outline__notch, 
+    .mdc-notched-outline__trailing {
+      border-color: #bbbbbb !important; 
+      border-width: 1px !important;
+    }
+
+    .mat-mdc-form-field.mat-focused {
+      .mdc-notched-outline__leading, .mdc-notched-outline__notch, .mdc-notched-outline__trailing {
+        border-color: #764ba2 !important;
+        border-width: 2px !important;
+      }
+    }
+    .mat-datepicker-toggle { color: #555555 !important; }
   }
 }
 
-.tab-content {
-  padding: 20px;
+
+
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 0 15px 20px;
+  align-items: flex-start;
+  
+  min-height: calc(100vh - 200px);
 }
 
-.tickets-grid {
+.kanban-column {
+  flex: 1;
+  min-width: 300px;
+  background: #ffffff; // Blanco puro solicitado
+  border-radius: 16px; // Bordes más suaves
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  max-height: 100%;
+  padding: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); // Sombra suave para dar relieve
+  border: 1px solid rgba(0, 0, 0, 0.03); // Borde casi invisible
+
+  .column-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 5px 15px;
+    gap: 10px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      flex: 1;
+    }
+
+    .count-badge {
+      background: rgba(0,0,0,0.1);
+      color: #555;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    &.nuevas { color: #d32f2f; }
+    &.proceso { color: #f57c00; }
+    &.resuelto { color: #388e3c; }
+  }
+
+  .column-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 10px;
+  }
 }
 
-.ticket-card {
-  background: var(--app-card-bg) !important;
-  border: 1px solid var(--app-border) !important;
-  color: var(--app-text) !important;
-  border-radius: 16px !important;
-  padding: 8px !important;
+.ticket-card.kanban-card {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid rgba(0,0,0,0.04) !important;
+  margin: 0 !important;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
+  }
 
   mat-card-header {
-    padding: 16px 16px 8px !important;
-  }
+    padding: 12px 12px 8px !important;
+    
+    .priority-indicator {
+      width: 4px;
+      height: 24px;
+      border-radius: 2px;
+      margin-right: 10px;
 
-  mat-card-title {
-    color: var(--app-text) !important;
-    font-size: 1.1rem !important;
-  }
-  
-  mat-card-subtitle, .description, .technician-info {
-    color: var(--app-text-secondary) !important;
+      &.baja { background-color: #4caf50; }
+      &.media { background-color: #ff9800; }
+      &.alta { background-color: #f44336; }
+      &.crítica { background-color: #b71c1c; }
+    }
+
+    mat-card-title {
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      color: #2c3e50 !important;
+      line-height: 1.2;
+    }
+
+    mat-card-subtitle {
+      font-size: 0.85rem !important;
+      color: #7f8c8d !important;
+      margin-top: 4px !important;
+    }
   }
 
   mat-card-content {
-    padding: 0 16px !important;
-  }
+    padding: 0 12px 12px !important;
 
-  mat-card-footer {
-    padding: 8px 16px 16px !important;
-  }
-
-  .badge-container {
-    display: flex;
-    gap: 8px;
-  }
-
-  mat-card-actions {
-    border-top: 1px solid var(--app-border);
-    padding: 4px 8px !important;
-    
-    button {
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 0.8rem;
+    .description {
+      font-size: 0.9rem;
+      color: #5d6d7e;
+      margin-bottom: 12px;
+      line-height: 1.4;
     }
 
-    button[color="warn"] {
-      color: #ff5252;
+    .technician-info {
+      display: flex;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      margin-bottom: 10px;
+      gap: 5px;
+      mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #f0f0f0;
+      padding-top: 10px;
+
+      .date { font-size: 0.75rem; color: #95a5a6; font-weight: 500; }
+      
+      .priority-label {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-weight: 700;
+        
+        &.baja { background: #e8f5e9; color: #2e7d32; }
+        &.media { background: #fff3e0; color: #ef6c00; }
+        &.alta { background: #ffebee; color: #c62828; }
+        &.crítica { background: #b71c1c; color: #fff; }
+      }
+      
+      .status-pill {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 700;
+        &.process { background: #e3f2fd; color: #1565c0; }
+        &.success { background: #e8f5e9; color: #2e7d32; }
+      }
     }
   }
 }
 
-.empty-state {
+.empty-state-small {
+  padding: 30px 10px;
   text-align: center;
-  padding: 60px 20px;
-  color: var(--app-text-muted);
+  color: #95a5a6;
+  font-style: italic;
+  font-size: 0.9rem;
+}
 
-  .large-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 12px;
-    color: var(--app-text-muted);
+// --- MODO OSCURO (AL FINAL PARA PRIORIDAD) ---
+@media (prefers-color-scheme: dark) {
+  .filters-panel {
+    ::ng-deep {
+      .mat-mdc-text-field-wrapper {
+        background-color: #ffffff !important; // Fondo blanco siempre
+      }
+      .mat-mdc-form-field-label { color: #555555 !important; }
+      .mat-mdc-select-value-text, .mat-mdc-input-element { color: #000000 !important; } // Negro en modo oscuro también
+      .mdc-notched-outline__leading, .mdc-notched-outline__notch, .mdc-notched-outline__trailing {
+        border-color: #bbbbbb !important; // Bordes grises visibles
+      }
+    }
   }
 
-  p {
-    font-size: 1rem;
-    margin: 0;
+  .kanban-column {
+    background: #ffffff !important; // Forzamos el blanco
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
   }
+
+  .ticket-card.kanban-card {
+    background: #ffffff !important; // Forzamos el blanco en las tarjetas
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    color: #333333 !important; // Texto oscuro para que se lea
+
+    mat-card-header mat-card-title {
+      color: #1a1a1a !important;
+      -webkit-text-fill-color: #1a1a1a !important;
+    }
+
+    mat-card-subtitle { color: #666666 !important; }
+    .description { color: #444444 !important; }
+    
+    .card-meta {
+      border-top: 1px solid rgba(0,0,0,0.05) !important;
+      .date { color: #888 !important; }
+    }
+
+    &:hover {
+      background: #fcfcfc !important;
+    }
+  }
+
+  .empty-state-small { color: #444; }
 }

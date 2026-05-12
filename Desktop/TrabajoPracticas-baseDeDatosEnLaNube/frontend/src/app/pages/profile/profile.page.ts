@@ -83,8 +83,16 @@ export class ProfilePage implements OnInit {
   }
 
   private loadCurrentUser() {
-    this.user = this.authService.getUser();
-    this.profileImage = localStorage.getItem('profile_image_' + this.user?.email);
+    const user = this.authService.getUser();
+    if (user && user.id) {
+      this.userService.getUserById(user.id).subscribe(userData => {
+        this.user = userData;
+        this.profileImage = localStorage.getItem('profile_image_' + this.user?.email);
+      });
+    } else {
+      this.user = user;
+      this.profileImage = localStorage.getItem('profile_image_' + this.user?.email);
+    }
   }
 
   toggleTheme() {

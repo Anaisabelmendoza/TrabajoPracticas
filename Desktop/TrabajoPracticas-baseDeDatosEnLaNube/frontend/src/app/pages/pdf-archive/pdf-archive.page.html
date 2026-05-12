@@ -39,14 +39,22 @@
 
         <mat-list>
           <ng-container *ngFor="let ticket of group.tickets; let last = last">
-            <mat-list-item>
-              <mat-icon matListItemIcon color="primary">picture_as_pdf</mat-icon>
-              <div matListItemTitle>{{ ticket.title }}</div>
-              <div matListItemLine>Finalizado el {{ ticket.updatedAt | date:'mediumDate' }}</div>
+            <mat-list-item style="height: auto; padding: 12px 0;">
+              <mat-icon matListItemIcon style="color: #555; margin-right: 16px;">picture_as_pdf</mat-icon>
               
-              <button mat-flat-button color="primary" [routerLink]="['/tickets', ticket.id]" class="print-button" style="margin-left: auto;">
-                <mat-icon>print</mat-icon> Ver PDF
-              </button>
+              <div matListItemTitle style="font-weight: 600; font-size: 1.1rem; color: #333; margin-bottom: 4px;">
+                {{ ticket.title }}
+              </div>
+              
+              <div matListItemLine style="color: #777; font-size: 0.9rem;">
+                <span style="font-weight: 500;">Finalizado el:</span> {{ (ticket.updatedAt || ticket.createdAt) | date:'dd/MM/yyyy' }}
+              </div>
+              
+              <div matListItemMeta>
+                <button mat-flat-button color="primary" [routerLink]="['/tickets', ticket.id]" class="print-button" style="border-radius: 8px; padding: 0 20px; height: 40px;">
+                  <mat-icon style="margin-right: 8px;">visibility</mat-icon> Ver PDF
+                </button>
+              </div>
             </mat-list-item>
             <mat-divider *ngIf="!last"></mat-divider>
           </ng-container>

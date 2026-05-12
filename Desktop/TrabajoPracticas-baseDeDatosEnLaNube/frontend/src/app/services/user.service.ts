@@ -13,6 +13,7 @@ export interface User {
   isActive?: boolean;
   isOnDuty?: boolean;
   lastActivityAt?: string;
+  categories?: any[];
 }
 
 @Injectable({

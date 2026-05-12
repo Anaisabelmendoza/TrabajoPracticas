@@ -1,0 +1,127 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin-control"></ion-back-button>
+    </ion-buttons>
+    <ion-title style="color: #ffffff !important;">Ajustes Técnicos</ion-title>
+    <ion-buttons slot="end">
+      <ion-badge color="danger" style="margin-right: 15px;">ADMIN</ion-badge>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="config-container">
+    
+    <div class="header-section">
+      <h1>Ajustes Técnicos ⚙️</h1>
+      <p>Gestiona las categorías y parámetros globales del servicio técnico.</p>
+    </div>
+
+    <!-- Gestión de Prioridades -->
+    <mat-card class="category-card priority-card">
+      <mat-card-header>
+        <mat-card-title>Gestión de Prioridades</mat-card-title>
+        <mat-card-subtitle>Define los niveles de urgencia para los tickets</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="add-item-row">
+          <mat-form-field appearance="outline" style="flex: 1;">
+            <mat-label>Nueva Prioridad</mat-label>
+            <input matInput [(ngModel)]="newPriorityName" placeholder="Ej: Crítica, Muy Baja..." (keyup.enter)="addPriority()">
+            <mat-icon matPrefix style="color: #764ba2;">flag</mat-icon>
+          </mat-form-field>
+          
+          <button mat-flat-button class="add-btn-large" (click)="addPriority()">
+            <mat-icon>add</mat-icon>
+            AÑADIR
+          </button>
+      </div>
+
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre de Prioridad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let priority of priorities">
+                <td><span class="id-badge">#{{ priority.id }}</span></td>
+                <td class="name-cell">{{ priority.name }}</td>
+                <td>
+                  <button mat-icon-button color="warn" (click)="deletePriority(priority.id)" matTooltip="Eliminar prioridad">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Gestión de Categorías -->
+    <mat-card class="category-card">
+      <mat-card-header>
+        <mat-card-title>Categorías de Incidencias</mat-card-title>
+        <mat-card-subtitle>Añade o edita los tipos de averías disponibles</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <!-- Formulario Añadir -->
+        <div class="add-item-row">
+          <mat-form-field appearance="outline" style="flex: 1;">
+            <mat-label>Nueva Categoría</mat-label>
+            <input matInput [(ngModel)]="newCategoryName" placeholder="Ej: Redes, Software, Impresoras..." (keyup.enter)="addCategory()">
+            <mat-icon matPrefix style="color: #764ba2;">label</mat-icon>
+          </mat-form-field>
+          
+          <button mat-flat-button class="add-btn-large" (click)="addCategory()">
+            <mat-icon>add</mat-icon>
+            AÑADIR
+          </button>
+        </div>
+
+        <!-- Tabla de Categorías -->
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">ID</th>
+                <th>Nombre de la Categoría</th>
+                <th style="width: 120px; text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cat of categories">
+                <td><span class="id-badge">#{{ cat.id }}</span></td>
+                <td class="name-cell">{{ cat.name }}</td>
+                <td style="text-align: center;">
+                  <div class="action-buttons" style="display: flex; justify-content: center; gap: 5px;">
+                    <button mat-icon-button color="primary" (click)="editCategory(cat)" title="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="deleteCategory(cat)" title="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="categories.length === 0 && !loading" class="empty-state" style="text-align: center; padding: 40px; color: #999;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; margin-bottom: 10px;">category</mat-icon>
+          <p>No hay categorías registradas.</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+
+  </div>
+</ion-content>

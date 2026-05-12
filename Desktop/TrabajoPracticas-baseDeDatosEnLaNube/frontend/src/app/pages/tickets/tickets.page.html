@@ -18,130 +18,150 @@
 
 <ion-content [fullscreen]="true">
   <div class="main-container">
+
+    <!-- Buscador Global / Filtros -->
+    <div class="filters-panel">
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+        <mat-label>Área / Categoría</mat-label>
+        <mat-select [(ngModel)]="searchCategory">
+          <mat-option value="">Todas</mat-option>
+          <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+        <mat-label>Prioridad</mat-label>
+        <mat-select [(ngModel)]="searchPriority">
+          <mat-option value="">Todas</mat-option>
+          <mat-option value="Baja">Baja</mat-option>
+          <mat-option value="Media">Media</mat-option>
+          <mat-option value="Alta">Alta</mat-option>
+          <mat-option value="Crítica">Crítica</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+        <mat-label>Desde</mat-label>
+        <input matInput [matDatepicker]="startPicker" [(ngModel)]="searchStartDate">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+        <mat-label>Hasta</mat-label>
+        <input matInput [matDatepicker]="endPicker" [(ngModel)]="searchEndDate">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+
+      <button mat-stroked-button class="outlined-primary" (click)="loadTickets()" style="height: 54px; margin-top: -20px; padding: 0 30px;">
+        <mat-icon>search</mat-icon>
+        BUSCAR
+      </button>
+
+      <button mat-stroked-button class="btn-clear-filters" (click)="clearFilters()" title="Limpiar Filtros" style="margin-top: -20px;">
+        <mat-icon>filter_alt_off</mat-icon>
+      </button>
+    </div>
     
-    <mat-tab-group dynamicHeight animationDuration="500ms" [selectedIndex]="selectedTabIndex" (selectedIndexChange)="selectedTabIndex = $event">
-      <!-- TAB: NUEVAS -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <div [matBadge]="getFilteredTickets('Nuevo').length" matBadgeOverlap="false" [matBadgeHidden]="getFilteredTickets('Nuevo').length === 0" matBadgeColor="warn">
-            <mat-icon style="margin-right: 8px;">new_releases</mat-icon>
-            Nuevas
-          </div>
-        </ng-template>
-        <div class="tab-content">
-          <div *ngIf="getFilteredTickets('Nuevo').length === 0" class="empty-state">
-            <mat-icon class="large-icon">check_circle_outline</mat-icon>
-            <p>No hay incidencias nuevas pendientes.</p>
-          </div>
-          <div class="tickets-grid">
-            <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card" [routerLink]="['/tickets', ticket.id]">
-              <mat-card-header>
-                <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
-                <mat-card-title>{{ ticket.title }}</mat-card-title>
-                <mat-card-subtitle>{{ ticket.category?.name }} • {{ ticket.createdAt | date:'short' }}</mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content>
-                <p class="description">{{ ticket.description | slice:0:100 }}{{ ticket.description.length > 100 ? '...' : '' }}</p>
-              </mat-card-content>
-              <mat-card-footer>
-                <div class="badge-container">
-                  <ion-badge color="medium">Nuevo</ion-badge>
-                  <ion-badge color="light" class="priority-badge">{{ ticket.priority }}</ion-badge>
-                </div>
-              </mat-card-footer>
-              <mat-card-actions align="end" *ngIf="!isAgent">
-                <button mat-button color="primary" (click)="editTicket(ticket, $event)">
-                  <mat-icon>edit</mat-icon> Editar
-                </button>
-                <button mat-button color="warn" (click)="deleteTicket(ticket, $event)">
-                  <mat-icon>delete</mat-icon> Eliminar
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          </div>
+    <div class="kanban-board">
+      
+      <!-- COLUMNA: NUEVAS -->
+      <div class="kanban-column">
+        <div class="column-header nuevas">
+          <mat-icon>new_releases</mat-icon>
+          <h2>Nuevas</h2>
+          <span class="count-badge">{{ getFilteredTickets('Nuevo').length }}</span>
         </div>
-      </mat-tab>
+        
+        <div class="column-content">
+          <div *ngIf="getFilteredTickets('Nuevo').length === 0" class="empty-state-small">
+            <p>No hay incidencias nuevas</p>
+          </div>
+          <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+            <mat-card-header>
+              <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
+              <mat-card-title>
+                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
+                {{ ticket.title }}
+              </mat-card-title>
+              <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+              <div class="card-meta">
+                <span class="date">{{ ticket.createdAt | date:'dd/MM/yyyy' }}</span>
+                <span class="priority-label" [class]="ticket.priority.toLowerCase()">{{ ticket.priority }}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
 
-      <!-- TAB: EN PROCESO -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <div [matBadge]="getFilteredTickets('Proceso').length" matBadgeOverlap="false" [matBadgeHidden]="getFilteredTickets('Proceso').length === 0" matBadgeColor="accent">
-            <mat-icon style="margin-right: 8px;">engineering</mat-icon>
-            En Proceso
-          </div>
-        </ng-template>
-        <div class="tab-content">
-          <div *ngIf="getFilteredTickets('Proceso').length === 0" class="empty-state">
-            <mat-icon class="large-icon">hourglass_empty</mat-icon>
-            <p>No hay trabajos en curso actualmente.</p>
-          </div>
-          <div class="tickets-grid">
-            <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card" [routerLink]="['/tickets', ticket.id]">
-              <mat-card-header>
-                <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
-                <mat-card-title>{{ ticket.title }}</mat-card-title>
-                <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content>
-                <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
-                  <mat-icon>person</mat-icon> Técnico: {{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : ticket.agentNameFallback + ' (Agente Eliminado)' }}
-                </p>
-              </mat-card-content>
-              <mat-card-footer>
-                <div class="badge-container">
-                  <ion-badge color="primary">En proceso</ion-badge>
-                </div>
-              </mat-card-footer>
-              <mat-card-actions align="end" *ngIf="!isAgent">
-                <button mat-button color="primary" (click)="editTicket(ticket, $event)">
-                  <mat-icon>edit</mat-icon> Editar
-                </button>
-                <button mat-button color="warn" (click)="deleteTicket(ticket, $event)">
-                  <mat-icon>delete</mat-icon> Eliminar
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          </div>
+      <!-- COLUMNA: EN PROCESO -->
+      <div class="kanban-column">
+        <div class="column-header proceso">
+          <mat-icon>engineering</mat-icon>
+          <h2>En Proceso</h2>
+          <span class="count-badge">{{ getFilteredTickets('Proceso').length }}</span>
         </div>
-      </mat-tab>
+        
+        <div class="column-content">
+          <div *ngIf="getFilteredTickets('Proceso').length === 0" class="empty-state-small">
+            <p>No hay trabajos en curso</p>
+          </div>
+          <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+            <mat-card-header>
+              <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
+              <mat-card-title>
+                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
+                {{ ticket.title }}
+              </mat-card-title>
+              <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
+                <mat-icon>person</mat-icon> {{ ticket.agent ? ticket.agent.firstName : ticket.agentNameFallback }}
+              </p>
+              <div class="card-meta">
+                <span class="date">{{ ticket.updatedAt | date:'dd/MM/yyyy' }}</span>
+                <span class="status-pill process">Trabajando</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
 
-      <!-- TAB: FINALIZADAS -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <div [matBadge]="getFilteredTickets('Resuelto').length" matBadgeOverlap="false" [matBadgeHidden]="getFilteredTickets('Resuelto').length === 0" matBadgeColor="primary">
-            <mat-icon style="margin-right: 8px;">task_alt</mat-icon>
-            Finalizadas
-          </div>
-        </ng-template>
-        <div class="tab-content">
-          <div *ngIf="getFilteredTickets('Resuelto').length === 0" class="empty-state">
-            <mat-icon class="large-icon">archive</mat-icon>
-            <p>El historial de incidencias resueltas está vacío.</p>
-          </div>
-          <div class="tickets-grid">
-            <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card" [routerLink]="['/tickets', ticket.id]">
-              <mat-card-header>
-                <mat-card-title>{{ ticket.title }}</mat-card-title>
-                <mat-card-subtitle>Finalizada el {{ ticket.updatedAt | date:'short' }}</mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-footer>
-                <div class="badge-container">
-                  <ion-badge color="success">{{ ticket.status }}</ion-badge>
-                </div>
-              </mat-card-footer>
-              <mat-card-actions align="end" *ngIf="!isAgent">
-                <button mat-button color="primary" (click)="editTicket(ticket, $event)">
-                  <mat-icon>edit</mat-icon> Editar
-                </button>
-                <button mat-button color="warn" (click)="deleteTicket(ticket, $event)">
-                  <mat-icon>delete</mat-icon> Eliminar
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          </div>
+      <!-- COLUMNA: FINALIZADAS -->
+      <div class="kanban-column">
+        <div class="column-header resuelto">
+          <mat-icon>task_alt</mat-icon>
+          <h2>Finalizadas</h2>
+          <span class="count-badge">{{ getFilteredTickets('Resuelto').length }}</span>
         </div>
-      </mat-tab>
-    </mat-tab-group>
+        
+        <div class="column-content">
+          <div *ngIf="getFilteredTickets('Resuelto').length === 0" class="empty-state-small">
+            <p>Historial vacío</p>
+          </div>
+          <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
+                {{ ticket.title }}
+              </mat-card-title>
+              <mat-card-subtitle>Cerrada el {{ ticket.updatedAt | date:'dd/MM/yyyy' }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="card-meta">
+                <span class="status-pill success">Resuelto</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+    </div>
 
   </div>
 </ion-content>

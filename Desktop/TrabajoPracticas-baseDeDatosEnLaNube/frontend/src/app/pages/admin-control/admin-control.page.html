@@ -17,6 +17,25 @@
       <p>Gestiona el sistema y revisa el rendimiento global.</p>
     </div>
 
+    <!-- Banner de Sincronización de Correo (NUEVO) -->
+    <div class="sync-banner mat-elevation-z3" (click)="syncEmails()">
+      <div class="sync-content">
+        <div class="sync-icon-wrapper">
+          <mat-icon class="email-icon">mail</mat-icon>
+          <div class="sync-status-dot"></div>
+        </div>
+        <div class="sync-text">
+          <h2>Revisar Bandeja de Entrada 📥</h2>
+          <p>Busca nuevos correos de clientes y conviértelos en tickets automáticamente.</p>
+        </div>
+      </div>
+      <button mat-flat-button class="sync-button" [disabled]="isSyncing">
+        <mat-icon *ngIf="!isSyncing">sync</mat-icon>
+        <ion-spinner name="crescent" *ngIf="isSyncing" style="width: 20px; height: 20px; margin-right: 8px;"></ion-spinner>
+        {{ isSyncing ? 'Sincronizando...' : 'Sincronizar Ahora' }}
+      </button>
+    </div>
+
     <div class="admin-grid">
       <!-- Gestión de Usuarios -->
       <mat-card class="admin-card" routerLink="/user-management">
@@ -55,7 +74,7 @@
       </mat-card>
 
       <!-- Configuración del Sistema -->
-      <mat-card class="admin-card">
+      <mat-card class="admin-card" routerLink="/config" style="cursor: pointer;">
         <mat-card-header>
           <div mat-card-avatar class="admin-icon settings"><mat-icon>settings</mat-icon></div>
           <mat-card-title>Configuración</mat-card-title>
@@ -81,19 +100,16 @@
 
     <div class="quick-actions">
       <h2>Acciones Rápidas</h2>
-      <mat-list>
-        <mat-list-item routerLink="/profile">
-          <mat-icon matListItemIcon>person</mat-icon>
-          <div matListItemTitle>Mi Perfil</div>
-          <div matListItemLine>Editar mis datos de administrador y cambiar contraseña</div>
-        </mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item routerLink="/tickets/new">
-          <mat-icon matListItemIcon>add_circle</mat-icon>
-          <div matListItemTitle>Nueva Incidencia</div>
-          <div matListItemLine>Crear un ticket de soporte de forma manual en el sistema</div>
-        </mat-list-item>
-      </mat-list>
+      <div class="quick-actions-grid">
+        <button mat-flat-button class="quick-btn-white" routerLink="/profile">
+          <mat-icon>person</mat-icon>
+          Mi Perfil
+        </button>
+        <button mat-flat-button class="quick-btn-white" routerLink="/tickets/new">
+          <mat-icon>add_circle</mat-icon>
+          Nueva Incidencia
+        </button>
+      </div>
     </div>
   </div>
 </ion-content>

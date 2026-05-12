@@ -62,7 +62,8 @@ export class LoginComponent implements OnInit {
         error: (err: any) => {
           console.error('Error en el login:', err);
           if (err.status === 401) {
-            alert('Credenciales incorrectas. Verifica tu email y contraseña.');
+            const errorMessage = err.error?.message || 'Credenciales incorrectas. Verifica tu email y contraseña.';
+            alert(errorMessage);
           } else {
             alert('Error de conexión con el servidor. Asegúrate de que el backend esté corriendo y sea accesible.');
           }

@@ -101,6 +101,23 @@ ion-content {
         font-weight: 500;
         margin-top: 2px;
       }
+
+      .value-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+
+        .tag {
+          background: rgba(var(--app-accent-rgb, 25, 118, 210), 0.1);
+          color: var(--app-accent);
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          border: 1px solid rgba(var(--app-accent-rgb, 25, 118, 210), 0.2);
+        }
+      }
     }
   }
 }

@@ -97,11 +97,17 @@ class Ticket
     #[Groups(['ticket:read', 'ticket:write'])]
     private ?array $attachments = null;
 
+    #[ORM\OneToMany(mappedBy: 'ticket', targetEntity: WorkLog::class, cascade: ['remove'])]
+    #[Groups(['ticket:read'])]
+    #[ORM\OrderBy(['createdAt' => 'DESC'])]
+    private Collection $workLogs;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->comments = new ArrayCollection();
         $this->history = new ArrayCollection();
+        $this->workLogs = new ArrayCollection();
         $this->status = 'Nuevo';
         $this->priority = 'Media';
     }
@@ -278,6 +284,36 @@ class Ticket
     public function setAttachments(?array $attachments): static
     {
         $this->attachments = $attachments;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, WorkLog>
+     */
+    public function getWorkLogs(): Collection
+    {
+        return $this->workLogs;
+    }
+
+    public function addWorkLog(WorkLog $workLog): static
+    {
+        if (!$this->workLogs->contains($workLog)) {
+            $this->workLogs->add($workLog);
+            $workLog->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWorkLog(WorkLog $workLog): static
+    {
+        if ($this->workLogs->removeElement($workLog)) {
+            // set the owning side to null (unless already changed)
+            if ($workLog->getTicket() === $this) {
+                $workLog->setTicket(null);
+            }
+        }
 
         return $this;
     }
