@@ -125,6 +125,9 @@ ion-toolbar {
 
   mat-card-header {
     padding: 12px 12px 8px !important;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
     
     .priority-indicator {
       width: 4px;
@@ -143,6 +146,11 @@ ion-toolbar {
       font-weight: 600 !important;
       color: #2c3e50 !important;
       line-height: 1.2;
+      display: block !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
     }
 
     mat-card-subtitle {

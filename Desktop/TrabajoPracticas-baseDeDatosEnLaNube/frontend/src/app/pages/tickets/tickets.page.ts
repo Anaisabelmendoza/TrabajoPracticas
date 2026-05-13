@@ -56,6 +56,7 @@ export class TicketsPage implements OnInit {
   selectedTabIndex = 0;
 
   // Filtros
+  searchId: string = '';
   searchCategory: number | '' = '';
   searchPriority: string = '';
   searchStartDate: Date | null = null;
@@ -160,16 +161,21 @@ export class TicketsPage implements OnInit {
         const agentCategoryUris = this.currentUser.categories.map((c: any) => typeof c === 'string' ? c : c['@id']);
         
         // REGLA: Si el agente TIENE categorías asignadas, aplicamos el filtro. 
-        // Si NO TIENE categorías (lista vacía), entonces ve TODO.
         if (agentCategoryUris.length > 0) {
           const ticketCategoryUri = t.category ? (t.category['@id'] || `/api/categories/${t.category.id}`) : null;
-          if (!ticketCategoryUri || !agentCategoryUris.includes(ticketCategoryUri)) {
+          const categoryName = t.category?.name || '';
+
+          // EXCEPCIÓN: Si es un ticket de Email, todos los agentes deben poder verlo
+          if (categoryName.toLowerCase() === 'email' || t.description?.includes('[ORIGEN: EMAIL]')) {
+            // Permitimos el paso
+          } else if (!ticketCategoryUri || !agentCategoryUris.includes(ticketCategoryUri)) {
             return false;
           }
         }
       }
 
-      // 3. Filtros de búsqueda (Categoría, Prioridad, Fechas)
+      // 3. Filtros de búsqueda (ID, Categoría, Prioridad, Fechas)
+      if (this.searchId && t.id.toString() !== this.searchId.trim()) return false;
       if (this.searchCategory && t.category?.id !== this.searchCategory) return false;
       if (this.searchPriority && t.priority !== this.searchPriority) return false;
 
@@ -212,6 +218,7 @@ export class TicketsPage implements OnInit {
   }
 
   clearFilters() {
+    this.searchId = '';
     this.searchCategory = '';
     this.searchPriority = '';
     this.searchStartDate = null;

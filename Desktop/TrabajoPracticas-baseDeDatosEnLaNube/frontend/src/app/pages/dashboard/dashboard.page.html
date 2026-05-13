@@ -1,62 +1,165 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title class="ion-text-start ion-no-padding">
-      <div class="header-brand">
-        <span>Inicio</span>
+      <div class="header-brand" style="display: flex; align-items: center; padding-left: 20px;">
+        <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+        <ion-badge color="tertiary" *ngIf="isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO ADMINISTRADOR</ion-badge>
       </div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button *ngIf="isAdmin" routerLink="/admin-control" title="Panel Admin">
-        <ion-icon slot="icon-only" name="shield-checkmark-outline"></ion-icon>
+      <ion-button *ngIf="isAdmin" routerLink="/admin-control" title="Gestión del Sistema">
+        <ion-icon slot="icon-only" name="shield-checkmark-outline" style="color: #000;"></ion-icon>
       </ion-button>
       <ion-button routerLink="/profile" title="Mi Perfil">
-        <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+        <ion-icon slot="icon-only" name="person-circle" style="color: #000; font-size: 28px;"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="welcome-section">
-    <h1>¡Hola, {{ userName }}! 👋</h1>
-    <p>Bienvenido al Centro de Soporte. Aquí tienes un resumen.</p>
-  </div>
-
-  <div class="stats-container">
-    <div class="stat-pill new" [routerLink]="['/tickets']" [queryParams]="{tab: 0}" style="cursor: pointer;">
-      <mat-icon>new_releases</mat-icon>
-      <div class="stat-info">
-        <span class="stat-num">{{ stats.new }}</span>
-        <span class="stat-label">Nuevas</span>
+  <div class="main-dashboard-container">
+    
+    <!-- Welcome Header -->
+    <div class="welcome-header">
+      <div class="welcome-text">
+        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 900; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">¡Hola, {{ userName }}! 👋</h1>
+        <p style="margin: 5px 0 0 0; color: #666; font-size: 1.1rem; font-weight: 500;">Bienvenido al Centro de Soporte.</p>
       </div>
+      <button *ngIf="isAdmin" mat-flat-button class="action-btn-gradient" routerLink="/stats" style="margin-top: 10px; border-radius: 30px; padding: 12px 25px;">
+        <mat-icon style="margin-right: 8px;">analytics</mat-icon>
+        ESTADÍSTICAS DE TRABAJO
+      </button>
+      <button *ngIf="!isAdmin" mat-flat-button class="action-btn-gradient" routerLink="/tickets/new" style="margin-top: 10px; border-radius: 30px; padding: 12px 25px;">
+        <mat-icon style="margin-right: 8px;">add_circle</mat-icon>
+        NUEVA INCIDENCIA
+      </button>
     </div>
 
-    <div class="stat-pill process" [routerLink]="['/tickets']" [queryParams]="{tab: 1}" style="cursor: pointer;">
-      <mat-icon>engineering</mat-icon>
-      <div class="stat-info">
-        <span class="stat-num">{{ stats.inProgress }}</span>
-        <span class="stat-label">En Proceso</span>
+    <!-- KANBAN BOARD -->
+    <div class="kanban-board">
+      
+      <!-- COLUMNA: NUEVAS -->
+      <div class="kanban-column">
+        <div class="column-header nuevas">
+          <mat-icon>new_releases</mat-icon>
+          <h2>Nuevas</h2>
+          <span class="count-badge">{{ getFilteredTickets('Nuevo').length }}</span>
+        </div>
+        
+        <div class="column-content">
+          <div *ngIf="getFilteredTickets('Nuevo').length === 0" class="empty-state-small">
+            <p>No hay incidencias nuevas</p>
+          </div>
+          <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+            <mat-card-header>
+              <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
+              <mat-card-title>
+                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
+                {{ ticket.title }}
+              </mat-card-title>
+              <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="card-meta">
+                <span class="date">{{ ticket.createdAt | date:'dd/MM/yyyy' }}</span>
+                <span class="priority-label" [class]="ticket.priority.toLowerCase()">{{ ticket.priority }}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
       </div>
+
+      <!-- COLUMNA: EN PROCESO -->
+      <div class="kanban-column">
+        <div class="column-header proceso">
+          <mat-icon>engineering</mat-icon>
+          <h2>En Proceso</h2>
+          <span class="count-badge">{{ getFilteredTickets('Proceso').length }}</span>
+        </div>
+        
+        <div class="column-content">
+          <div *ngIf="getFilteredTickets('Proceso').length === 0" class="empty-state-small">
+            <p>No hay trabajos en curso</p>
+          </div>
+          <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+            <mat-card-header>
+              <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
+              <mat-card-title>
+                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
+                {{ ticket.title }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p class="technician-info" *ngIf="ticket.agent">
+                <mat-icon>person</mat-icon> {{ ticket.agent.firstName }}
+              </p>
+              <div class="card-meta">
+                <span class="date">{{ ticket.updatedAt | date:'dd/MM/yyyy' }}</span>
+                <span class="status-pill process">Trabajando</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- COLUMNA: RESUELTAS -->
+      <div class="kanban-column">
+        <div class="column-header resuelto">
+          <mat-icon>task_alt</mat-icon>
+          <h2>Resueltas</h2>
+          <span class="count-badge">{{ getFilteredTickets('Resuelto').length }}</span>
+        </div>
+        
+        <div class="column-content">
+          <div *ngIf="getFilteredTickets('Resuelto').length === 0" class="empty-state-small">
+            <p>No hay resueltas</p>
+          </div>
+          <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+            <mat-card-header>
+              <mat-card-title>
+                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
+                {{ ticket.title }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="card-meta">
+                <span class="status-pill success">Resuelto</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- COLUMNA: CERRADAS -->
+      <div class="kanban-column">
+        <div class="column-header cerradas">
+          <mat-icon>archive</mat-icon>
+          <h2>Cerradas</h2>
+          <span class="count-badge">{{ getFilteredTickets('Cerrado').length }}</span>
+        </div>
+        
+        <div class="column-content">
+          <div *ngIf="getFilteredTickets('Cerrado').length === 0" class="empty-state-small">
+            <p>Sin archivadas</p>
+          </div>
+          <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+            <mat-card-header>
+              <mat-card-title>
+                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
+                {{ ticket.title }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="card-meta">
+                <span class="status-pill closed">Cerrado</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
     </div>
 
-    <div class="stat-pill done" [routerLink]="['/tickets']" [queryParams]="{tab: 2}" style="cursor: pointer;">
-      <mat-icon>task_alt</mat-icon>
-      <div class="stat-info">
-        <span class="stat-num">{{ stats.resolved }}</span>
-        <span class="stat-label">Resueltas</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="actions-section">
-    <button *ngIf="!isAdmin" mat-stroked-button class="main-action outlined-primary" routerLink="/tickets/new">
-      <mat-icon>add</mat-icon>
-      Reportar nuevo problema
-    </button>
-
-    <button *ngIf="isAdmin" mat-stroked-button class="main-action outlined-primary" routerLink="/stats">
-      <mat-icon>analytics</mat-icon>
-      Panel Analítico de Control (Admin)
-    </button>
   </div>
 </ion-content>

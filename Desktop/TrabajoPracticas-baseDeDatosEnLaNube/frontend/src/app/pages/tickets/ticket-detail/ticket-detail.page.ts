@@ -499,33 +499,43 @@ export class TicketDetailPage implements OnInit, OnDestroy {
 
     const alert = await this.alertCtrl.create({
       header: 'Eliminar Incidencia',
-      message: '¿Estás seguro de que quieres eliminar permanentemente esta incidencia? Esta acción no se puede deshacer.',
+      message: '¿Deseas guardar una copia en PDF del trabajo realizado antes de eliminar permanentemente la incidencia?',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
-          text: 'Eliminar',
-          role: 'destructive',
+          text: 'Eliminar solo (sin PDF)',
+          cssClass: 'alert-button-confirm',
           handler: () => {
-            this.loading = true;
-            this.ticketService.deleteTicket(this.ticket.id).subscribe({
-              next: () => {
-                this.loading = false;
-                this.showToast('Incidencia eliminada con éxito', 'success');
-                // Redirigir al listado
-                window.location.href = '/tickets';
-              },
-              error: (err) => {
-                this.loading = false;
-                console.error(err);
-                this.showToast('Error al eliminar la incidencia', 'danger');
-              }
-            });
+            this.confirmDeletion(false);
+          }
+        },
+        {
+          text: 'Guardar PDF y Eliminar',
+          cssClass: 'alert-button-confirm',
+          handler: () => {
+            this.confirmDeletion(true);
           }
         }
       ]
     });
 
     await alert.present();
+  }
+
+  private confirmDeletion(archive: boolean) {
+    this.loading = true;
+    this.ticketService.deleteTicket(this.ticket.id, archive).subscribe({
+      next: () => {
+        this.loading = false;
+        this.showToast(archive ? 'PDF guardado e incidencia eliminada' : 'Incidencia eliminada correctamente', 'success');
+        window.location.href = '/tickets';
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error(err);
+        this.showToast('Error al eliminar la incidencia', 'danger');
+      }
+    });
   }
 
   getStatusColor(status: string): string {

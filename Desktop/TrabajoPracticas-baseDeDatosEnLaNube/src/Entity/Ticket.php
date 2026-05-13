@@ -27,7 +27,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Get(security: "is_granted('ROLE_AGENT') or object.getAuthor() == user"),
         new Put(security: "is_granted('ROLE_AGENT') or object.getAuthor() == user"),
         new Patch(security: "is_granted('ROLE_AGENT') or object.getAuthor() == user"),
-        new Delete(security: "is_granted('ROLE_ADMIN') or object.getAuthor() == user"),
+        new Delete(
+            security: "is_granted('ROLE_ADMIN') or object.getAuthor() == user",
+            processor: \App\State\TicketDeleteProcessor::class
+        ),
         new Post(
             uriTemplate: '/tickets-claim/{id}',
             processor: \App\State\TicketClaimProcessor::class,
@@ -72,6 +75,7 @@ class Ticket
     private ?User $author = null;
 
     #[ORM\ManyToOne(inversedBy: 'assignedTickets')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     #[Groups(['ticket:read', 'ticket:write'])]
     private ?User $agent = null;
 

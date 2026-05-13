@@ -13,6 +13,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
 import { HttpClient } from '@angular/common/http';
 
 export const MY_FORMATS = {
@@ -48,7 +49,8 @@ import Chart from 'chart.js/auto';
     MatDatepickerModule,
     MatNativeDateModule,
     MatButtonModule,
-    MatTableModule
+    MatTableModule,
+    MatMenuModule
   ],
   providers: [
     { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
@@ -64,7 +66,7 @@ export class StatsPage implements OnInit, AfterViewInit {
   statsData: any = null;
   agentLogsData: any[] = [];
   loading = true;
-  displayedColumns: string[] = ['name', 'email', 'time'];
+  displayedColumns: string[] = ['name', 'email', 'time', 'actions'];
 
   // Filtros interactivos
   selectedCategory: number | '' = '';
@@ -79,6 +81,11 @@ export class StatsPage implements OnInit, AfterViewInit {
     resolved: 0
   };
 
+  showGlobalReport = false;
+  reportMonth: string = new Date().toISOString().substring(0, 7); // YYYY-MM
+  monthName: string = new Date().toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+  daysOfMonth: number[] = [];
+
   categories: any[] = [];
 
   constructor(
@@ -91,6 +98,7 @@ export class StatsPage implements OnInit, AfterViewInit {
     this.loadCategories();
     this.fetchStats();
     this.fetchAgentLogs();
+    this.calculateReportDays();
   }
 
   ngAfterViewInit() {
@@ -113,8 +121,15 @@ export class StatsPage implements OnInit, AfterViewInit {
 
   downloadFullReport() {
     const token = this.authService.getToken();
-    // Abrimos el informe en una pestaña nueva pasando el token para autenticarnos
     const url = `${environment.apiUrl}/api/reports/full?token=${token}`;
+    window.open(url, '_blank');
+  }
+
+  downloadAgentReport(agent: any) {
+    const token = this.authService.getToken();
+    const date = new Date();
+    const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    const url = `${environment.apiUrl}/api/reports/agent/${agent.id}/sessions?token=${token}&month=${yearMonth}`;
     window.open(url, '_blank');
   }
 
@@ -135,6 +150,34 @@ export class StatsPage implements OnInit, AfterViewInit {
         endDate: this.endDate
       }
     });
+  }
+
+  openGlobalReport() {
+    this.calculateReportDays();
+    this.showGlobalReport = true;
+  }
+
+  closeGlobalReport() {
+    this.showGlobalReport = false;
+  }
+
+  calculateReportDays() {
+    const [year, month] = this.reportMonth.split('-').map(Number);
+    const lastDay = new Date(year, month, 0).getDate();
+    this.daysOfMonth = Array.from({ length: lastDay }, (_, i) => i + 1);
+    
+    const date = new Date(year, month - 1, 1);
+    this.monthName = date.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+  }
+
+  getDayMinutes(agent: any, day: number): string {
+    const dayStr = `${this.reportMonth}-${day.toString().padStart(2, '0')}`;
+    const data = agent.connectionData?.[dayStr];
+    if (!data || !data.totalMinutes) return '-';
+    
+    const h = Math.floor(data.totalMinutes / 60);
+    const m = data.totalMinutes % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
   }
 
   fetchStats() {
@@ -190,7 +233,7 @@ export class StatsPage implements OnInit, AfterViewInit {
     }).subscribe({
       next: (usersRes) => {
         const users = usersRes['hydra:member'] || usersRes['member'] || (Array.isArray(usersRes) ? usersRes : []);
-        const agents = users.filter((u: any) => u.roles && u.roles.includes('ROLE_AGENT') && !u.roles.includes('ROLE_ADMIN'));
+        const agents = users.filter((u: any) => u.roles && (u.roles.includes('ROLE_AGENT') || u.roles.includes('ROLE_ADMIN')));
         
         this.http.get<any>(`${environment.apiUrl}/api/work_logs`, {
           headers: { 'Authorization': `Bearer ${this.authService.getToken()}`, 'Accept': 'application/ld+json' }
@@ -199,21 +242,19 @@ export class StatsPage implements OnInit, AfterViewInit {
             const logs = logsRes['hydra:member'] || logsRes['member'] || (Array.isArray(logsRes) ? logsRes : []);
             
             this.agentLogsData = agents.map((agent: any) => {
-              const agentIdStr = `/api/users/${agent.id}`;
-              const agentLogs = logs.filter((l: any) => {
-                if (typeof l.agent === 'string') return l.agent === agentIdStr;
-                if (l.agent && l.agent.id) return l.agent.id === agent.id;
-                return false;
-              });
-
-              const totalMinutes = agentLogs.reduce((acc: number, l: any) => acc + (l.minutesSpent || 0), 0);
+              // Ahora calculamos tiempo de CONEXIÓN (connectionData) en lugar de tickets
+              const connectionData = agent.connectionData || {};
+              const today = new Date().toISOString().split('T')[0];
+              const todayData = connectionData[today] || { totalMinutes: 0 };
+              
+              const totalMinutes = todayData.totalMinutes || 0;
               const hours = Math.floor(totalMinutes / 60);
               const minutes = totalMinutes % 60;
 
               return {
                 ...agent,
                 totalMinutes,
-                totalHoursFormatted: `${hours}h ${minutes}m`
+                totalHoursFormatted: `${hours}h ${minutes}m (Hoy)`
               };
             });
             this.agentLogsData.sort((a, b) => b.totalMinutes - a.totalMinutes);
@@ -267,29 +308,72 @@ export class StatsPage implements OnInit, AfterViewInit {
         }
       });
 
-      const agentData = this.statsData && this.statsData.by_agent ? this.statsData.by_agent : [];
-      const agentLabels = agentData.map((item: any) => `${item.firstName} ${item.lastName}`);
-      const agentValues = agentData.map((item: any) => parseInt(item.count));
+      // --- Gráfico de Barras: Carga por Agente por Día ---
+      const dailyData = this.statsData && this.statsData.by_agent_daily ? this.statsData.by_agent_daily : [];
+      
+      // 1. Obtener todas las fechas únicas (Eje X)
+      const uniqueDates = [...new Set(dailyData.map((d: any) => d.date as string))].sort();
+      
+      // 2. Obtener todos los agentes únicos
+      const uniqueAgents = [...new Set(dailyData.map((d: any) => `${d.firstName} ${d.lastName}` as string))];
+      
+      // 3. Colores para agentes
+      const colors = [
+        '#764ba2', '#6a11cb', '#2575fc', '#667eea', '#4facfe', 
+        '#00f2fe', '#007adf', '#00c6fb', '#50c9c3', '#96deda'
+      ];
+
+      // 4. Crear datasets (uno por agente)
+      const datasets = uniqueAgents.map((agentName, index) => {
+        const agentCounts = uniqueDates.map(date => {
+          const entry = dailyData.find((d: any) => `${d.firstName} ${d.lastName}` === agentName && d.date === date);
+          return entry ? parseInt(entry.count) : 0;
+        });
+
+        return {
+          label: agentName,
+          data: agentCounts,
+          backgroundColor: colors[index % colors.length],
+          borderRadius: 4
+        };
+      });
 
       this.barChart = new Chart(this.barCanvas.nativeElement, {
         type: 'bar',
         data: {
-          labels: agentLabels,
-          datasets: [{
-            label: 'Incidencias Asignadas',
-            data: agentValues,
-            backgroundColor: '#764ba2',
-            borderRadius: 4
-          }]
+          labels: (uniqueDates as string[]).map(d => new Date(d).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })),
+          datasets: datasets as any[]
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } },
-            x: { ticks: { color: textColor }, grid: { display: false } }
+            y: { 
+              stacked: true, // Barras apiladas para ver total y detalle
+              beginAtZero: true, 
+              ticks: { stepSize: 1, color: textColor }, 
+              grid: { color: gridColor } 
+            },
+            x: { 
+              stacked: true,
+              ticks: { color: textColor }, 
+              grid: { display: false } 
+            }
           },
           plugins: {
-            legend: { display: false }
+            legend: { 
+              display: true, 
+              position: 'bottom',
+              labels: { 
+                color: textColor,
+                boxWidth: 12,
+                font: { size: 10 }
+              } 
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
           }
         }
       });

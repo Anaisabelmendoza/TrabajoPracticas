@@ -46,6 +46,7 @@ class TicketHistory
     private ?Ticket $ticket = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     #[Groups(['history:read', 'ticket:read'])]
     private ?User $user = null;
 

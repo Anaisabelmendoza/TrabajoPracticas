@@ -3,14 +3,17 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/admin-control"></ion-back-button>
     </ion-buttons>
-    <ion-title>PDF de Trabajos Realizados</ion-title>
+    <ion-title>
+      <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <span style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">| Archivo Histórico 🗄️</span>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="archive-container">
     <div class="header-section">
-      <h1>Archivo Histórico 🗄️</h1>
+      <h1 style="font-weight: 800; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Archivo Histórico 🗄️</h1>
       <p>Todos los trabajos finalizados, guardados y agrupados por cliente. Selecciona un cliente para imprimir o guardar sus reportes en PDF.</p>
     </div>
 
@@ -19,49 +22,96 @@
       <p>Cargando archivo histórico...</p>
     </div>
 
-    <div *ngIf="!loading && clientsWithTickets.length === 0" class="empty-state">
-      <mat-icon class="large-icon">archive</mat-icon>
-      <h2>Sin documentos</h2>
-      <p>Aún no hay trabajos resueltos o cerrados en el sistema.</p>
-    </div>
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+      
+      <!-- PESTAÑA 1: TICKETS ACTIVOS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon style="margin-right: 8px; color: #43a047;">task_alt</mat-icon>
+          TICKETS ACTIVOS
+        </ng-template>
 
-    <mat-accordion *ngIf="!loading && clientsWithTickets.length > 0" multi="false">
-      <mat-expansion-panel *ngFor="let group of clientsWithTickets">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon style="margin-right: 10px; color: #43a047;">folder_shared</mat-icon>
-            <strong>{{ group.client.firstName }} {{ group.client.lastName }}</strong>
-          </mat-panel-title>
-          <mat-panel-description>
-            {{ group.tickets.length }} trabajo(s) completado(s)
-          </mat-panel-description>
-        </mat-expansion-panel-header>
+        <div class="tab-content" style="padding: 20px;">
+          <div *ngIf="!loading && clientsWithActiveTickets.length === 0" class="empty-state">
+            <mat-icon class="large-icon" style="color: #ccc;">inbox</mat-icon>
+            <h2>Sin tickets resueltos</h2>
+            <p>No hay incidencias en la base de datos marcadas como resueltas o cerradas.</p>
+          </div>
 
-        <mat-list>
-          <ng-container *ngFor="let ticket of group.tickets; let last = last">
-            <mat-list-item style="height: auto; padding: 12px 0;">
-              <mat-icon matListItemIcon style="color: #555; margin-right: 16px;">picture_as_pdf</mat-icon>
-              
-              <div matListItemTitle style="font-weight: 600; font-size: 1.1rem; color: #333; margin-bottom: 4px;">
-                {{ ticket.title }}
-              </div>
-              
-              <div matListItemLine style="color: #777; font-size: 0.9rem;">
-                <span style="font-weight: 500;">Finalizado el:</span> {{ (ticket.updatedAt || ticket.createdAt) | date:'dd/MM/yyyy' }}
-              </div>
-              
-              <div matListItemMeta>
-                <button mat-flat-button color="primary" [routerLink]="['/tickets', ticket.id]" class="print-button" style="border-radius: 8px; padding: 0 20px; height: 40px;">
-                  <mat-icon style="margin-right: 8px;">visibility</mat-icon> Ver PDF
-                </button>
-              </div>
-            </mat-list-item>
-            <mat-divider *ngIf="!last"></mat-divider>
-          </ng-container>
-        </mat-list>
-        
-      </mat-expansion-panel>
-    </mat-accordion>
+          <mat-accordion *ngIf="clientsWithActiveTickets.length > 0" multi="false">
+            <mat-expansion-panel *ngFor="let group of clientsWithActiveTickets">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon style="margin-right: 10px; color: #43a047;">person</mat-icon>
+                  <strong>{{ group.client.firstName }}</strong>
+                </mat-panel-title>
+                <mat-panel-description>{{ group.tickets.length }} ticket(s)</mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <mat-list>
+                <ng-container *ngFor="let item of group.tickets; let last = last">
+                  <mat-list-item style="height: auto; padding: 12px 0;">
+                    <mat-icon matListItemIcon style="color: #555; margin-right: 16px;">description</mat-icon>
+                    <div matListItemTitle style="font-weight: 600;">{{ item.title }}</div>
+                    <div matListItemLine style="color: #777; font-size: 0.85rem;">Finalizado: {{ item.date | date:'dd/MM/yyyy HH:mm' }}</div>
+                    <div matListItemMeta>
+                      <button mat-stroked-button color="primary" (click)="openPdf(item)">
+                        <mat-icon style="margin-right: 8px;">visibility</mat-icon> Ver Detalle
+                      </button>
+                    </div>
+                  </mat-list-item>
+                  <mat-divider *ngIf="!last"></mat-divider>
+                </ng-container>
+              </mat-list>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </div>
+      </mat-tab>
+
+      <!-- PESTAÑA 2: COPIAS PDF -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon style="margin-right: 8px; color: #e53935;">picture_as_pdf</mat-icon>
+          COPIAS DE SEGURIDAD (PDF)
+        </ng-template>
+
+        <div class="tab-content" style="padding: 20px;">
+          <div *ngIf="!loading && clientsWithPdfArchives.length === 0" class="empty-state">
+            <mat-icon class="large-icon" style="color: #ccc;">history</mat-icon>
+            <h2>Sin archivos históricos</h2>
+            <p>Aún no se han generado copias PDF de tickets eliminados.</p>
+          </div>
+
+          <mat-accordion *ngIf="clientsWithPdfArchives.length > 0" multi="false">
+            <mat-expansion-panel *ngFor="let group of clientsWithPdfArchives">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon style="margin-right: 10px; color: #e53935;">folder_zip</mat-icon>
+                  <strong>{{ group.client.firstName }}</strong>
+                </mat-panel-title>
+                <mat-panel-description>{{ group.tickets.length }} archivo(s)</mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <mat-list>
+                <ng-container *ngFor="let item of group.tickets; let last = last">
+                  <mat-list-item style="height: auto; padding: 12px 0;">
+                    <mat-icon matListItemIcon style="color: #e53935; margin-right: 16px;">picture_as_pdf</mat-icon>
+                    <div matListItemTitle style="font-weight: 600;">{{ item.title }}</div>
+                    <div matListItemLine style="color: #777; font-size: 0.85rem;">Archivado: {{ item.date | date:'dd/MM/yyyy HH:mm' }}</div>
+                    <div matListItemMeta>
+                      <button mat-flat-button color="warn" (click)="openPdf(item)">
+                        <mat-icon style="margin-right: 8px;">download</mat-icon> Descargar PDF
+                      </button>
+                    </div>
+                  </mat-list-item>
+                  <mat-divider *ngIf="!last"></mat-divider>
+                </ng-container>
+              </mat-list>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
 
   </div>
 </ion-content>

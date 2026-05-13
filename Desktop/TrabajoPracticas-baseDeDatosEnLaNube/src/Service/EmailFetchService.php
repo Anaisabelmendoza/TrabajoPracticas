@@ -13,15 +13,18 @@ class EmailFetchService
 {
     private \Symfony\Component\String\Slugger\SluggerInterface $slugger;
     private string $projectDir;
+    private \Symfony\Component\Mailer\MailerInterface $mailer;
 
     public function __construct(
         EntityManagerInterface $entityManager, 
         \Symfony\Component\String\Slugger\SluggerInterface $slugger,
-        \Symfony\Component\HttpKernel\KernelInterface $kernel
+        \Symfony\Component\HttpKernel\KernelInterface $kernel,
+        \Symfony\Component\Mailer\MailerInterface $mailer
     ) {
         $this->entityManager = $entityManager;
         $this->slugger = $slugger;
         $this->projectDir = $kernel->getProjectDir();
+        $this->mailer = $mailer;
     }
 
     public function fetchAndSyncEmails(string $emailUser, string $emailPass): array
@@ -127,5 +130,23 @@ class EmailFetchService
 
         $this->entityManager->persist($ticket);
         $this->entityManager->flush();
+
+        // Enviar respuesta automática con diseño personalizado
+        try {
+            $emailResponse = (new \Symfony\Bridge\Twig\Mime\TemplatedEmail())
+                ->from('anaisabelmendozajurado@gmail.com')
+                ->to($email)
+                ->subject('Incidencia Recibida: #' . $ticket->getId() . ' - ' . $subject)
+                ->htmlTemplate('emails/auto_reply.html.twig')
+                ->context([
+                    'ticketId' => $ticket->getId(),
+                    'subject' => $subject,
+                ]);
+
+            $this->mailer->send($emailResponse);
+        } catch (\Exception $e) {
+            // Error al enviar email - podemos registrarlo en el log
+            error_log('Error enviando auto-respuesta: ' . $e->getMessage());
+        }
     }
 }

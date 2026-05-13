@@ -63,8 +63,8 @@ export class TicketService {
     return this.http.patch<any>(`${this.apiUrl}/api/tickets/${ticketId}`, JSON.stringify(data), { headers });
   }
 
-  deleteTicket(ticketId: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/api/tickets/${ticketId}`, { headers: this.getHeaders() });
+  deleteTicket(ticketId: number, archive: boolean = true): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/api/tickets/${ticketId}?archive=${archive}`, { headers: this.getHeaders() });
   }
 
   getCategories(): Observable<any[]> {
@@ -79,5 +79,13 @@ export class TicketService {
     return this.http.post<any>(`${this.apiUrl}/api/upload`, formData, {
       headers: this.getAuthHeader()
     });
+  }
+
+  getArchivedPdfs(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/api/pdf-archive`, { headers: this.getAuthHeader() });
+  }
+
+  getServerUrl(): string {
+    return this.apiUrl;
   }
 }

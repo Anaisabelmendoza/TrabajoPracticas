@@ -63,12 +63,20 @@ class TicketRepository extends ServiceEntityRepository
             ->andWhere('t.status NOT IN (\'Resuelto\', \'Cerrado\')')
             ->getQuery()->getSingleScalarResult();
 
+        $byAgentDaily = (clone $baseQb)->select('u.firstName, u.lastName, SUBSTRING(t.createdAt, 1, 10) as date, COUNT(t.id) as count')
+            ->leftJoin('t.agent', 'u')
+            ->andWhere('t.agent IS NOT NULL')
+            ->groupBy('date, t.agent, u.firstName, u.lastName')
+            ->orderBy('date', 'ASC')
+            ->getQuery()->getArrayResult();
+
         return [
             'total' => $total,
             'by_status' => $byStatus,
             'by_priority' => $byPriority,
             'by_category' => $byCategory,
             'by_agent' => $byAgent,
+            'by_agent_daily' => $byAgentDaily,
             'critical_pending_count' => $criticalPending,
         ];
     }

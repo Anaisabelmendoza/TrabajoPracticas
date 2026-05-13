@@ -44,4 +44,25 @@ class ReportController extends AbstractController
             'date' => new \DateTime(),
         ]);
     }
+
+    #[Route('/api/reports/agent/{id}/sessions', name: 'app_report_agent_sessions', methods: ['GET'])]
+    public function getAgentSessionReport(int $id, Request $request, UserRepository $userRepository, \App\Service\PdfService $pdfService): Response
+    {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Solo los administradores pueden ver este informe.');
+        }
+
+        $user = $userRepository->find($id);
+        if (!$user) {
+            throw $this->createNotFoundException('Agente no encontrado');
+        }
+
+        $month = $request->query->get('month', (new \DateTime())->format('Y-m'));
+        $pdfContent = $pdfService->generateAgentSessionPdf($user, $month);
+
+        return new Response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="Informe_' . $user->getFirstName() . '_' . $user->getLastName() . '_' . $month . '.pdf"'
+        ]);
+    }
 }

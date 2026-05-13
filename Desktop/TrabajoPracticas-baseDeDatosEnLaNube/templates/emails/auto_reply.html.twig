@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; padding: 30px; text-align: center; }
+        .content { padding: 30px; background: white; }
+        .ticket-info { background: #f9f9f9; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #8e2de2; }
+        .footer { background: #f4f4f4; padding: 20px; text-align: center; font-size: 0.8rem; color: #777; }
+        .button { display: inline-block; padding: 12px 25px; background: #8e2de2; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0; font-size: 24px;">Hemos recibido tu incidencia</h1>
+        </div>
+        <div class="content">
+            <p>Hola,</p>
+            <p>Gracias por ponerte en contacto con nuestro equipo de soporte técnico. Hemos registrado tu incidencia correctamente en nuestro sistema.</p>
+            
+            <div class="ticket-info">
+                <p style="margin: 0;"><strong>Número de Incidencia:</strong> #{{ ticketId }}</p>
+                <p style="margin: 5px 0 0 0;"><strong>Asunto:</strong> {{ subject }}</p>
+            </div>
+            
+            <p>Un agente revisará tu caso y se pondrá en contacto contigo lo antes posible. Mientras tanto, puedes responder a este correo si necesitas añadir más información.</p>
+            
+            <p>Muchas gracias por tu paciencia y confianza.</p>
+            
+            <p>Atentamente,<br><strong>Equipo de Soporte HELPDESK</strong></p>
+        </div>
+        <div class="footer">
+            <p>Este es un correo automático, por favor no respondas directamente si no es para aportar más datos a la incidencia.</p>
+            <p>&copy; {{ "now"|date("Y") }} HelpDesk Pro. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

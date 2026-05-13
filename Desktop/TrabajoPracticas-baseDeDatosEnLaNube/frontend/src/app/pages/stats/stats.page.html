@@ -24,38 +24,7 @@
 
   <!-- SECCIÓN DE KPIs Y GRÁFICOS (Se muestra cuando hay datos de estadísticas) -->
   <div *ngIf="statsData">
-    <div class="kpi-grid">
-      <mat-card class="kpi-card" [routerLink]="['/stats/drilldown/active']" style="cursor: pointer;">
-        <mat-card-header>
-          <div mat-card-avatar class="kpi-icon total"><mat-icon>confirmation_number</mat-icon></div>
-          <mat-card-title>{{ kpis.total }}</mat-card-title>
-          <mat-card-subtitle>Incidencias Activas</mat-card-subtitle>
-        </mat-card-header>
-      </mat-card>
-
-      <mat-card class="kpi-card" [routerLink]="['/stats/drilldown/critical']" style="cursor: pointer;">
-        <mat-card-header>
-          <div mat-card-avatar class="kpi-icon critic"><mat-icon>warning</mat-icon></div>
-          <mat-card-title>{{ kpis.criticalPending }}</mat-card-title>
-          <mat-card-subtitle>Críticos Pendientes</mat-card-subtitle>
-        </mat-card-header>
-      </mat-card>
-
-      <mat-card class="kpi-card" [routerLink]="['/stats/drilldown/unassigned']" style="cursor: pointer;">
-        <mat-card-header>
-          <div mat-card-avatar class="kpi-icon time"><mat-icon>schedule</mat-icon></div>
-          <mat-card-title>{{ kpis.open }}</mat-card-title>
-          <mat-card-subtitle>Nuevos sin Asignar</mat-card-subtitle>
-        </mat-card-header>
-      </mat-card>
-
-      <mat-card class="kpi-card" [routerLink]="['/stats/drilldown/resolved']" style="cursor: pointer;">
-        <mat-card-header>
-          <div mat-card-avatar class="kpi-icon resolved"><mat-icon>task_alt</mat-icon></div>
-          <mat-card-title>{{ kpis.resolved }}</mat-card-title>
-          <mat-card-subtitle>Resueltos Hoy</mat-card-subtitle>
-        </mat-card-header>
-      </mat-card>
+    <div class="kpi-grid" style="display: none;">
     </div>
 
     <div class="charts-container">
@@ -70,8 +39,8 @@
 
       <mat-card class="chart-box">
         <mat-card-header>
-          <mat-card-title>Carga por Agente</mat-card-title>
-          <mat-card-subtitle>Tickets asignados actualmente</mat-card-subtitle>
+          <mat-card-title>Carga Diaria por Agente</mat-card-title>
+          <mat-card-subtitle>Tickets creados por día y responsable</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content class="chart-content">
           <canvas #barCanvas></canvas>
@@ -82,11 +51,15 @@
 
   <!-- TABLA DE AGENTES (Fondo Blanco para modo claro) -->
   <div class="chart-box" style="margin-top: 20px; background: #ffffff !important; border: 1px solid #e0e0e0 !important; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;">
-    <div style="padding: 20px; border-bottom: 1px solid #f0f0f0; background: #fafafa;">
+    <div style="padding: 20px; border-bottom: 1px solid #f0f0f0; background: #fafafa; display: flex; justify-content: space-between; align-items: center;">
       <h2 style="margin: 0; display: flex; align-items: center; font-weight: 700; color: #333333 !important; font-size: 1.25rem; letter-spacing: 0.5px;">
         <mat-icon style="margin-right: 12px; color: #764ba2; font-size: 26px; width: 26px; height: 26px;">people</mat-icon>
         Rendimiento de Agentes
       </h2>
+      <button mat-flat-button (click)="openGlobalReport()" style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; border-radius: 20px;">
+        <mat-icon style="margin-right: 8px;">assessment</mat-icon>
+        PANEL DE INFORMES
+      </button>
     </div>
     
     <div style="padding: 0;">
@@ -115,10 +88,77 @@
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef style="border-bottom: 1px solid #f0f0f0; width: 60px;"></th>
+          <td mat-cell *matCellDef="let agent" style="border-bottom: 1px solid #f5f5f5; text-align: center;">
+            <button mat-icon-button [matMenuTriggerFor]="agentMenu" title="Opciones">
+              <mat-icon style="color: #666;">more_vert</mat-icon>
+            </button>
+            <mat-menu #agentMenu="matMenu">
+              <button mat-menu-item (click)="downloadAgentReport(agent)">
+                <mat-icon style="color: #8e2de2;">picture_as_pdf</mat-icon>
+                <span>Descargar Informe Mensual</span>
+              </button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
         <tr mat-header-row *matHeaderRowDef="displayedColumns" style="height: 56px;"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="height: 64px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'"></tr>
       </table>
     </div>
   </div>
+  <!-- MODAL: PANEL DE INFORMES MENSUALES DETALLADOS -->
+  <ion-modal [isOpen]="showGlobalReport" (didDismiss)="closeGlobalReport()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>PANEL DE INFORMES: {{ monthName }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeGlobalReport()" style="font-weight: bold; color: #8e2de2;">CERRAR</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      
+      <ion-content class="ion-padding">
+        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
+          <div style="display: flex; flex-direction: column;">
+            <label style="font-size: 0.75rem; font-weight: bold; color: #764ba2; margin-bottom: 5px; text-transform: uppercase;">Seleccionar Período</label>
+            <input type="month" 
+                   [(ngModel)]="reportMonth" 
+                   (change)="calculateReportDays()"
+                   style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; font-size: 1rem; color: #333; outline: none; cursor: pointer;">
+          </div>
+          <div style="flex: 1;">
+            <p style="color: #666; font-size: 0.85rem; margin: 0;">Mostrando actividad para <strong>{{ monthName }}</strong></p>
+            <p style="color: #999; font-size: 0.75rem; margin: 2px 0 0 0;">* Los datos se actualizan automáticamente al cambiar el mes.</p>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #eee;">
+          <table style="width: 100%; border-collapse: collapse; min-width: 1000px;">
+            <thead>
+              <tr style="background: #fafafa; border-bottom: 2px solid #eee;">
+                <th style="padding: 15px; text-align: left; position: sticky; left: 0; background: #fafafa; z-index: 10; border-right: 1px solid #eee;">Agente</th>
+                <th *ngFor="let day of daysOfMonth" style="padding: 10px; font-size: 0.75rem; text-align: center; border-right: 1px solid #eee; width: 40px;">
+                  {{ day }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let agent of agentLogsData" style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px; font-weight: 600; color: #764ba2; position: sticky; left: 0; background: white; z-index: 5; border-right: 1px solid #eee;">
+                  {{ agent.firstName }} {{ agent.lastName }}
+                </td>
+                <td *ngFor="let day of daysOfMonth" style="padding: 8px; font-size: 0.75rem; text-align: center; border-right: 1px solid #eee;" [style.background]="getDayMinutes(agent, day) !== '-' ? 'rgba(142, 45, 226, 0.05)' : 'transparent'">
+                  {{ getDayMinutes(agent, day) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
 </ion-content>

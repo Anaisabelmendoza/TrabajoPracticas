@@ -3,14 +3,17 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/admin-control"></ion-back-button>
     </ion-buttons>
-    <ion-title>Gestión de Usuarios</ion-title>
+    <ion-title>
+      <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <span style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">| Gestión de Usuarios 👥</span>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="management-container">
     <div class="header-section">
-      <h1>Usuarios del Sistema 👥</h1>
+      <h1 style="font-weight: 800; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Usuarios del Sistema 👥</h1>
     </div>
 
     <div *ngIf="loading" class="loading-state">
@@ -23,7 +26,7 @@
       <button mat-icon-button (click)="closeMetrics()" style="position: absolute; top: 10px; right: 10px;">
         <mat-icon>close</mat-icon>
       </button>
-      <h2 style="color: #333; margin-top: 0;">Métricas de Tiempos: {{ selectedAgentForMetrics.firstName }} {{ selectedAgentForMetrics.lastName }}</h2>
+      <h2 style="font-weight: 800; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 0;">Métricas de Tiempos: {{ selectedAgentForMetrics.firstName }} {{ selectedAgentForMetrics.lastName }} 📊</h2>
       <div style="height: 300px; width: 100%; position: relative;">
         <canvas id="agentMetricsCanvas"></canvas>
       </div>
@@ -154,7 +157,7 @@
     <div *ngIf="selectedUserForCategories" class="category-manager mat-elevation-z4" style="background: white; border-radius: 12px; padding: 24px; margin-top: 20px; border-top: 4px solid #1976d2;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
         <div>
-          <h2 style="margin: 0; color: #1976d2; font-weight: 800;">🏷️ Asignar Áreas de Trabajo</h2>
+          <h2 style="margin: 0; font-weight: 800; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🏷️ Asignar Áreas de Trabajo</h2>
           <p style="margin: 5px 0 0; color: #666;">Selecciona las categorías de tickets que podrá ver <b>{{ selectedUserForCategories.firstName }} {{ selectedUserForCategories.lastName }}</b></p>
         </div>
         <button mat-icon-button (click)="closeCategoryManager()">

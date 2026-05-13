@@ -74,6 +74,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read'])]
     private ?\DateTimeInterface $lastActivityAt = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?array $connectionData = [];
+
     #[ORM\Column]
     private ?string $password = null;
 
@@ -81,7 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[SerializedName('password')]
     private ?string $plainPassword = null;
 
-    #[ORM\OneToMany(mappedBy: 'author', targetEntity: Ticket::class)]
+    #[ORM\OneToMany(mappedBy: 'author', targetEntity: Ticket::class, cascade: ['remove'])]
     private Collection $authoredTickets;
 
     #[ORM\OneToMany(mappedBy: 'agent', targetEntity: Ticket::class)]
@@ -102,6 +106,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->categories = new ArrayCollection();
         $this->isActive = true;
         $this->isOnDuty = true;
+        $this->connectionData = [];
     }
 
     // ========== MÉTODOS OBLIGATORIOS DE SEGURIDAD ==========
@@ -270,6 +275,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastActivityAt(?\DateTimeInterface $lastActivityAt): self
     {
         $this->lastActivityAt = $lastActivityAt;
+        return $this;
+    }
+
+    public function getConnectionData(): ?array
+    {
+        return $this->connectionData;
+    }
+
+    public function setConnectionData(array $connectionData): self
+    {
+        $this->connectionData = $connectionData;
         return $this;
     }
 
