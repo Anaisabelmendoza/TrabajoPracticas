@@ -4,11 +4,15 @@
       <ion-back-button defaultHref="/tickets"></ion-back-button>
     </ion-buttons>
     <ion-title>
-      <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
-      <span style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">| Gestión del Sistema</span>
+      <span
+        style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <span
+        style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">|
+        Gestión del Sistema</span>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-badge style="margin-right: 15px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);">ADMIN</ion-badge>
+      <ion-badge
+        style="margin-right: 15px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);">ADMIN</ion-badge>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -16,8 +20,11 @@
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="admin-container">
     <div class="welcome-header">
-      <h1 style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px;">Panel de Administración</h1>
-      <p style="color: #666; font-size: 1.1rem; font-weight: 500;">Gestiona el sistema y revisa el rendimiento global.</p>
+      <h1
+        style="background: linear-gradient(135deg,#000000 0%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; font-size: 2.5rem; margin-bottom: 5px;">
+        Panel de Administración</h1>
+      <p style="color: #666; font-size: 1.1rem; font-weight: 500;">Gestiona el sistema y revisa el rendimiento global.
+      </p>
     </div>
 
     <!-- Banner de Sincronización de Correo (NUEVO) -->
@@ -34,7 +41,8 @@
       </div>
       <button mat-flat-button class="sync-button" [disabled]="isSyncing">
         <mat-icon *ngIf="!isSyncing">sync</mat-icon>
-        <ion-spinner name="crescent" *ngIf="isSyncing" style="width: 20px; height: 20px; margin-right: 8px;"></ion-spinner>
+        <ion-spinner name="crescent" *ngIf="isSyncing"
+          style="width: 20px; height: 20px; margin-right: 8px;"></ion-spinner>
         {{ isSyncing ? 'Sincronizando...' : 'Sincronizar Ahora' }}
       </button>
     </div>
@@ -91,12 +99,15 @@
       <!-- PDFs y Trabajos Realizados -->
       <mat-card class="admin-card" routerLink="/pdf-archive">
         <mat-card-header>
-          <div mat-card-avatar class="admin-icon" style="background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);"><mat-icon>picture_as_pdf</mat-icon></div>
+          <div mat-card-avatar class="admin-icon"
+            style="background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);"><mat-icon>picture_as_pdf</mat-icon>
+          </div>
           <mat-card-title>PDF Trabajos</mat-card-title>
           <mat-card-subtitle>Archivados por Cliente</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <p>Accede directamente a los trabajos finalizados, organizados por clientes, para generar y descargar los PDFs.</p>
+          <p>Accede directamente a los trabajos finalizados, organizados por clientes, para generar y descargar los
+            PDFs.</p>
         </mat-card-content>
       </mat-card>
     </div>

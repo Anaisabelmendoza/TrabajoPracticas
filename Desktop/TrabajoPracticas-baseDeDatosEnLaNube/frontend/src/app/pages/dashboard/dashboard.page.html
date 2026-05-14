@@ -2,8 +2,10 @@
   <ion-toolbar>
     <ion-title class="ion-text-start ion-no-padding">
       <div class="header-brand" style="display: flex; align-items: center; padding-left: 20px;">
-        <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
-        <ion-badge color="tertiary" *ngIf="isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO ADMINISTRADOR</ion-badge>
+        <span
+          style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+        <ion-badge color="tertiary" *ngIf="isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO
+          ADMINISTRADOR</ion-badge>
       </div>
     </ion-title>
     <ion-buttons slot="end">
@@ -19,18 +21,23 @@
 
 <ion-content [fullscreen]="true">
   <div class="main-dashboard-container">
-    
+
     <!-- Welcome Header -->
     <div class="welcome-header">
       <div class="welcome-text">
-        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 900; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">¡Hola, {{ userName }}! 👋</h1>
-        <p style="margin: 5px 0 0 0; color: #666; font-size: 1.1rem; font-weight: 500;">Bienvenido al Centro de Soporte.</p>
+        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 900; color: #000000;">
+          ¡Hola, {{ userName }}!
+        </h1>
+        <p style="margin: 5px 0 0 0; color: #666; font-size: 1.1rem; font-weight: 500;">Bienvenido al Centro de Soporte.
+        </p>
       </div>
-      <button *ngIf="isAdmin" mat-flat-button class="action-btn-gradient" routerLink="/stats" style="margin-top: 10px; border-radius: 30px; padding: 12px 25px;">
+      <button *ngIf="isAdmin" mat-flat-button class="action-btn-gradient" routerLink="/stats"
+        style="margin-top: 10px; border-radius: 30px; padding: 12px 25px;">
         <mat-icon style="margin-right: 8px;">analytics</mat-icon>
         ESTADÍSTICAS DE TRABAJO
       </button>
-      <button *ngIf="!isAdmin" mat-flat-button class="action-btn-gradient" routerLink="/tickets/new" style="margin-top: 10px; border-radius: 30px; padding: 12px 25px;">
+      <button *ngIf="!isAdmin" mat-flat-button class="action-btn-gradient" routerLink="/tickets/new"
+        style="margin-top: 10px; border-radius: 30px; padding: 12px 25px;">
         <mat-icon style="margin-right: 8px;">add_circle</mat-icon>
         NUEVA INCIDENCIA
       </button>
@@ -38,7 +45,7 @@
 
     <!-- KANBAN BOARD -->
     <div class="kanban-board">
-      
+
       <!-- COLUMNA: NUEVAS -->
       <div class="kanban-column">
         <div class="column-header nuevas">
@@ -46,16 +53,17 @@
           <h2>Nuevas</h2>
           <span class="count-badge">{{ getFilteredTickets('Nuevo').length }}</span>
         </div>
-        
+
         <div class="column-content">
           <div *ngIf="getFilteredTickets('Nuevo').length === 0" class="empty-state-small">
             <p>No hay incidencias nuevas</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card"
+            [routerLink]="['/tickets', ticket.id]">
             <mat-card-header>
               <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
               <mat-card-title>
-                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
+                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
                 {{ ticket.title }}
               </mat-card-title>
               <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
@@ -77,16 +85,17 @@
           <h2>En Proceso</h2>
           <span class="count-badge">{{ getFilteredTickets('Proceso').length }}</span>
         </div>
-        
+
         <div class="column-content">
           <div *ngIf="getFilteredTickets('Proceso').length === 0" class="empty-state-small">
             <p>No hay trabajos en curso</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card"
+            [routerLink]="['/tickets', ticket.id]">
             <mat-card-header>
               <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
               <mat-card-title>
-                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
+                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
                 {{ ticket.title }}
               </mat-card-title>
             </mat-card-header>
@@ -110,15 +119,16 @@
           <h2>Resueltas</h2>
           <span class="count-badge">{{ getFilteredTickets('Resuelto').length }}</span>
         </div>
-        
+
         <div class="column-content">
           <div *ngIf="getFilteredTickets('Resuelto').length === 0" class="empty-state-small">
             <p>No hay resueltas</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card"
+            [routerLink]="['/tickets', ticket.id]">
             <mat-card-header>
               <mat-card-title>
-                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
+                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
                 {{ ticket.title }}
               </mat-card-title>
             </mat-card-header>
@@ -138,15 +148,16 @@
           <h2>Cerradas</h2>
           <span class="count-badge">{{ getFilteredTickets('Cerrado').length }}</span>
         </div>
-        
+
         <div class="column-content">
           <div *ngIf="getFilteredTickets('Cerrado').length === 0" class="empty-state-small">
             <p>Sin archivadas</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card"
+            [routerLink]="['/tickets', ticket.id]">
             <mat-card-header>
               <mat-card-title>
-                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
+                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
                 {{ ticket.title }}
               </mat-card-title>
             </mat-card-header>

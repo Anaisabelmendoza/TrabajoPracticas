@@ -121,17 +121,16 @@
       </ion-header>
       
       <ion-content class="ion-padding">
-        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
-          <div style="display: flex; flex-direction: column;">
-            <label style="font-size: 0.75rem; font-weight: bold; color: #764ba2; margin-bottom: 5px; text-transform: uppercase;">Seleccionar Período</label>
-            <input type="month" 
-                   [(ngModel)]="reportMonth" 
-                   (change)="calculateReportDays()"
-                   style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; font-size: 1rem; color: #333; outline: none; cursor: pointer;">
-          </div>
-          <div style="flex: 1;">
-            <p style="color: #666; font-size: 0.85rem; margin: 0;">Mostrando actividad para <strong>{{ monthName }}</strong></p>
-            <p style="color: #999; font-size: 0.75rem; margin: 2px 0 0 0;">* Los datos se actualizan automáticamente al cambiar el mes.</p>
+        <div class="report-panel-header-white">
+          <div class="filter-selector-clean">
+            <div class="dual-selector">
+              <select [(ngModel)]="selectedReportMonth" (change)="calculateReportDays()" class="clean-select">
+                <option *ngFor="let m of reportMonths" [value]="m.value">{{ m.name }}</option>
+              </select>
+              <select [(ngModel)]="selectedReportYear" (change)="calculateReportDays()" class="clean-select">
+                <option *ngFor="let y of reportYears" [value]="y">{{ y }}</option>
+              </select>
+            </div>
           </div>
         </div>
 

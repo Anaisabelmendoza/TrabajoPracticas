@@ -219,3 +219,11 @@ body.light-theme .cdk-overlay-pane {
     transform: translateY(-2px);
   }
 }
+
+/* CORRECCIÓN GLOBAL PARA COLOR DE IDS */
+.ticket-id-fix {
+  color: #8e2de2 !important;
+  font-weight: 800 !important;
+  margin-right: 8px !important;
+  display: inline-block !important;
+}

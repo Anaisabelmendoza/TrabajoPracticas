@@ -57,6 +57,25 @@ export class AppComponent implements OnInit, OnDestroy {
         this.notificationPushService.stopMonitoring();
       }
     }, 60000); // 60,000 ms = 1 minuto
+    
+    // Sincronización automática de correos cada 2 minutos
+    setInterval(() => {
+      if (this.authService.isLoggedIn() && this.authService.hasRole('ROLE_ADMIN')) {
+        console.log('Iniciando sincronización automática de correos...');
+        this.http.post(`${environment.apiUrl}/api/sync-emails`, {}, {
+          headers: new HttpHeaders({
+            'Authorization': `Bearer ${this.authService.getToken()}`
+          })
+        }).subscribe({
+          next: (res: any) => {
+            if (res.created > 0) {
+              console.log(`Sincronización automática: ${res.created} tickets nuevos creados.`);
+            }
+          },
+          error: (err) => console.error('Error en sincronización automática:', err)
+        });
+      }
+    }, 120000); // 120,000 ms = 2 minutos
   }
 
   ngOnDestroy() {

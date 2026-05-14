@@ -4,8 +4,11 @@
       <ion-back-button defaultHref="/admin-control"></ion-back-button>
     </ion-buttons>
     <ion-title>
-      <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
-      <span style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">| Ajustes Técnicos ⚙️</span>
+      <span
+        style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <span
+        style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">|
+        Ajustes Técnicos</span>
     </ion-title>
     <ion-buttons slot="end">
       <ion-badge color="danger" style="margin-right: 15px;">ADMIN</ion-badge>
@@ -15,9 +18,11 @@
 
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="config-container">
-    
+
     <div class="header-section">
-      <h1 style="font-weight: 800; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Ajustes Técnicos ⚙️</h1>
+      <h1
+        style="font-weight: 800; background: linear-gradient(135deg, #000000 0%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        Ajustes Técnicos </h1>
       <p>Gestiona las categorías y parámetros globales del servicio técnico.</p>
     </div>
 
@@ -32,15 +37,16 @@
         <div class="add-item-row">
           <mat-form-field appearance="outline" style="flex: 1;">
             <mat-label>Nueva Prioridad</mat-label>
-            <input matInput [(ngModel)]="newPriorityName" placeholder="Ej: Crítica, Muy Baja..." (keyup.enter)="addPriority()">
+            <input matInput [(ngModel)]="newPriorityName" placeholder="Ej: Crítica, Muy Baja..."
+              (keyup.enter)="addPriority()">
             <mat-icon matPrefix style="color: #764ba2;">flag</mat-icon>
           </mat-form-field>
-          
+
           <button mat-flat-button class="add-btn-large" (click)="addPriority()">
             <mat-icon>add</mat-icon>
             AÑADIR
           </button>
-      </div>
+        </div>
 
         <div class="table-container">
           <table class="modern-table">
@@ -56,7 +62,8 @@
                 <td><span class="id-badge">#{{ priority.id }}</span></td>
                 <td class="name-cell">{{ priority.name }}</td>
                 <td>
-                  <button mat-icon-button color="warn" (click)="deletePriority(priority.id)" matTooltip="Eliminar prioridad">
+                  <button mat-icon-button color="warn" (click)="deletePriority(priority.id)"
+                    matTooltip="Eliminar prioridad">
                     <mat-icon>delete_outline</mat-icon>
                   </button>
                 </td>
@@ -73,16 +80,17 @@
         <mat-card-title>Categorías de Incidencias</mat-card-title>
         <mat-card-subtitle>Añade o edita los tipos de averías disponibles</mat-card-subtitle>
       </mat-card-header>
-      
+
       <mat-card-content>
         <!-- Formulario Añadir -->
         <div class="add-item-row">
           <mat-form-field appearance="outline" style="flex: 1;">
             <mat-label>Nueva Categoría</mat-label>
-            <input matInput [(ngModel)]="newCategoryName" placeholder="Ej: Redes, Software, Impresoras..." (keyup.enter)="addCategory()">
+            <input matInput [(ngModel)]="newCategoryName" placeholder="Ej: Redes, Software, Impresoras..."
+              (keyup.enter)="addCategory()">
             <mat-icon matPrefix style="color: #764ba2;">label</mat-icon>
           </mat-form-field>
-          
+
           <button mat-flat-button class="add-btn-large" (click)="addCategory()">
             <mat-icon>add</mat-icon>
             AÑADIR
@@ -118,7 +126,8 @@
           </table>
         </div>
 
-        <div *ngIf="categories.length === 0 && !loading" class="empty-state" style="text-align: center; padding: 40px; color: #999;">
+        <div *ngIf="categories.length === 0 && !loading" class="empty-state"
+          style="text-align: center; padding: 40px; color: #999;">
           <mat-icon style="font-size: 48px; width: 48px; height: 48px; margin-bottom: 10px;">category</mat-icon>
           <p>No hay categorías registradas.</p>
         </div>

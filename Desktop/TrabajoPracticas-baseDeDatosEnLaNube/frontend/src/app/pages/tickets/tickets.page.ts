@@ -56,8 +56,8 @@ export class TicketsPage implements OnInit {
   selectedTabIndex = 0;
 
   // Filtros
-  searchId: string = '';
-  searchCategory: number | '' = '';
+  searchId: any = '';
+  searchCategory: any = '';
   searchPriority: string = '';
   searchStartDate: Date | null = null;
   searchEndDate: Date | null = null;
@@ -175,8 +175,13 @@ export class TicketsPage implements OnInit {
       }
 
       // 3. Filtros de búsqueda (ID, Categoría, Prioridad, Fechas)
-      if (this.searchId && t.id.toString() !== this.searchId.trim()) return false;
-      if (this.searchCategory && t.category?.id !== this.searchCategory) return false;
+      if (this.searchId && t.id.toString() !== this.searchId.toString()) return false;
+      
+      if (this.searchCategory) {
+        const catId = t.category?.id || (typeof t.category === 'object' ? t.category.id : null);
+        if (catId?.toString() !== this.searchCategory.toString()) return false;
+      }
+
       if (this.searchPriority && t.priority !== this.searchPriority) return false;
 
       // Filtro de Fechas

@@ -4,9 +4,12 @@
       <ion-back-button defaultHref="/dashboard"></ion-back-button>
     </ion-buttons>
     <ion-title>
-      <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
-      <ion-badge color="tertiary" *ngIf="isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO ADMINISTRADOR</ion-badge>
-      <ion-badge color="success" *ngIf="isAgent && !isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO AGENTE</ion-badge>
+      <span
+        style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <ion-badge color="tertiary" *ngIf="isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO
+        ADMINISTRADOR</ion-badge>
+      <ion-badge color="success" *ngIf="isAgent && !isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO
+        AGENTE</ion-badge>
     </ion-title>
     <ion-buttons slot="end">
       <!-- ACCESO A PANEL DE CONTROL (SOLO ADMIN) -->
@@ -25,12 +28,14 @@
   <div class="main-container">
 
     <div style="padding: 20px 20px 0 20px;">
-      <h2 style="font-weight: 800; color: #444; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Listado de Incidencias / Búsqueda Avanzada</h2>
+      <h2 style="font-weight: 800; color: #444; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Listado de
+        Incidencias / Búsqueda Avanzada</h2>
       <p style="color: #666; margin-top: 5px;">Utiliza los filtros para localizar tickets específicos.</p>
     </div>
 
     <!-- Buscador Global / Filtros (Siempre visible ahora) -->
-    <div class="filters-panel" style="display: flex; flex-wrap: wrap; gap: 15px; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 15px; margin: 20px;">
+    <div class="filters-panel"
+      style="display: flex; flex-wrap: wrap; gap: 15px; padding: 20px; background: rgba(0,0,0,0.02); border-radius: 15px; margin: 20px;">
       <mat-form-field appearance="outline" style="flex: 0.5; min-width: 100px;">
         <mat-label>Nº Incidencia</mat-label>
         <input matInput [(ngModel)]="searchId" placeholder="Ej: 12" type="number">
@@ -74,13 +79,14 @@
         BUSCAR
       </button>
 
-      <button mat-stroked-button class="btn-clear-filters" (click)="clearFilters()" title="Limpiar Filtros" style="margin-top: -20px;">
+      <button mat-stroked-button class="btn-clear-filters" (click)="clearFilters()" title="Limpiar Filtros"
+        style="margin-top: -20px;">
         <mat-icon>filter_alt_off</mat-icon>
       </button>
     </div>
-    
+
     <div class="kanban-board">
-      
+
       <!-- COLUMNA: NUEVAS -->
       <div class="kanban-column">
         <div class="column-header nuevas">
@@ -88,23 +94,26 @@
           <h2>Nuevas</h2>
           <span class="count-badge">{{ getFilteredTickets('Nuevo').length }}</span>
         </div>
-        
+
         <div class="column-content">
           <div *ngIf="getFilteredTickets('Nuevo').length === 0" class="empty-state-small">
             <p>No hay incidencias nuevas</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card"
+            [routerLink]="['/tickets', ticket.id]">
             <mat-card-header>
               <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
               <mat-card-title>
-                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
-                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
+                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
+                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')"
+                  style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
                 {{ ticket.title }}
               </mat-card-title>
               <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
-              <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+              <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : ''
+                }}</p>
               <div class="card-meta">
                 <span class="date">{{ ticket.createdAt | date:'dd/MM/yyyy' }}</span>
                 <span class="priority-label" [class]="ticket.priority.toLowerCase()">{{ ticket.priority }}</span>
@@ -121,17 +130,19 @@
           <h2>En Proceso</h2>
           <span class="count-badge">{{ getFilteredTickets('Proceso').length }}</span>
         </div>
-        
+
         <div class="column-content">
           <div *ngIf="getFilteredTickets('Proceso').length === 0" class="empty-state-small">
             <p>No hay trabajos en curso</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card"
+            [routerLink]="['/tickets', ticket.id]">
             <mat-card-header>
               <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
               <mat-card-title>
-                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
-                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
+                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
+                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')"
+                  style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
                 {{ ticket.title }}
               </mat-card-title>
               <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
@@ -156,16 +167,18 @@
           <h2>Resueltas</h2>
           <span class="count-badge">{{ getFilteredTickets('Resuelto').length }}</span>
         </div>
-        
+
         <div class="column-content">
           <div *ngIf="getFilteredTickets('Resuelto').length === 0" class="empty-state-small">
             <p>No hay resueltas</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card"
+            [routerLink]="['/tickets', ticket.id]">
             <mat-card-header>
               <mat-card-title>
-                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
-                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
+                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
+                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')"
+                  style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
                 {{ ticket.title }}
               </mat-card-title>
               <mat-card-subtitle>Resuelta el {{ ticket.updatedAt | date:'dd/MM/yyyy' }}</mat-card-subtitle>
@@ -186,16 +199,18 @@
           <h2>Cerradas</h2>
           <span class="count-badge">{{ getFilteredTickets('Cerrado').length }}</span>
         </div>
-        
+
         <div class="column-content">
           <div *ngIf="getFilteredTickets('Cerrado').length === 0" class="empty-state-small">
             <p>Sin archivadas</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card"
+            [routerLink]="['/tickets', ticket.id]">
             <mat-card-header>
               <mat-card-title>
-                <span style="color: #8e2de2; font-weight: 800; margin-right: 8px;">#{{ ticket.id }}</span>
-                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
+                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
+                <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')"
+                  style="font-size: 16px; vertical-align: middle; color: #1976d2; margin-right: 4px;">email</mat-icon>
                 {{ ticket.title }}
               </mat-card-title>
               <mat-card-subtitle>Cerrada el {{ ticket.updatedAt | date:'dd/MM/yyyy' }}</mat-card-subtitle>

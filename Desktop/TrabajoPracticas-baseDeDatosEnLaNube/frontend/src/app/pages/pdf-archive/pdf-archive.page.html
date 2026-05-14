@@ -4,8 +4,11 @@
       <ion-back-button defaultHref="/admin-control"></ion-back-button>
     </ion-buttons>
     <ion-title>
-      <span style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
-      <span style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">| Archivo Histórico 🗄️</span>
+      <span
+        style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <span
+        style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">|
+        Archivo Histórico </span>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -13,8 +16,11 @@
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="archive-container">
     <div class="header-section">
-      <h1 style="font-weight: 800; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Archivo Histórico 🗄️</h1>
-      <p>Todos los trabajos finalizados, guardados y agrupados por cliente. Selecciona un cliente para imprimir o guardar sus reportes en PDF.</p>
+      <h1
+        style="font-weight: 800; background: linear-gradient(135deg, #000000 0%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        Archivo Histórico</h1>
+      <p>Todos los trabajos finalizados, guardados y agrupados por cliente. Selecciona un cliente para imprimir o
+        guardar sus reportes en PDF.</p>
     </div>
 
     <div *ngIf="loading" class="spinner-container">
@@ -22,8 +28,9 @@
       <p>Cargando archivo histórico...</p>
     </div>
 
-    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-      
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start"
+      style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+
       <!-- PESTAÑA 1: TICKETS ACTIVOS -->
       <mat-tab>
         <ng-template mat-tab-label>
@@ -53,7 +60,8 @@
                   <mat-list-item style="height: auto; padding: 12px 0;">
                     <mat-icon matListItemIcon style="color: #555; margin-right: 16px;">description</mat-icon>
                     <div matListItemTitle style="font-weight: 600;">{{ item.title }}</div>
-                    <div matListItemLine style="color: #777; font-size: 0.85rem;">Finalizado: {{ item.date | date:'dd/MM/yyyy HH:mm' }}</div>
+                    <div matListItemLine style="color: #777; font-size: 0.85rem;">Finalizado: {{ item.date |
+                      date:'dd/MM/yyyy HH:mm' }}</div>
                     <div matListItemMeta>
                       <button mat-stroked-button color="primary" (click)="openPdf(item)">
                         <mat-icon style="margin-right: 8px;">visibility</mat-icon> Ver Detalle
@@ -97,7 +105,8 @@
                   <mat-list-item style="height: auto; padding: 12px 0;">
                     <mat-icon matListItemIcon style="color: #e53935; margin-right: 16px;">picture_as_pdf</mat-icon>
                     <div matListItemTitle style="font-weight: 600;">{{ item.title }}</div>
-                    <div matListItemLine style="color: #777; font-size: 0.85rem;">Archivado: {{ item.date | date:'dd/MM/yyyy HH:mm' }}</div>
+                    <div matListItemLine style="color: #777; font-size: 0.85rem;">Archivado: {{ item.date |
+                      date:'dd/MM/yyyy HH:mm' }}</div>
                     <div matListItemMeta>
                       <button mat-flat-button color="warn" (click)="openPdf(item)">
                         <mat-icon style="margin-right: 8px;">download</mat-icon> Descargar PDF

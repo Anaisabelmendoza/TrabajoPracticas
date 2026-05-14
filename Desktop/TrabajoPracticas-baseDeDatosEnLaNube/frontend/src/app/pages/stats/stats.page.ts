@@ -82,8 +82,21 @@ export class StatsPage implements OnInit, AfterViewInit {
   };
 
   showGlobalReport = false;
-  reportMonth: string = new Date().toISOString().substring(0, 7); // YYYY-MM
-  monthName: string = new Date().toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+
+  
+  // Mes y Año del reporte
+  reportMonths = [
+    { value: 1, name: 'Enero' }, { value: 2, name: 'Febrero' }, { value: 3, name: 'Marzo' },
+    { value: 4, name: 'Abril' }, { value: 5, name: 'Mayo' }, { value: 6, name: 'Junio' },
+    { value: 7, name: 'Julio' }, { value: 8, name: 'Agosto' }, { value: 9, name: 'Septiembre' },
+    { value: 10, name: 'Octubre' }, { value: 11, name: 'Noviembre' }, { value: 12, name: 'Diciembre' }
+  ];
+  reportYears: number[] = [];
+  selectedReportMonth: number = new Date().getMonth() + 1;
+  selectedReportYear: number = new Date().getFullYear();
+
+  reportMonth: string = ''; // Mantener compatibilidad con el resto del código
+  monthName: string = '';
   daysOfMonth: number[] = [];
 
   categories: any[] = [];
@@ -95,10 +108,18 @@ export class StatsPage implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
+    this.initYearRange();
     this.loadCategories();
     this.fetchStats();
     this.fetchAgentLogs();
     this.calculateReportDays();
+  }
+
+  initYearRange() {
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear - 5; i <= currentYear + 1; i++) {
+      this.reportYears.push(i);
+    }
   }
 
   ngAfterViewInit() {
@@ -162,11 +183,13 @@ export class StatsPage implements OnInit, AfterViewInit {
   }
 
   calculateReportDays() {
-    const [year, month] = this.reportMonth.split('-').map(Number);
-    const lastDay = new Date(year, month, 0).getDate();
+    // Sincronizar reportMonth para compatibilidad
+    this.reportMonth = `${this.selectedReportYear}-${this.selectedReportMonth.toString().padStart(2, '0')}`;
+    
+    const lastDay = new Date(this.selectedReportYear, this.selectedReportMonth, 0).getDate();
     this.daysOfMonth = Array.from({ length: lastDay }, (_, i) => i + 1);
     
-    const date = new Date(year, month - 1, 1);
+    const date = new Date(this.selectedReportYear, this.selectedReportMonth - 1, 1);
     this.monthName = date.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
   }
 

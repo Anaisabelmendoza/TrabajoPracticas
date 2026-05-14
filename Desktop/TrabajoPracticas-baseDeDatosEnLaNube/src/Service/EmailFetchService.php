@@ -11,6 +11,7 @@ use Webklex\PHPIMAP\ClientManager;
 
 class EmailFetchService
 {
+    private EntityManagerInterface $entityManager;
     private \Symfony\Component\String\Slugger\SluggerInterface $slugger;
     private string $projectDir;
     private \Symfony\Component\Mailer\MailerInterface $mailer;
@@ -31,18 +32,18 @@ class EmailFetchService
     {
         $stats = ['created' => 0, 'errors' => 0, 'messages' => []];
 
-        $cm = new ClientManager();
-        $client = $cm->make([
-            'host'          => 'imap.gmail.com',
-            'port'          => 993,
-            'encryption'    => 'ssl',
-            'validate_cert' => false,
-            'username'      => $emailUser,
-            'password'      => $emailPass,
-            'protocol'      => 'imap'
-        ]);
-
         try {
+            $cm = new ClientManager();
+            $client = $cm->make([
+                'host'          => 'imap.gmail.com',
+                'port'          => 993,
+                'encryption'    => 'ssl',
+                'validate_cert' => false,
+                'username'      => $emailUser,
+                'password'      => $emailPass,
+                'protocol'      => 'imap'
+            ]);
+
             $client->connect();
             $folder = $client->getFolder('INBOX');
             $messages = $folder->query()->unseen()->get();
@@ -90,6 +91,15 @@ class EmailFetchService
 
             return $stats;
         } catch (\Exception $e) {
+            $logDir = $this->projectDir . '/var/log';
+            if (!is_dir($logDir)) {
+                mkdir($logDir, 0777, true);
+            }
+            file_put_contents(
+                $logDir . '/email_sync_error.log', 
+                "[" . date('Y-m-d H:i:s') . "] ERROR: " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n\n", 
+                FILE_APPEND
+            );
             throw new \Exception('Error de conexión con Gmail: ' . $e->getMessage());
         }
     }
