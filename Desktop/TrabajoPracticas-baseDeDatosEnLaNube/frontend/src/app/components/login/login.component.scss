@@ -12,18 +12,19 @@ ion-content {
 }
 
 .brand-title {
-  color: white;
+  color: rgba(255, 255, 255, 0.328);
   font-size: 3.5rem;
   font-weight: 900;
   margin-bottom: 10px; // Espacio reducido para el subtítulo
   margin-top: -20px;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  -webkit-text-stroke: 1px black;
   font-family: 'Outfit', sans-serif;
   letter-spacing: -1px;
 }
 
 .brand-subtitle {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(7, 7, 7, 0.85);
   font-style: italic;
   font-size: 1.05rem;
   text-align: center;
@@ -76,12 +77,13 @@ mat-card-title {
   }
 }
 
-.register-link, .forgot-container {
+.register-link,
+.forgot-container {
   margin-top: 20px;
   text-align: center;
   font-size: 0.9rem;
   color: #666;
-  
+
   a {
     color: #764ba2;
     text-decoration: none;
@@ -102,7 +104,7 @@ mat-card-title {
 /* Material Field Customization */
 mat-form-field {
   --mdc-outlined-text-field-container-shape: 12px;
-  
+
   ::ng-deep .mat-mdc-text-field-wrapper {
     background-color: white !important;
   }

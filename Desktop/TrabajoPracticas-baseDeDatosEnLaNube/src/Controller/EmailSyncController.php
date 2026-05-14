@@ -25,12 +25,7 @@ class EmailSyncController extends AbstractController
             $stats = $emailFetchService->fetchAndSyncEmails($emailUser, $emailPass);
             return new JsonResponse($stats);
         } catch (\Throwable $e) {
-            error_log("SYNC ERROR: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
-            return new JsonResponse([
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ], 500);
+            return new JsonResponse(['error' => $e->getMessage()], 500);
         }
     }
 }

@@ -91,15 +91,6 @@ class EmailFetchService
 
             return $stats;
         } catch (\Exception $e) {
-            $logDir = $this->projectDir . '/var/log';
-            if (!is_dir($logDir)) {
-                mkdir($logDir, 0777, true);
-            }
-            file_put_contents(
-                $logDir . '/email_sync_error.log', 
-                "[" . date('Y-m-d H:i:s') . "] ERROR: " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n\n", 
-                FILE_APPEND
-            );
             throw new \Exception('Error de conexión con Gmail: ' . $e->getMessage());
         }
     }
