@@ -71,6 +71,7 @@ export class UserManagementPage implements OnInit {
   }
 
   openCategoryManager(user: User) {
+    this.loadAllCategories(); // Recargar de la base de datos en tiempo real por si se ha añadido alguna nueva
     this.selectedUserForCategories = { ...user };
     // Normalizar categorías para que sean IDs simples si vienen como objetos
     if (this.selectedUserForCategories.categories) {

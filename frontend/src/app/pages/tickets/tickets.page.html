@@ -5,7 +5,8 @@
     </ion-buttons>
     <ion-title>
       <span
-        style="font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+        routerLink="/dashboard"
+        style="cursor: pointer; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
       <ion-badge color="tertiary" *ngIf="isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO
         ADMINISTRADOR</ion-badge>
       <ion-badge color="success" *ngIf="isAgent && !isAdmin" style="margin-left: 10px; vertical-align: middle;">MODO
