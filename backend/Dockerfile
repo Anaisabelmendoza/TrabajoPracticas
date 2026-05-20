@@ -9,34 +9,28 @@ RUN apt-get update && apt-get install -y \
     git \
     && docker-php-ext-install intl opcache pdo pdo_mysql zip
 
-# Configurar Apache
+# Configurar Apache para que apunte a la carpeta public de tu backend
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/conf-available/*.conf
-
 RUN a2enmod rewrite
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar archivos
-COPY . /var/www/html
+# COPIA SELECTIVA: Solo lo que está en backend/
+WORKDIR /var/www/html
+COPY backend/ .
 
-# Crear carpeta var ANTES de usarla
+# Crear carpeta var
 RUN mkdir -p /var/www/html/var
 
 # Instalar dependencias Symfony
 RUN composer install --no-interaction --optimize-autoloader --no-scripts
 
-# --- AÑADE ESTA LÍNEA NUEVA AQUÍ ---
+# Compilar variables de entorno
 RUN touch .env && composer dump-env prod
-# -----------------------------------
 
-# Permisos (importante hacerlo al final)
+# Permisos
 RUN chown -R www-data:www-data /var/www/html
-
-# Cambiar usuario (mejor práctica)
 USER www-data
-
-
-# cambio para forzar build
