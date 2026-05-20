@@ -1,0 +1,165 @@
+ion-content {
+  --background: var(--app-bg) !important;
+}
+
+.form-container {
+  padding: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.form-card {
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+  padding: 12px;
+  background: var(--app-card-bg) !important;
+  color: var(--app-text) !important;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 20px;
+
+  --mdc-outlined-text-field-outline-color: var(--app-input-border);
+  --mdc-outlined-text-field-focus-outline-color: var(--app-accent);
+  --mdc-outlined-text-field-label-text-color: var(--app-input-label);
+  --mdc-outlined-text-field-focus-label-text-color: var(--app-accent);
+  --mdc-outlined-text-field-input-text-color: var(--app-input-text);
+  --mdc-outlined-text-field-caret-color: var(--app-accent);
+
+  input, textarea {
+    color: var(--app-input-text) !important;
+    -webkit-text-fill-color: var(--app-input-text) !important;
+  }
+
+  ::ng-deep .mat-mdc-select-value {
+    color: var(--app-input-text) !important;
+  }
+
+  ::ng-deep .mat-mdc-select-arrow svg {
+    fill: var(--app-input-label) !important;
+  }
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+  
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.half-width {
+  flex: 1;
+  width: 100%;
+
+  --mdc-outlined-text-field-outline-color: var(--app-input-border);
+  --mdc-outlined-text-field-focus-outline-color: var(--app-accent);
+  --mdc-outlined-text-field-label-text-color: var(--app-input-label);
+  --mdc-outlined-text-field-focus-label-text-color: var(--app-accent);
+  --mdc-outlined-text-field-input-text-color: var(--app-input-text);
+
+  ::ng-deep .mat-mdc-select-value {
+    color: var(--app-input-text) !important;
+  }
+
+  ::ng-deep .mat-mdc-select-arrow svg {
+    fill: var(--app-input-label) !important;
+  }
+}
+
+.submit-button {
+  width: 100%;
+  height: 54px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px !important;
+  margin-top: 25px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.evidence-section {
+  margin-top: 20px;
+  border-top: 1px solid var(--app-border);
+  padding-top: 20px;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: var(--app-text-secondary);
+    margin-bottom: 15px;
+    mat-icon { color: #667eea; }
+  }
+}
+
+.files-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.file-preview {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(255,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    mat-icon { font-size: 12px; width: 12px; height: 12px; }
+  }
+}
+
+.add-file-btn {
+  width: 80px;
+  height: 80px;
+  border: 2px dashed var(--app-input-border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--app-text-muted);
+  transition: all 0.3s;
+
+  &:hover {
+    border-color: #667eea;
+    color: #667eea;
+    background: var(--app-card-bg);
+  }
+
+  mat-icon { font-size: 24px; margin-bottom: 4px; }
+  span { font-size: 0.7rem; font-weight: 700; }
+}
+
+mat-card-content {
+  padding-top: 16px;
+}

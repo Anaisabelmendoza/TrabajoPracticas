@@ -1,0 +1,22 @@
+nelmio_cors:
+    defaults:
+        origin_regex: true
+        allow_origin: ['*']
+        allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+        allow_headers: ['*']
+        expose_headers: ['Authorization']
+        max_age: 3600
+    paths:
+        # Añadimos esta sección para el login
+        '^/login_check':
+            allow_origin: ['*']
+            allow_methods: ['POST', 'OPTIONS']
+            allow_headers: ['*']
+            expose_headers: ['Authorization']
+        # Mantenemos la de la API
+        '^/api/':
+            allow_origin: ['*']
+            allow_methods: ['POST', 'PUT', 'PATCH', 'GET', 'DELETE', 'OPTIONS']
+            allow_headers: ['*']
+            expose_headers: ['Authorization']
+            max_age: 3600

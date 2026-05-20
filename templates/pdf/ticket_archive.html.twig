@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Archivo de Incidencia #{{ ticket.id }}</title>
+    <style>
+        body { font-family: 'Helvetica', sans-serif; color: #333; line-height: 1.5; font-size: 13px; }
+        .header { border-bottom: 3px solid #6a11cb; padding-bottom: 15px; margin-bottom: 25px; }
+        .header h1 { color: #6a11cb; margin: 0; font-size: 24px; }
+        .ticket-info { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .label { font-weight: bold; color: #555; display: inline-block; width: 120px; }
+        .section-title { background: #6a11cb; color: white; padding: 8px 12px; font-weight: bold; margin-top: 25px; border-radius: 4px; }
+        .description { padding: 15px; border: 1px solid #eee; background: white; margin-top: 10px; min-height: 100px; }
+        .comment { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .comment-meta { font-size: 11px; color: #888; margin-bottom: 5px; }
+        .footer { position: fixed; bottom: -20px; width: 100%; text-align: center; font-size: 10px; color: #aaa; }
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; }
+        .badge-alta { background: #d32f2f; }
+        .badge-media { background: #f57c00; }
+        .badge-baja { background: #388e3c; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HELPDESK - Reporte de Incidencia</h1>
+        <p>Documento de archivo generado el {{ date|date('d/m/Y H:i') }}</p>
+    </div>
+
+    <div class="ticket-info">
+        <p><span class="label">ID Ticket:</span> #{{ ticket.id }}</p>
+        <p><span class="label">Título:</span> <strong>{{ ticket.title }}</strong></p>
+        <p><span class="label">Cliente:</span> {{ ticket.author.firstName }} {{ ticket.author.lastName }} ({{ ticket.author.email }})</p>
+        <p><span class="label">Fecha Apertura:</span> {{ ticket.createdAt|date('d/m/Y H:i') }}</p>
+        <p><span class="label">Prioridad:</span> {{ ticket.priority }}</p>
+        <p><span class="label">Estado Final:</span> {{ ticket.status }}</p>
+        {% if ticket.agent %}
+            <p><span class="label">Atendido por:</span> {{ ticket.agent.firstName }} {{ ticket.agent.lastName }}</p>
+        {% endif %}
+    </div>
+
+    <div class="section-title">DESCRIPCIÓN DE LA INCIDENCIA</div>
+    <div class="description">
+        {{ ticket.description|nl2br }}
+    </div>
+
+    {% if ticket.comments|length > 0 %}
+        <div class="section-title">HISTORIAL DE COMUNICACIONES</div>
+        {% for comment in ticket.comments %}
+            <div class="comment">
+                <div class="comment-meta">
+                    <strong>{{ comment.authorName }}</strong> - {{ comment.createdAt|date('d/m/Y H:i') }}
+                </div>
+                <div class="comment-text">
+                    {{ comment.content|nl2br }}
+                </div>
+                {% if comment.attachmentPath %}
+                    <div style="font-size: 10px; color: #6a11cb; margin-top: 5px;">
+                        [Adjunto: {{ comment.attachmentPath }}]
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if ticket.workLogs|length > 0 %}
+        <div class="section-title">REGISTRO DE TIEMPOS TRABAJADOS</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <thead>
+                <tr style="background: #f5f5f5;">
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Fecha</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Técnico</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Minutos</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in ticket.workLogs %}
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{ log.createdAt|date('d/m/Y') }}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{ log.agent.firstName }}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{ log.minutesSpent }} min</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{ log.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="footer">
+        Este documento es un registro oficial de HELPDESK. Conservar para referencia futura.
+    </div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Informe Mensual de Actividad</title>
+    <style>
+        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; line-height: 1.6; }
+        .header { text-align: center; border-bottom: 2px solid #1976d2; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { color: #1976d2; margin: 0; text-transform: uppercase; }
+        .section-title { background: #f0f2f5; padding: 10px; border-left: 5px solid #1976d2; font-weight: bold; margin-top: 30px; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f8f9fa; font-weight: bold; }
+        .status-pill { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Informe de Gestión - HelpDesk</h1>
+        <p>Generado el: {{ date|date('d/m/Y H:i') }}</p>
+    </div>
+
+    <!-- SECCIÓN 1: CLIENTES -->
+    <div class="section-title">RELACIÓN DE CLIENTES REGISTRADOS</div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Email</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+            <tr>
+                <td>{{ client.id }}</td>
+                <td>{{ client.firstName }}</td>
+                <td>{{ client.lastName }}</td>
+                <td>{{ client.email }}</td>
+                <td>Activo</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">No hay clientes registrados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- SECCIÓN 2: TICKETS POR CLIENTE -->
+    <div class="section-title">HISTÓRICO DE TICKETS / INCIDENCIAS</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Título</th>
+                <th>Cliente</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+            <tr>
+                <td>{{ ticket.createdAt|date('d/m/Y') }}</td>
+                <td>{{ ticket.title }}</td>
+                <td>{{ ticket.author.firstName }} {{ ticket.author.lastName }}</td>
+                <td>{{ ticket.priority }}</td>
+                <td>{{ ticket.status }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">No se han registrado incidencias en este periodo.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- SECCIÓN 3: RENDIMIENTO AGENTES (HORAS) -->
+    <div class="section-title">RESUMEN DE HORAS POR TRABAJADOR</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Agente / Trabajador</th>
+                <th>Email</th>
+                <th>Tickets Asignados</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for agent in agents %}
+            <tr>
+                <td>{{ agent.firstName }} {{ agent.lastName }}</td>
+                <td>{{ agent.email }}</td>
+                <td>{{ agent.assignedTickets|length }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        &copy; {{ "now"|date("Y") }} Sistema de Gestión HelpDesk - Informe Confidencial
+    </div>
+</body>
+</html>

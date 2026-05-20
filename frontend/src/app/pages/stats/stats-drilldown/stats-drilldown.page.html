@@ -1,0 +1,64 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/stats"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ pageTitle }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-badge color="danger" style="margin-right: 15px;">ADMIN</ion-badge>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <div *ngIf="loading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando lista de incidencias...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && tickets.length === 0">
+    <mat-icon class="large-icon">verified</mat-icon>
+    <p>No se han encontrado incidencias que coincidan con este filtro.</p>
+  </div>
+  
+  <ion-chip color="tertiary" *ngIf="!loading">
+    <ion-label>Debug: Mostrando {{ tickets.length }} tickets de un total cargado de red</ion-label>
+  </ion-chip>
+
+  <div class="tickets-grid" *ngIf="!loading && tickets.length > 0">
+    <mat-card *ngFor="let ticket of tickets" class="ticket-card" [routerLink]="['/tickets', ticket.id]">
+      <mat-card-header>
+        <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
+        <mat-card-title>{{ ticket.title }}</mat-card-title>
+        <mat-card-subtitle>{{ ticket.category?.name }} • {{ ticket.createdAt | date:'short' }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <p class="description">{{ ticket.description | slice:0:150 }}{{ ticket.description.length > 150 ? '...' : '' }}</p>
+
+        <div class="meta-data-row mt-2">
+          <strong>Solicitante:</strong> {{ ticket.author?.firstName }} {{ ticket.author?.lastName }}
+        </div>
+        
+        <div class="meta-data-row technician-assignment">
+          <strong>Técnico Encargado:</strong> 
+          <span *ngIf="ticket.agent" class="agent-badge">
+            <mat-icon>engineering</mat-icon> {{ ticket.agent.firstName }} {{ ticket.agent.lastName }}
+          </span>
+          <span *ngIf="!ticket.agent" class="unassigned-badge">
+            <mat-icon>person_off</mat-icon> Ninguno (Nuevas)
+          </span>
+        </div>
+      </mat-card-content>
+      
+      <mat-card-footer>
+        <div class="badge-container">
+          <ion-badge [color]="getStatusColor(ticket.status)">{{ ticket.status }}</ion-badge>
+          <ion-badge color="light" class="priority-badge">{{ ticket.priority }}</ion-badge>
+        </div>
+      </mat-card-footer>
+    </mat-card>
+  </div>
+
+</ion-content>
