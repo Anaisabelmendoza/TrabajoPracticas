@@ -162,7 +162,7 @@ export class TicketDetailPage implements OnInit, OnDestroy {
     if (this.isTimerRunning) return;
     this.isTimerRunning = true;
     localStorage.setItem(`ticket_timer_start_${this.ticket.id}`, Date.now().toString());
-    
+
     // Si ya teníamos segundos acumulados (de una pausa previa sin loggear), los mantenemos
     const accumulated = parseInt(localStorage.getItem(`ticket_timer_accumulated_${this.ticket.id}`) || '0', 10);
     this.timerSeconds = accumulated;
@@ -176,11 +176,11 @@ export class TicketDetailPage implements OnInit, OnDestroy {
     if (!this.isTimerRunning) return;
     this.isTimerRunning = false;
     clearInterval(this.timerInterval);
-    
+
     // Guardamos los segundos actuales para poder reanudar
     localStorage.setItem(`ticket_timer_accumulated_${this.ticket.id}`, this.timerSeconds.toString());
     localStorage.removeItem(`ticket_timer_start_${this.ticket.id}`);
-    
+
     this.showToast('Temporizador en pausa ⏸️', 'warning');
   }
 
@@ -196,12 +196,12 @@ export class TicketDetailPage implements OnInit, OnDestroy {
     const finalSeconds = Math.max(accumulated, current);
 
     if (finalSeconds === 0 && !this.isTimerRunning) return;
-    
+
     this.isTimerRunning = false;
     clearInterval(this.timerInterval);
     localStorage.removeItem(`ticket_timer_start_${this.ticket.id}`);
     localStorage.removeItem(`ticket_timer_accumulated_${this.ticket.id}`);
-    
+
     const minutes = Math.ceil(finalSeconds / 60);
     this.timerSeconds = 0;
 
@@ -234,12 +234,12 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   resumeTimerIfActive() {
     const startTime = localStorage.getItem(`ticket_timer_start_${this.ticket.id}`);
     const accumulated = parseInt(localStorage.getItem(`ticket_timer_accumulated_${this.ticket.id}`) || '0', 10);
-    
+
     if (startTime) {
       this.isTimerRunning = true;
       const elapsedMs = Date.now() - parseInt(startTime, 10);
       this.timerSeconds = accumulated + Math.floor(elapsedMs / 1000);
-      
+
       if (this.timerInterval) clearInterval(this.timerInterval);
       this.timerInterval = setInterval(() => {
         this.timerSeconds++;
@@ -267,7 +267,7 @@ export class TicketDetailPage implements OnInit, OnDestroy {
         this.ticket = updated;
         this.loading = false;
         this.showToast('¡Ticket asignado! Ahora eres el responsable.', 'success');
-        
+
         // Auto-start timer
         this.startTimer();
       },
@@ -359,12 +359,12 @@ export class TicketDetailPage implements OnInit, OnDestroy {
       next: (updated) => {
         this.ticket = updated;
         this.showToast(`Estado cambiado a: ${newStatus}`, 'success');
-        
+
         // Iniciar cronómetro automáticamente
         if (newStatus === 'En proceso') {
           this.startTimer();
         }
-        
+
         // Detener cronómetro automáticamente
         if (newStatus === 'Resuelto') {
           this.stopTimerAndLog();
@@ -438,7 +438,7 @@ export class TicketDetailPage implements OnInit, OnDestroy {
               this.showToast('Introduce una cantidad válida de minutos', 'danger');
               return false;
             }
-            
+
             const user = this.authService.getUser();
             this.loading = true;
             this.workLogService.createWorkLog({
@@ -548,7 +548,7 @@ export class TicketDetailPage implements OnInit, OnDestroy {
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
-          text: 'Eliminar solo (sin PDF)',
+          text: 'Eliminar solo (sin guardar PDF)',
           cssClass: 'alert-button-confirm',
           handler: () => {
             this.confirmDeletion(false);
