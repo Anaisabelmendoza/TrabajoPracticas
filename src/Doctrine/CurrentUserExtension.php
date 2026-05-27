@@ -7,6 +7,7 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Ticket;
+use App\Entity\Comment;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -28,12 +29,21 @@ class CurrentUserExtension implements QueryCollectionExtensionInterface, QueryIt
 
     private function addWhere(QueryBuilder $queryBuilder, string $resourceClass): void
     {
-        if (Ticket::class !== $resourceClass || $this->security->isGranted('ROLE_AGENT') || null === $user = $this->security->getUser()) {
+        if ($this->security->isGranted('ROLE_AGENT') || null === $user = $this->security->getUser()) {
             return;
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->andWhere(sprintf('%s.author = :current_user', $rootAlias));
-        $queryBuilder->setParameter('current_user', $user);
+
+        if (Ticket::class === $resourceClass) {
+            $queryBuilder->andWhere(sprintf('%s.author = :current_user', $rootAlias));
+            $queryBuilder->setParameter('current_user', $user);
+        } elseif (Comment::class === $resourceClass) {
+            // Un cliente solo puede ver comentarios de incidencias de las que sea autor
+            $queryBuilder->join(sprintf('%s.ticket', $rootAlias), 't');
+            $queryBuilder->andWhere('t.author = :current_user');
+            $queryBuilder->setParameter('current_user', $user);
+        }
     }
 }
+

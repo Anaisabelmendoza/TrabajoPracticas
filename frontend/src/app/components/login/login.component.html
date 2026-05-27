@@ -11,7 +11,7 @@
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Correo Electrónico</mat-label>
-            <input matInput formControlName="email" type="email" required>
+            <input matInput formControlName="email" type="email" required (keydown.enter)="onSubmit()">
             <mat-error *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
               Correo electrónico inválido
             </mat-error>
@@ -19,7 +19,7 @@
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Contraseña</mat-label>
-            <input matInput formControlName="password" [type]="showPassword ? 'text' : 'password'">
+            <input matInput formControlName="password" [type]="showPassword ? 'text' : 'password'" (keydown.enter)="onSubmit()">
             <button mat-icon-button matSuffix (click)="togglePasswordVisibility()" type="button">
               <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
