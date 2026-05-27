@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://wildland-upstream-reconvene.ngrok-free.dev'
+  apiUrl: 'https://trabajopracticas.onrender.com'
 };
 
 /*
