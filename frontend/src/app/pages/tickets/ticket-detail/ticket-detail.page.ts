@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController, AlertController } from '@ionic/angular';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { TicketService } from '../../../services/ticket.service';
 import { AuthService } from '../../../services/auth.service';
 import { WorkLogService } from '../../../services/work-log.service';
@@ -53,9 +53,11 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   timerInterval: any;
   timerSeconds: number = 0;
   isTimerRunning: boolean = false;
+  defaultBackHref = '/tickets';
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private ticketService: TicketService,
     public authService: AuthService,
     private workLogService: WorkLogService,
@@ -67,6 +69,10 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     const editMode = this.route.snapshot.queryParamMap.get('edit') === 'true';
+    const from = this.route.snapshot.queryParamMap.get('from');
+    if (from === 'dashboard') {
+      this.defaultBackHref = '/dashboard';
+    }
     if (id) {
       this.loadTicket(parseInt(id));
     }
@@ -528,7 +534,12 @@ export class TicketDetailPage implements OnInit, OnDestroy {
       next: () => {
         this.loading = false;
         this.showToast(archive ? 'PDF guardado e incidencia eliminada' : 'Incidencia eliminada correctamente', 'success');
-        window.location.href = '/tickets';
+        const from = this.route.snapshot.queryParamMap.get('from');
+        if (from === 'dashboard') {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.router.navigate(['/tickets']);
+        }
       },
       error: (err) => {
         this.loading = false;

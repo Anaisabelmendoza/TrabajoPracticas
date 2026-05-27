@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tickets"></ion-back-button>
+      <ion-back-button [defaultHref]="defaultBackHref"></ion-back-button>
     </ion-buttons>
     <ion-title>Ticket #{{ ticket?.id }}</ion-title>
     <ion-buttons slot="end">

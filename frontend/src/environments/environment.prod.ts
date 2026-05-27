@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://trabajopracticas.onrender.com'
+  apiUrl: 'https://wildland-upstream-reconvene.ngrok-free.dev'
 };

@@ -60,7 +60,7 @@
             <p>No hay incidencias nuevas</p>
           </div>
           <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card"
-            [routerLink]="['/tickets', ticket.id]">
+            [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
             <mat-card-header>
               <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
               <mat-card-title>
@@ -92,7 +92,7 @@
             <p>No hay trabajos en curso</p>
           </div>
           <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card"
-            [routerLink]="['/tickets', ticket.id]">
+            [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
             <mat-card-header>
               <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
               <mat-card-title>
@@ -126,7 +126,7 @@
             <p>No hay resueltas</p>
           </div>
           <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card"
-            [routerLink]="['/tickets', ticket.id]">
+            [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
             <mat-card-header>
               <mat-card-title>
                 <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
@@ -155,7 +155,7 @@
             <p>Sin archivadas</p>
           </div>
           <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card"
-            [routerLink]="['/tickets', ticket.id]">
+            [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
             <mat-card-header>
               <mat-card-title>
                 <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
