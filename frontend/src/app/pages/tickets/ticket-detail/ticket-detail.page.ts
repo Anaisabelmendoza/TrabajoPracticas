@@ -54,6 +54,7 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   timerSeconds: number = 0;
   isTimerRunning: boolean = false;
   defaultBackHref = '/tickets';
+  chatPollInterval: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -74,7 +75,9 @@ export class TicketDetailPage implements OnInit, OnDestroy {
       this.defaultBackHref = '/dashboard';
     }
     if (id) {
-      this.loadTicket(parseInt(id));
+      const parsedId = parseInt(id);
+      this.loadTicket(parsedId);
+      this.startChatPolling(parsedId);
     }
     if (editMode) {
       this.isEditingDescription = true;
@@ -113,10 +116,46 @@ export class TicketDetailPage implements OnInit, OnDestroy {
     });
   }
 
+  ionViewWillLeave() {
+    this.stopChatPolling();
+  }
+
   ngOnDestroy() {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
+    this.stopChatPolling();
+  }
+
+  startChatPolling(id: number) {
+    this.stopChatPolling();
+    this.chatPollInterval = setInterval(() => {
+      this.refreshChatSilently(id);
+    }, 7000); // Refrescar chat en segundo plano cada 7 segundos
+  }
+
+  stopChatPolling() {
+    if (this.chatPollInterval) {
+      clearInterval(this.chatPollInterval);
+      this.chatPollInterval = null;
+    }
+  }
+
+  refreshChatSilently(id: number) {
+    if (this.loading || !this.ticket) return;
+    this.ticketService.getTicket(id).subscribe({
+      next: (data) => {
+        const currentCommentsLength = this.ticket.comments?.length || 0;
+        const newCommentsLength = data.comments?.length || 0;
+
+        // Actualizamos de forma silenciosa si hay nuevos comentarios o cambió el estado
+        if (newCommentsLength > currentCommentsLength || data.status !== this.ticket.status) {
+          this.ticket = data;
+          console.log('Chat actualizado automáticamente con nuevos mensajes / estado.');
+        }
+      },
+      error: (err) => console.error('Error al auto-actualizar chat:', err)
+    });
   }
 
   startTimer() {
