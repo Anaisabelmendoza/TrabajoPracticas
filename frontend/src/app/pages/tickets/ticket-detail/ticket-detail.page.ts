@@ -607,4 +607,80 @@ export class TicketDetailPage implements OnInit, OnDestroy {
     const minutes = totalMinutes % 60;
     return `${hours}h ${minutes}m`;
   }
+
+  getCategoryIcon(categoryName: string): string {
+    if (!categoryName) return 'help_outline';
+    const name = categoryName.toLowerCase();
+    if (name.includes('redes')) return 'settings_ethernet';
+    if (name.includes('hardware')) return 'computer';
+    if (name.includes('software')) return 'code';
+    if (name.includes('acceso')) return 'vpn_key';
+    if (name.includes('email') || name.includes('correo')) return 'alternate_email';
+    return 'help_outline';
+  }
+
+  getAuthorInitials(author: any): string {
+    if (!author) return 'U';
+    const first = author.firstName || author.username || '';
+    const last = author.lastName || '';
+    if (first && last) {
+      return (first[0] + last[0]).toUpperCase();
+    }
+    return first ? first[0].toUpperCase() : 'U';
+  }
+
+  getPriorityClass(priority: string): string {
+    if (!priority) return 'priority-baja';
+    switch (priority.toLowerCase()) {
+      case 'crítica':
+      case 'critica':
+        return 'priority-critical';
+      case 'alta':
+        return 'priority-high';
+      case 'media':
+        return 'priority-medium';
+      case 'baja':
+      default:
+        return 'priority-low';
+    }
+  }
+
+  getStatusClass(status: string): string {
+    if (!status) return 'status-new';
+    switch (status.toLowerCase()) {
+      case 'en proceso':
+        return 'status-process';
+      case 'resuelto':
+        return 'status-resolved';
+      case 'cerrado':
+        return 'status-closed';
+      case 'nuevo':
+      default:
+        return 'status-new';
+    }
+  }
+
+  getHistoryIcon(action: string): string {
+    if (!action) return 'history';
+    const act = action.toLowerCase();
+    if (act.includes('creación') || act.includes('creacion')) return 'add_circle';
+    if (act.includes('prioridad')) return 'low_priority';
+    if (act.includes('categoría') || act.includes('categoria')) return 'category';
+    if (act.includes('estado')) return 'sync_alt';
+    if (act.includes('asign') || act.includes('técnico') || act.includes('tecnico')) return 'person';
+    return 'history';
+  }
+
+  getHistoryBadgeClass(action: string): string {
+    if (!action) return 'badge-default';
+    const act = action.toLowerCase();
+    if (act.includes('creación') || act.includes('creacion')) return 'badge-create';
+    if (act.includes('prioridad')) return 'badge-priority';
+    if (act.includes('categoría') || act.includes('categoria')) return 'badge-category';
+    if (act.includes('estado')) return 'badge-status';
+    if (act.includes('asign') || act.includes('técnico') || act.includes('tecnico')) return 'badge-agent';
+    return 'badge-default';
+  }
 }
+
+

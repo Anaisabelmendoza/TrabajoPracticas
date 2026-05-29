@@ -39,8 +39,16 @@
   .column-header {
     display: flex;
     align-items: center;
-    padding: 10px 5px 15px;
+    padding: 10px 12px !important;
     gap: 10px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+      transform: translateY(-2px);
+    }
 
     mat-icon {
       font-size: 20px;
@@ -51,19 +59,19 @@
     h2 {
       margin: 0;
       font-size: 0.9rem;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 1px;
       flex: 1;
     }
 
     .count-badge {
-      background: rgba(0,0,0,0.1);
-      color: #555;
-      padding: 2px 8px;
-      border-radius: 10px;
+      background: rgba(0,0,0,0.06);
+      color: inherit;
+      padding: 3px 8px;
+      border-radius: 20px;
       font-size: 0.75rem;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     &.nuevas { color: #d32f2f; }
@@ -179,4 +187,187 @@
   text-align: center;
   color: #95a5a6;
   font-size: 0.85rem;
+}
+
+/* --- ESTILOS ADICIONALES PARA EL MODAL Y TARJETAS PREMIUM --- */
+ion-modal {
+  --border-radius: 24px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.15);
+  
+  ion-toolbar {
+    --color: #ffffff !important;
+  }
+}
+
+.ticket-card.kanban-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  border: 1px solid rgba(0,0,0,0.03) !important;
+  margin: 0 !important;
+
+  // Borde lateral izquierdo con gradiente dinámico de prioridad
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    transition: all 0.3s ease;
+    z-index: 5;
+  }
+
+  &.baja::before { background: linear-gradient(to bottom, #11998e, #38ef7d); }
+  &.media::before { background: linear-gradient(to bottom, #ff9800, #ffc107); }
+  &.alta::before { background: linear-gradient(to bottom, #ff416c, #ff4b2b); }
+  &.crítica::before { background: linear-gradient(to bottom, #800080, #ff007f); }
+
+  &:hover {
+    transform: translateY(-6px) scale(1.01);
+    
+    &.baja { box-shadow: 0 12px 24px rgba(56, 239, 125, 0.15) !important; }
+    &.media { box-shadow: 0 12px 24px rgba(255, 152, 0, 0.15) !important; }
+    &.alta { box-shadow: 0 12px 24px rgba(255, 75, 43, 0.15) !important; }
+    &.crítica { box-shadow: 0 12px 24px rgba(255, 0, 127, 0.15) !important; }
+  }
+
+  mat-card-header {
+    padding: 16px 16px 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    
+    ::ng-deep .mat-mdc-card-header-avatar {
+      margin-right: 0 !important;
+    }
+
+    // Avatar circular del autor
+    .author-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8e2de2, #4a00e0);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.8);
+      
+      &.avatar-a, &.avatar-e, &.avatar-i { background: linear-gradient(135deg, #11998e, #38ef7d); }
+      &.avatar-o, &.avatar-u, &.avatar-d { background: linear-gradient(135deg, #ff9900, #ff5500); }
+      &.avatar-m, &.avatar-s, &.avatar-r { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+      &.avatar-t, &.avatar-p, &.avatar-l { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
+    }
+
+    .header-text-container {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    mat-card-title {
+      font-size: 0.95rem !important;
+      font-weight: 700 !important;
+      color: #2c3e50;
+      line-height: 1.2 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px;
+      margin: 0 !important;
+      
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+
+      .ticket-id {
+        color: #8e2de2;
+        font-weight: 900;
+        flex-shrink: 0;
+      }
+
+      .ticket-title-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    mat-card-subtitle {
+      font-size: 0.8rem !important;
+      color: #7f8c8d !important;
+      margin-top: 2px !important;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      .category-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        color: #8e2de2;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 0 16px 16px !important;
+
+    .description {
+      font-size: 0.85rem;
+      color: #5d6d7e;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .technician-info {
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #7f8c8d;
+      margin-bottom: 12px;
+      gap: 6px;
+      background: #f8f9fa;
+      padding: 4px 8px;
+      border-radius: 6px;
+      width: fit-content;
+      
+      mat-icon { font-size: 14px; width: 14px; height: 14px; color: #8e2de2; }
+    }
+
+    // Contadores Meta (Adjuntos y Comentarios)
+    .metadata-badges {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      
+      .meta-badge {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.75rem;
+        color: #95a5a6;
+        font-weight: 600;
+        
+        mat-icon {
+          font-size: 15px;
+          width: 15px;
+          height: 15px;
+        }
+        
+        &.active-badge {
+          color: #8e2de2;
+        }
+      }
+    }
+  }
 }

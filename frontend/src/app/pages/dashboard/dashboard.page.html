@@ -49,7 +49,7 @@
 
       <!-- COLUMNA: NUEVAS -->
       <div class="kanban-column">
-        <div class="column-header nuevas">
+        <div class="column-header nuevas" (click)="openStatusModal('Nuevo')" style="cursor: pointer;" title="Ver incidencias Nuevas en pantalla completa">
           <mat-icon>new_releases</mat-icon>
           <h2>Nuevas</h2>
           <span class="count-badge">{{ getFilteredTickets('Nuevo').length }}</span>
@@ -81,7 +81,7 @@
 
       <!-- COLUMNA: EN PROCESO -->
       <div class="kanban-column">
-        <div class="column-header proceso">
+        <div class="column-header proceso" (click)="openStatusModal('Proceso')" style="cursor: pointer;" title="Ver incidencias En Proceso en pantalla completa">
           <mat-icon>engineering</mat-icon>
           <h2>En Proceso</h2>
           <span class="count-badge">{{ getFilteredTickets('Proceso').length }}</span>
@@ -115,7 +115,7 @@
 
       <!-- COLUMNA: RESUELTAS -->
       <div class="kanban-column">
-        <div class="column-header resuelto">
+        <div class="column-header resuelto" (click)="openStatusModal('Resuelto')" style="cursor: pointer;" title="Ver incidencias Resueltas en pantalla completa">
           <mat-icon>task_alt</mat-icon>
           <h2>Resueltas</h2>
           <span class="count-badge">{{ getFilteredTickets('Resuelto').length }}</span>
@@ -144,7 +144,7 @@
 
       <!-- COLUMNA: CERRADAS -->
       <div class="kanban-column">
-        <div class="column-header cerradas">
+        <div class="column-header cerradas" (click)="openStatusModal('Cerrado')" style="cursor: pointer;" title="Ver incidencias Cerradas en pantalla completa">
           <mat-icon>archive</mat-icon>
           <h2>Cerradas</h2>
           <span class="count-badge">{{ getFilteredTickets('Cerrado').length }}</span>
@@ -174,4 +174,95 @@
     </div>
 
   </div>
+
+  <!-- Modal de Visualización Detallada de Incidencias por Estado -->
+  <ion-modal [isOpen]="isStatusModalOpen" (didDismiss)="isStatusModalOpen = false" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar [style.--background]="getStatusHeaderColor(selectedStatus)">
+          <ion-title style="color: #ffffff; font-weight: 850; text-transform: uppercase; letter-spacing: 1px;">
+            Incidencias: {{ selectedStatus === 'Proceso' ? 'En Proceso' : selectedStatus }}
+          </ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isStatusModalOpen = false" style="--color: #ffffff; font-weight: 700; color: #ffffff;">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      
+      <ion-content style="--background: #f8fafc; padding: 20px;">
+        <div style="padding: 20px; max-width: 650px; margin: 0 auto;">
+          <!-- Buscador local dentro del Modal -->
+          <div style="margin-bottom: 25px;">
+            <mat-form-field appearance="outline" style="width: 100%;">
+              <mat-label>Filtrar incidencias en esta lista...</mat-label>
+              <input matInput [(ngModel)]="modalSearchText" placeholder="Busca por ID, título, descripción o cliente...">
+              <mat-icon matSuffix style="color: #8e2de2;">search</mat-icon>
+            </mat-form-field>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+              <span style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600;">
+                Se muestran {{ getModalFilteredTickets().length }} de {{ getFilteredTickets(selectedStatus).length }} incidencias
+              </span>
+            </div>
+          </div>
+
+          <!-- Listado enfocado de tarjetas premium -->
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div *ngIf="getModalFilteredTickets().length === 0" style="text-align: center; padding: 50px 20px; color: #7f8c8d; font-style: italic; background: #ffffff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+              <mat-icon style="font-size: 40px; width: 40px; height: 40px; color: #cbd5e1; margin-bottom: 10px;">info_outline</mat-icon>
+              <p style="margin: 0; font-weight: 500;">No se encontraron coincidencias en esta búsqueda</p>
+            </div>
+
+            <!-- Tarjeta premium enlazada a goToTicket(ticket.id) -->
+            <mat-card *ngFor="let ticket of getModalFilteredTickets()" class="ticket-card kanban-card" [class]="ticket.priority.toLowerCase()" (click)="goToTicket(ticket.id)">
+              <mat-card-header>
+                <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
+                  {{ getAuthorInitials(ticket.author) }}
+                </div>
+                
+                <div class="header-text-container">
+                  <mat-card-title>
+                    <span class="ticket-id">#{{ ticket.id }}</span>
+                    <span class="ticket-title-text" [title]="ticket.title">{{ ticket.title }}</span>
+                  </mat-card-title>
+                  <mat-card-subtitle>
+                    <mat-icon class="category-icon">{{ getCategoryIcon(ticket.category?.name) }}</mat-icon>
+                    <span>{{ ticket.category?.name || 'Sin Categoría' }}</span>
+                    <mat-icon *ngIf="ticket.description?.startsWith('[ORIGEN: EMAIL]')" style="font-size: 14px; width: 14px; height: 14px; color: #1976d2; margin-left: 4px;" title="Origen: Email">email</mat-icon>
+                  </mat-card-subtitle>
+                </div>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+                
+                <!-- Info del técnico si está asignado (Columna En Proceso) -->
+                <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
+                  <mat-icon>engineering</mat-icon>
+                  <span>{{ ticket.agent ? ticket.agent.firstName : ticket.agentNameFallback }}</span>
+                </p>
+                
+                <!-- Contadores meta (adjuntos y comentarios) -->
+                <div class="metadata-badges">
+                  <span class="meta-badge" [class.active-badge]="ticket.comments?.length > 0">
+                    <mat-icon>forum</mat-icon>
+                    <span>{{ ticket.comments?.length || 0 }}</span>
+                  </span>
+                  <span class="meta-badge" [class.active-badge]="ticket.attachments?.length > 0">
+                    <mat-icon>attach_file</mat-icon>
+                    <span>{{ ticket.attachments?.length || 0 }}</span>
+                  </span>
+                </div>
+                
+                <div class="card-meta">
+                  <span class="date">{{ (ticket.updatedAt || ticket.createdAt) | date:'dd/MM/yyyy' }}</span>
+                  <span class="priority-label" [class]="ticket.priority.toLowerCase()">{{ ticket.priority }}</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>

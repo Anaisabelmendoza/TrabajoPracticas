@@ -9,6 +9,9 @@ import { TicketService } from '../../services/ticket.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,9 +22,12 @@ import { MatIconModule } from '@angular/material/icon';
     CommonModule,
     IonicModule,
     RouterModule,
+    FormsModule,
     MatCardModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule
   ]
 })
 export class DashboardPage implements OnInit {
@@ -37,6 +43,12 @@ export class DashboardPage implements OnInit {
     inProgress: 0,
     resolved: 0
   };
+
+  // Variables del Modal de Estado
+  isStatusModalOpen: boolean = false;
+  selectedStatus: string = '';
+  modalSearchText: string = '';
+
 
   constructor(
     private authService: AuthService,
@@ -186,4 +198,62 @@ export class DashboardPage implements OnInit {
       return isAuthor && !t.deletedByUser;
     });
   }
+
+  openStatusModal(status: string) {
+    this.selectedStatus = status;
+    this.modalSearchText = '';
+    this.isStatusModalOpen = true;
+  }
+
+  goToTicket(id: number) {
+    this.isStatusModalOpen = false;
+    this.router.navigate(['/tickets', id], { queryParams: { from: 'dashboard' } });
+  }
+
+  getModalFilteredTickets(): any[] {
+    const ticketsOfStatus = this.getFilteredTickets(this.selectedStatus);
+    if (!this.modalSearchText.trim()) {
+      return ticketsOfStatus;
+    }
+    const query = this.modalSearchText.toLowerCase().trim();
+    return ticketsOfStatus.filter(t => {
+      const idStr = t.id ? t.id.toString() : '';
+      const titleStr = t.title ? t.title.toLowerCase() : '';
+      const descStr = t.description ? t.description.toLowerCase() : '';
+      const clientStr = t.author ? (t.author.firstName + ' ' + t.author.lastName).toLowerCase() : '';
+      return idStr.includes(query) || titleStr.includes(query) || descStr.includes(query) || clientStr.includes(query);
+    });
+  }
+
+  getStatusHeaderColor(status: string): string {
+    switch (status) {
+      case 'Nuevo': return '#d32f2f';
+      case 'Proceso': return '#f57c00';
+      case 'Resuelto': return '#388e3c';
+      case 'Cerrado': return '#7f8c8d';
+      default: return '#8e2de2';
+    }
+  }
+
+  getCategoryIcon(categoryName: string): string {
+    if (!categoryName) return 'help_outline';
+    const name = categoryName.toLowerCase();
+    if (name.includes('redes')) return 'settings_ethernet';
+    if (name.includes('hardware')) return 'computer';
+    if (name.includes('software')) return 'code';
+    if (name.includes('acceso')) return 'vpn_key';
+    if (name.includes('email') || name.includes('correo')) return 'alternate_email';
+    return 'help_outline';
+  }
+
+  getAuthorInitials(author: any): string {
+    if (!author) return 'U';
+    const first = author.firstName || author.username || '';
+    const last = author.lastName || '';
+    if (first && last) {
+      return (first[0] + last[0]).toUpperCase();
+    }
+    return first ? first[0].toUpperCase() : 'U';
+  }
 }
+

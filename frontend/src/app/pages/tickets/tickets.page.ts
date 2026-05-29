@@ -55,6 +55,11 @@ export class TicketsPage implements OnInit {
   isAdmin = false;
   selectedTabIndex = 0;
 
+  // Modal de Estado Kanban Detallado
+  isStatusModalOpen = false;
+  selectedStatus = '';
+  modalSearchText = '';
+
   // Filtros
   searchId: any = '';
   searchCategory: any = '';
@@ -93,6 +98,11 @@ export class TicketsPage implements OnInit {
         this.selectedTabIndex = parseInt(params['tab'], 10);
       }
       this.showFilters = params['filters'] === 'true';
+      if (params['viewStatus'] !== undefined) {
+        setTimeout(() => {
+          this.openStatusModal(params['viewStatus']);
+        }, 300);
+      }
     });
 
     const user = this.authService.getUser();
@@ -350,5 +360,78 @@ export class TicketsPage implements OnInit {
       color
     });
     toast.present();
+  }
+
+  async claimTicket(ticket: any, event: Event) {
+    event.stopPropagation();
+    this.ticketService.claimTicket(ticket.id).subscribe({
+      next: () => {
+        this.showToast('¡Has reclamado el ticket correctamente!', 'success');
+        this.loadTickets();
+      },
+      error: (err) => {
+        console.error('Error claiming ticket', err);
+        this.showToast('Error al reclamar el ticket', 'danger');
+      }
+    });
+  }
+
+  getCategoryIcon(categoryName: string): string {
+    if (!categoryName) return 'help_outline';
+    const name = categoryName.toLowerCase();
+    if (name.includes('redes')) return 'settings_ethernet';
+    if (name.includes('hardware')) return 'computer';
+    if (name.includes('software')) return 'code';
+    if (name.includes('acceso')) return 'vpn_key';
+    if (name.includes('email') || name.includes('correo')) return 'alternate_email';
+    return 'help_outline';
+  }
+
+  getAuthorInitials(author: any): string {
+    if (!author) return 'U';
+    const first = author.firstName || author.username || '';
+    const last = author.lastName || '';
+    if (first && last) {
+      return (first[0] + last[0]).toUpperCase();
+    }
+    if (first) {
+      return first.slice(0, 2).toUpperCase();
+    }
+    return 'U';
+  }
+
+  openStatusModal(status: string) {
+    this.selectedStatus = status;
+    this.modalSearchText = '';
+    this.isStatusModalOpen = true;
+  }
+
+  getModalFilteredTickets(): any[] {
+    const statusFiltered = this.getFilteredTickets(this.selectedStatus);
+    if (!this.modalSearchText) return statusFiltered;
+    
+    const query = this.modalSearchText.toLowerCase().trim();
+    return statusFiltered.filter(t => {
+      return t.id.toString().includes(query) || 
+             (t.title || '').toLowerCase().includes(query) || 
+             (t.description || '').toLowerCase().includes(query) ||
+             (t.author?.firstName || '').toLowerCase().includes(query) ||
+             (t.author?.lastName || '').toLowerCase().includes(query);
+    });
+  }
+
+  getStatusHeaderColor(status: string): string {
+    switch (status) {
+      case 'Nuevo': return '#d32f2f';
+      case 'Proceso': return '#f57c00';
+      case 'Resuelto': return '#388e3c';
+      case 'Cerrado': return '#7f8c8d';
+      default: return '#8e2de2';
+    }
+  }
+
+  goToTicket(id: number) {
+    this.isStatusModalOpen = false;
+    this.router.navigate(['/tickets', id]);
   }
 }
