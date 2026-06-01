@@ -408,77 +408,85 @@
         </div>
       </mat-tab>
 
-      <!-- PESTAÑA: HISTORIAL (TIMELINE AUDITADO) -->
+      <!-- PESTAÑA: HISTORIAL DE PROGRESO -->
       <mat-tab>
         <ng-template mat-tab-label>
           <mat-icon class="tab-icon">history</mat-icon>
           Historial de Cambios
         </ng-template>
-        
-        <div class="tab-content-premium">
-          <div class="timeline-container-premium">
-            <div *ngFor="let item of ticket.history" class="timeline-item-premium" [ngClass]="{'manual-note-item': item.action === '📝 Nota Manual'}">
-              <!-- Nodo / Marker -->
-              <div class="timeline-node-marker" [ngClass]="getHistoryBadgeClass(item.action)">
-                <mat-icon>{{ getHistoryIcon(item.action) }}</mat-icon>
-              </div>
-              
-              <!-- Tarjeta de Contenido -->
-              <div class="timeline-event-card" [ngClass]="{'manual-note-card': item.action === '📝 Nota Manual'}">
-                <div class="timeline-event-header">
-                  <h4 class="event-title-text">{{ item.action }}</h4>
-                  <span class="event-timestamp">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                </div>
-                
-                <div class="timeline-event-body">
-                  <!-- Nota Manual: mostrar como texto directo -->
-                  <ng-container *ngIf="item.action === '📝 Nota Manual'">
-                    <p class="manual-note-text">{{ item.newValue }}</p>
-                  </ng-container>
 
-                  <!-- Evento Automático: mostrar flujo antiguo → nuevo -->
-                  <ng-container *ngIf="item.action !== '📝 Nota Manual'">
-                    <div class="change-flow-box">
-                      <span class="flow-pill flow-old" title="Valor Anterior">{{ item.oldValue || 'N/A' }}</span>
-                      <mat-icon class="flow-arrow-icon">arrow_forward</mat-icon>
-                      <span class="flow-pill flow-new" title="Valor Nuevo">{{ item.newValue }}</span>
+        <div class="tab-content-premium chat-tab">
+          <div class="chat-thread-container">
+
+            <div *ngIf="!ticket.history || ticket.history.length === 0" class="empty-chat-state">
+              <mat-icon class="empty-icon">manage_history</mat-icon>
+              <h3>Sin entradas en el historial</h3>
+              <p>Aquí aparecerán todos los cambios y notas de progreso de la incidencia.</p>
+            </div>
+
+            <ng-container *ngFor="let item of ticket.history">
+
+              <!-- Evento automático del sistema: píldora centrada -->
+              <ng-container *ngIf="item.action !== '📝 Nota Manual'">
+                <div class="history-system-pill">
+                  <mat-icon class="system-pill-icon">{{ getHistoryIcon(item.action) }}</mat-icon>
+                  <span class="system-pill-text">
+                    <strong>{{ item.action }}</strong>
+                    <ng-container *ngIf="item.oldValue">
+                      &nbsp;·&nbsp;<span class="pill-old">{{ item.oldValue }}</span>&nbsp;→&nbsp;<span class="pill-new">{{ item.newValue }}</span>
+                    </ng-container>
+                    <ng-container *ngIf="!item.oldValue">
+                      &nbsp;·&nbsp;<span class="pill-new">{{ item.newValue }}</span>
+                    </ng-container>
+                  </span>
+                  <span class="system-pill-time">{{ item.createdAt | date:'dd/MM HH:mm' }}</span>
+                </div>
+              </ng-container>
+
+              <!-- Nota manual: burbuja estilo chat (derecha = agente actual) -->
+              <ng-container *ngIf="item.action === '📝 Nota Manual'">
+                <div class="chat-bubble-row bubble-row-mine">
+                  <div class="chat-bubble-card note-bubble">
+                    <div class="bubble-header-info">
+                      <span class="sender-name">
+                        <mat-icon style="font-size:13px;width:13px;height:13px;vertical-align:middle;margin-right:3px;">edit_note</mat-icon>
+                        {{ item.user ? (item.user.firstName + ' ' + item.user.lastName) : 'Agente' }}
+                      </span>
+                      <span class="bubble-date">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
                     </div>
-                  </ng-container>
-                  
-                  <!-- Usuario que realizó la acción -->
-                  <div class="event-author-box" *ngIf="item.user">
-                    <span class="event-author-avatar">{{ getAuthorInitials(item.user) }}</span>
-                    <span class="event-author-name">Ejecutado por: <strong>{{ item.user.firstName }} {{ item.user.lastName }}</strong></span>
+                    <p class="bubble-message-text">{{ item.newValue }}</p>
                   </div>
-                  
-                  <div class="event-author-box system-event" *ngIf="!item.user">
-                    <span class="event-author-avatar"><mat-icon style="font-size: 14px; width: 14px; height: 14px;">smart_toy</mat-icon></span>
-                    <span class="event-author-name">Ejecutado por: <strong>Sistema HelpDesk</strong></span>
+                  <div class="chat-avatar-circle mine-avatar" *ngIf="item.user" [title]="item.user.firstName + ' ' + item.user.lastName">
+                    {{ getAuthorInitials(item.user) }}
                   </div>
                 </div>
-              </div>
+              </ng-container>
+
+            </ng-container>
+          </div>
+
+          <!-- Cajón de nota — mismo estilo que el chat -->
+          <div class="chat-input-dock-premium" *ngIf="(isAgent || isAdmin) && ticket.status !== 'Cerrado'">
+            <div class="chat-input-box-wrapper">
+              <mat-icon style="color:#64748b;margin:0 2px 0 10px;font-size:20px;width:20px;height:20px;flex-shrink:0;">edit_note</mat-icon>
+              <textarea
+                class="chat-text-input-field"
+                placeholder="Escribe el progreso realizado en este momento..."
+                [(ngModel)]="newManualNote"
+                rows="1"
+                maxlength="1000">
+              </textarea>
+              <button mat-mini-fab class="btn-send-message" (click)="addManualNote()" [disabled]="!newManualNote.trim() || isAddingNote">
+                <mat-icon>{{ isAddingNote ? 'hourglass_empty' : 'send' }}</mat-icon>
+              </button>
             </div>
           </div>
 
-          <!-- CAJA PARA AÑADIR NOTA MANUAL (Solo Agentes/Admin) -->
-          <div class="manual-note-dock" *ngIf="(isAgent || isAdmin) && ticket.status !== 'Cerrado'">
-            <div class="manual-note-dock-header">
-              <mat-icon>edit_note</mat-icon>
-              <span>Añadir nota de progreso al historial</span>
-            </div>
-            <textarea
-              class="manual-note-input"
-              [(ngModel)]="newManualNote"
-              placeholder="Describe qué has realizado, revisado o diagnosticado en este momento..."
-              rows="3"
-              maxlength="1000"></textarea>
-            <div class="manual-note-actions">
-              <span class="char-counter" [class.near-limit]="newManualNote.length > 800">{{ newManualNote.length }}/1000</span>
-              <button mat-flat-button class="btn-add-note" (click)="addManualNote()" [disabled]="!newManualNote.trim() || isAddingNote">
-                <mat-icon>add_comment</mat-icon>
-                {{ isAddingNote ? 'Guardando...' : 'Guardar Nota' }}
-              </button>
-            </div>
+          <!-- Aviso ticket cerrado -->
+          <div class="ticket-closed-notice-premium" *ngIf="ticket.status === 'Cerrado' && (isAgent || isAdmin)">
+            <div class="lock-shield-box"><mat-icon>lock</mat-icon></div>
+            <h3>Incidencia Cerrada</h3>
+            <p>No se pueden añadir más notas de progreso a esta incidencia.</p>
           </div>
         </div>
       </mat-tab>
