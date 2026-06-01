@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController, NavController } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TicketService } from '../../../services/ticket.service';
+import { AuthService } from '../../../services/auth.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -42,7 +43,8 @@ export class NewTicketPage implements OnInit {
     private ticketService: TicketService,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
-    private http: HttpClient
+    private http: HttpClient,
+    public authService: AuthService
   ) {
     this.ticketForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5)]],
@@ -120,7 +122,8 @@ export class NewTicketPage implements OnInit {
             color: 'success'
           });
           toast.present();
-          this.navCtrl.navigateBack('/tickets');
+          const isAgent = this.authService.hasRole('ROLE_AGENT') || this.authService.hasRole('ROLE_ADMIN');
+          this.navCtrl.navigateBack(isAgent ? '/tickets' : '/dashboard');
         },
         error: (err) => {
           this.loading = false;

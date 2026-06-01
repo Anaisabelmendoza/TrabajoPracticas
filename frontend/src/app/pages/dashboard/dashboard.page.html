@@ -62,14 +62,27 @@
           <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card"
             [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
             <mat-card-header>
-              <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
-              <mat-card-title>
-                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
-                {{ ticket.title }}
-              </mat-card-title>
-              <mat-card-subtitle>{{ ticket.category?.name }}</mat-card-subtitle>
+              <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
+                {{ getAuthorInitials(ticket.author) }}
+              </div>
+              <div class="header-text-container">
+                <mat-card-title>
+                  <span class="ticket-id">#{{ ticket.id }}</span>
+                  <span class="ticket-title-text" [title]="ticket.title">{{ ticket.title }}</span>
+                </mat-card-title>
+                <mat-card-subtitle>
+                  <mat-icon class="category-icon" style="font-size: 14px; width: 14px; height: 14px; color: #8e2de2; margin-right: 4px; vertical-align: middle;">category</mat-icon>
+                  <span>{{ ticket.category?.name || 'Sin Categoría' }}</span>
+                </mat-card-subtitle>
+              </div>
             </mat-card-header>
             <mat-card-content>
+              <!-- SLA Badge -->
+              <div *ngIf="getSlaStatus(ticket).text" class="sla-badge-kanban" [ngClass]="getSlaStatus(ticket).class">
+                <mat-icon style="font-size: 13px; width: 13px; height: 13px; margin-right: 4px; vertical-align: middle;">schedule</mat-icon>
+                <span>{{ getSlaStatus(ticket).text }}</span>
+              </div>
+
               <div class="card-meta">
                 <span class="date">{{ ticket.createdAt | date:'dd/MM/yyyy' }}</span>
                 <span class="priority-label" [class]="ticket.priority.toLowerCase()">{{ ticket.priority }}</span>
@@ -94,13 +107,27 @@
           <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card"
             [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
             <mat-card-header>
-              <div mat-card-avatar class="priority-indicator" [class]="ticket.priority.toLowerCase()"></div>
-              <mat-card-title>
-                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
-                {{ ticket.title }}
-              </mat-card-title>
+              <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
+                {{ getAuthorInitials(ticket.author) }}
+              </div>
+              <div class="header-text-container">
+                <mat-card-title>
+                  <span class="ticket-id">#{{ ticket.id }}</span>
+                  <span class="ticket-title-text" [title]="ticket.title">{{ ticket.title }}</span>
+                </mat-card-title>
+                <mat-card-subtitle>
+                  <mat-icon class="category-icon" style="font-size: 14px; width: 14px; height: 14px; color: #8e2de2; margin-right: 4px; vertical-align: middle;">category</mat-icon>
+                  <span>{{ ticket.category?.name || 'Sin Categoría' }}</span>
+                </mat-card-subtitle>
+              </div>
             </mat-card-header>
             <mat-card-content>
+              <!-- SLA Badge -->
+              <div *ngIf="getSlaStatus(ticket).text" class="sla-badge-kanban" [ngClass]="getSlaStatus(ticket).class">
+                <mat-icon style="font-size: 13px; width: 13px; height: 13px; margin-right: 4px; vertical-align: middle;">schedule</mat-icon>
+                <span>{{ getSlaStatus(ticket).text }}</span>
+              </div>
+
               <p class="technician-info" *ngIf="ticket.agent">
                 <mat-icon>person</mat-icon> {{ ticket.agent.firstName }}
               </p>
@@ -128,10 +155,19 @@
           <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card"
             [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
             <mat-card-header>
-              <mat-card-title>
-                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
-                {{ ticket.title }}
-              </mat-card-title>
+              <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
+                {{ getAuthorInitials(ticket.author) }}
+              </div>
+              <div class="header-text-container">
+                <mat-card-title>
+                  <span class="ticket-id">#{{ ticket.id }}</span>
+                  <span class="ticket-title-text" [title]="ticket.title">{{ ticket.title }}</span>
+                </mat-card-title>
+                <mat-card-subtitle>
+                  <mat-icon class="category-icon" style="font-size: 14px; width: 14px; height: 14px; color: #8e2de2; margin-right: 4px; vertical-align: middle;">category</mat-icon>
+                  <span>{{ ticket.category?.name || 'Sin Categoría' }}</span>
+                </mat-card-subtitle>
+              </div>
             </mat-card-header>
             <mat-card-content>
               <div class="card-meta">
@@ -157,10 +193,19 @@
           <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card"
             [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
             <mat-card-header>
-              <mat-card-title>
-                <span style="background: #666666 !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; font-weight: 800; margin-right: 8px; display: inline-block;">#{{ ticket.id }}</span>
-                {{ ticket.title }}
-              </mat-card-title>
+              <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
+                {{ getAuthorInitials(ticket.author) }}
+              </div>
+              <div class="header-text-container">
+                <mat-card-title>
+                  <span class="ticket-id">#{{ ticket.id }}</span>
+                  <span class="ticket-title-text" [title]="ticket.title">{{ ticket.title }}</span>
+                </mat-card-title>
+                <mat-card-subtitle>
+                  <mat-icon class="category-icon" style="font-size: 14px; width: 14px; height: 14px; color: #8e2de2; margin-right: 4px; vertical-align: middle;">category</mat-icon>
+                  <span>{{ ticket.category?.name || 'Sin Categoría' }}</span>
+                </mat-card-subtitle>
+              </div>
             </mat-card-header>
             <mat-card-content>
               <div class="card-meta">
@@ -236,6 +281,12 @@
               <mat-card-content>
                 <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
                 
+                <!-- SLA Badge -->
+                <div *ngIf="getSlaStatus(ticket).text" class="sla-badge-kanban" [ngClass]="getSlaStatus(ticket).class">
+                  <mat-icon style="font-size: 13px; width: 13px; height: 13px; margin-right: 4px; vertical-align: middle;">schedule</mat-icon>
+                  <span>{{ getSlaStatus(ticket).text }}</span>
+                </div>
+
                 <!-- Info del técnico si está asignado (Columna En Proceso) -->
                 <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
                   <mat-icon>engineering</mat-icon>

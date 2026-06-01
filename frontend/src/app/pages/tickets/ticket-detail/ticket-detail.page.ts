@@ -74,6 +74,8 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.isAgent = this.authService.hasRole('ROLE_AGENT') || this.authService.hasRole('ROLE_ADMIN');
+    this.isAdmin = this.authService.hasRole('ROLE_ADMIN');
     const id = this.route.snapshot.paramMap.get('id');
     const editMode = this.route.snapshot.queryParamMap.get('edit') === 'true';
     const from = this.route.snapshot.queryParamMap.get('from');
@@ -109,6 +111,7 @@ export class TicketDetailPage implements OnInit, OnDestroy {
     this.ticketService.getTicket(id).subscribe({
       next: (data) => {
         this.ticket = data;
+        console.log('--- DIAGNOSTIC: TICKET DETAIL RECEIVED ---', data);
         if (this.isEditingDescription) {
           this.editedDescription = this.ticket.description;
         }

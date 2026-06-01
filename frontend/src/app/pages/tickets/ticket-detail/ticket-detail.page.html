@@ -48,7 +48,7 @@
         <!-- Banner Informativo del SLA para Clientes -->
         <div class="client-sla-banner" *ngIf="!isAgent && ticket.status !== 'Resuelto' && ticket.status !== 'Cerrado' && ticket.slaLimit">
           <mat-icon>info</mat-icon>
-          <span>Estimamos resolver tu incidencia en un plazo máximo de <strong>{{ getSlaHoursEstimate() }} horas</strong> (compromiso antes de las <strong>{{ ticket.slaLimit | date:'HH:mm' }}</strong> del día <strong>{{ ticket.slaLimit | date:'dd/MM' }}</strong>).</span>
+          <span>Tu incidencia se resolverá según la prioridad <strong>{{ ticket.priority }}</strong> en un plazo máximo de <strong>{{ getSlaHoursEstimate() }} horas</strong> (compromiso antes de las <strong>{{ ticket.slaLimit | date:'HH:mm' }}</strong> del día <strong>{{ ticket.slaLimit | date:'dd/MM' }}</strong>).</span>
         </div>
 
         <!-- Descripción de la Incidencia -->
@@ -266,7 +266,6 @@
           <mat-card-subtitle class="csat-subtitle">Tu opinión es muy importante para mejorar el servicio de soporte técnico</mat-card-subtitle>
         </div>
       </mat-card-header>
-
       <mat-card-content class="csat-content">
         <div class="stars-container-premium">
           <p class="stars-label">¿Cómo calificarías la atención de nuestro técnico?</p>
@@ -283,13 +282,13 @@
           <span class="rating-text-feedback" *ngIf="selectedRating > 0">
             {{ selectedRating === 5 ? '¡Excelente! 😍' : selectedRating === 4 ? 'Muy buena 😊' : selectedRating === 3 ? 'Aceptable 😐' : selectedRating === 2 ? 'Mala 🙁' : 'Muy mala 😠' }}
           </span>
-        </div>
 
-        <div class="feedback-comment-section">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Comentarios adicionales (opcional)</mat-label>
-            <textarea matInput rows="3" [(ngModel)]="surveyComment" placeholder="Cuéntanos qué te ha parecido la resolución o qué podemos mejorar..."></textarea>
-          </mat-form-field>
+          <div class="feedback-comment-section" style="width: 100%; max-width: 500px; margin-top: 20px;">
+            <mat-form-field appearance="outline" class="full-width" style="width: 100%;">
+              <mat-label>Comentarios adicionales (opcional)</mat-label>
+              <textarea matInput rows="3" [(ngModel)]="surveyComment" placeholder="Cuéntanos qué te ha parecido la resolución o qué podemos mejorar..."></textarea>
+            </mat-form-field>
+          </div>
         </div>
       </mat-card-content>
 
@@ -301,19 +300,19 @@
       </mat-card-actions>
     </mat-card>
 
-    <!-- COMENTARIO DE SATISFACCIÓN (SI YA EXISTE Y TIENE TEXTO) -->
-    <mat-card class="csat-completed-card-premium" *ngIf="ticket.ratingComment">
+    <!-- COMENTARIO DE SATISFACCIÓN (SI YA EXISTE Y TIENE VALORACIÓN) -->
+    <mat-card class="csat-completed-card-premium" *ngIf="ticket.rating">
       <div class="card-glow-overlay"></div>
       <mat-card-content class="csat-completed-content">
         <div class="completed-icon-box">
-          <mat-icon>feedback</mat-icon>
+          <mat-icon style="color: #ffd700;">star</mat-icon>
         </div>
         <div class="completed-text-box">
-          <p class="completed-label">Comentario de Satisfacción del Cliente:</p>
-          <blockquote class="completed-quote">"{{ ticket.ratingComment }}"</blockquote>
-          <div class="completed-stars">
-            <mat-icon *ngFor="let star of [1,2,3,4,5]" class="completed-star">{{ ticket.rating >= star ? 'star' : 'star_border' }}</mat-icon>
+          <p class="completed-label">Valoración de Satisfacción del Cliente:</p>
+          <div class="completed-stars" style="margin: 6px 0 10px 0; display: flex; gap: 4px;">
+            <mat-icon *ngFor="let star of [1,2,3,4,5]" class="completed-star" [style.color]="ticket.rating >= star ? '#ffd700' : 'rgba(255,255,255,0.2)'" style="font-size: 24px; width: 24px; height: 24px;">{{ ticket.rating >= star ? 'star' : 'star_border' }}</mat-icon>
           </div>
+          <blockquote class="completed-quote" *ngIf="ticket.ratingComment">"{{ ticket.ratingComment }}"</blockquote>
         </div>
       </mat-card-content>
     </mat-card>

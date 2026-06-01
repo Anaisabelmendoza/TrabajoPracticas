@@ -120,6 +120,10 @@ class Ticket
     #[Groups(['ticket:read', 'ticket:write'])]
     private ?string $ratingComment = null;
 
+    #[Groups(['ticket:read'])]
+    #[SerializedName('slaLimit')]
+    private ?\DateTimeInterface $slaLimit = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();

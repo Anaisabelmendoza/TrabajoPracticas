@@ -87,8 +87,11 @@ export class TicketsPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Primero cargamos roles y luego tickets
     this.updateRoles();
+    if (!this.isAgent && !this.isAdmin) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
     this.loadCategories();
     this.loadCurrentUser();
     this.loadTickets();
@@ -137,6 +140,10 @@ export class TicketsPage implements OnInit {
 
   ionViewWillEnter() {
     this.updateRoles();
+    if (!this.isAgent && !this.isAdmin) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
     this.loadCurrentUser();
     this.loadTickets();
   }

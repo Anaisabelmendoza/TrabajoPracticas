@@ -125,7 +125,9 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      display: block !important;
+      display: flex !important;
+      align-items: center;
+      gap: 6px;
     }
 
     mat-card-subtitle {
@@ -298,6 +300,9 @@ ion-modal {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+        padding-right: 12px;
       }
     }
 
@@ -370,4 +375,54 @@ ion-modal {
       }
     }
   }
+}
+
+.sla-badge-kanban {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  letter-spacing: 0.2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  
+  mat-icon {
+    font-size: 13px !important;
+    width: 13px !important;
+    height: 13px !important;
+    margin-right: 4px !important;
+  }
+  
+  &.sla-expired {
+    background: #ffebee !important;
+    color: #c62828 !important;
+    border: 1px solid rgba(198, 40, 40, 0.1) !important;
+    animation: pulse-red 2s infinite alternate;
+  }
+  
+  &.sla-warning {
+    background: #fff3e0 !important;
+    color: #ef6c00 !important;
+    border: 1px solid rgba(239, 108, 0, 0.1) !important;
+    animation: blink-orange 1.5s infinite;
+  }
+  
+  &.sla-normal {
+    background: #f3e5f5 !important;
+    color: #7b1fa2 !important;
+    border: 1px solid rgba(123, 31, 162, 0.1) !important;
+  }
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.3); }
+  100% { box-shadow: 0 0 6px 2px rgba(198, 40, 40, 0.15); }
+}
+
+@keyframes blink-orange {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
 }

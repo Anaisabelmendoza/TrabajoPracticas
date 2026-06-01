@@ -71,6 +71,11 @@ const routes: Routes = [
     canActivate: [AdminGuard]
   },
   {
+    path: 'admin-control/csat',
+    loadComponent: () => import('./pages/csat-ratings/csat-ratings.page').then(m => m.CsatRatingsPage),
+    canActivate: [AdminGuard]
+  },
+  {
     path: 'user-management',
     loadComponent: () => import('./pages/user-management/user-management.page').then(m => m.UserManagementPage),
     canActivate: [AuthGuard, AdminGuard]

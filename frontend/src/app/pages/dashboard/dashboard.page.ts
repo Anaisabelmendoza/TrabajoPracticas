@@ -235,6 +235,43 @@ export class DashboardPage implements OnInit {
     }
   }
 
+
+  getSlaStatus(ticket: any): { text: string; class: string; expired: boolean } {
+    if (!ticket || !ticket.slaLimit || ticket.status === 'Resuelto' || ticket.status === 'Cerrado') {
+      return { text: '', class: '', expired: false };
+    }
+
+    const limitDate = new Date(ticket.slaLimit);
+    const now = new Date();
+    const diffMs = limitDate.getTime() - now.getTime();
+
+    if (diffMs <= 0) {
+      const diffHours = Math.abs(Math.floor(diffMs / (1000 * 60 * 60)));
+      return {
+        text: `🔴 SLA Vencido hace ${diffHours}h`,
+        class: 'sla-expired',
+        expired: true
+      };
+    } else {
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (diffHours < 2) {
+        return {
+          text: `⚠️ Quedan ${diffHours}h ${diffMins}m`,
+          class: 'sla-warning',
+          expired: false
+        };
+      } else {
+        return {
+          text: `⏳ Quedan ${diffHours}h`,
+          class: 'sla-normal',
+          expired: false
+        };
+      }
+    }
+  }
+
   getCategoryIcon(categoryName: string): string {
     if (!categoryName) return 'help_outline';
     const name = categoryName.toLowerCase();

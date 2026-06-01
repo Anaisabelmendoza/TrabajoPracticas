@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tickets"></ion-back-button>
+      <ion-back-button [defaultHref]="(authService.hasRole('ROLE_AGENT') || authService.hasRole('ROLE_ADMIN')) ? '/tickets' : '/dashboard'"></ion-back-button>
     </ion-buttons>
     <ion-title>Nueva Incidencia</ion-title>
   </ion-toolbar>

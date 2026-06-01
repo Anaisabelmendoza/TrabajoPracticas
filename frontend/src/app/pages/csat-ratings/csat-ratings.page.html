@@ -1,0 +1,154 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin-control"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <span routerLink="/dashboard" style="cursor: pointer; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HELPDESK</span>
+      <span style="font-size: 0.8rem; color: #666; margin-left: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">| Calificaciones (CSAT)</span>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-badge style="margin-right: 15px; background: linear-gradient(135deg, #ffd700 0%, #ffa000 100%); color: #000; font-weight: 800;">CSAT METRICS</ion-badge>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="csat-container">
+    
+    <!-- TÍTULO PRINCIPAL -->
+    <div class="welcome-header">
+      <h1 class="page-title">Calificaciones de Soporte</h1>
+      <p class="page-subtitle">Revisa el índice de satisfacción al cliente (CSAT) y los comentarios sobre la atención de los técnicos.</p>
+    </div>
+
+    <!-- PANTALLA CARGANDO -->
+    <div *ngIf="loading" class="spinner-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Cargando métricas de satisfacción...</p>
+    </div>
+
+    <div *ngIf="!loading">
+      
+      <!-- ESTADO VACÍO (SIN VALORACIONES AÚN) -->
+      <div *ngIf="ratedTickets.length === 0" class="empty-state-card">
+        <mat-icon class="empty-icon">star_outline</mat-icon>
+        <h2>Sin valoraciones registradas</h2>
+        <p>Aún ningún cliente ha valorado la resolución de sus incidencias resueltas o cerradas.</p>
+      </div>
+
+      <!-- VISTA CON VALORACIONES -->
+      <div *ngIf="ratedTickets.length > 0">
+        
+        <!-- RESUMEN MÉTRICO CSAT -->
+        <mat-card class="metrics-overview-card">
+          <div class="card-glow-overlay"></div>
+          <mat-card-content class="metrics-grid">
+            
+            <!-- Bloque Promedio Grande -->
+            <div class="avg-score-box">
+              <span class="avg-number">{{ averageRating }}</span>
+              <div class="stars-display">
+                <mat-icon *ngFor="let star of getStarArray(averageRating)" class="gold-star">star</mat-icon>
+                <mat-icon *ngFor="let star of getEmptyStarArray(averageRating)" class="gray-star">star_border</mat-icon>
+              </div>
+              <span class="total-count-label">Basado en {{ totalRatings }} encuesta(s)</span>
+            </div>
+
+            <!-- Distribución de Estrellas -->
+            <div class="stars-distribution-box">
+              <h3>Distribución de Calificaciones</h3>
+              <div class="distribution-list">
+                
+                <!-- Bucle de 5 a 1 estrella -->
+                <div *ngFor="let stars of [5, 4, 3, 2, 1]; let i = index" class="dist-row">
+                  <span class="star-label">{{ stars }} ★</span>
+                  <div class="progress-bar-wrapper">
+                    <div class="progress-bar-fill" [style.width.%]="starPercentages[4 - i]" [class]="'fill-stars-' + stars"></div>
+                  </div>
+                  <span class="percentage-label">{{ starPercentages[4 - i] }}%</span>
+                  <span class="count-label">({{ starCounts[4 - i] }})</span>
+                </div>
+
+              </div>
+            </div>
+
+          </mat-card-content>
+        </mat-card>
+
+        <!-- LISTADO DE CALIFICACIONES DE CLIENTES -->
+        <h2 class="section-title">Comentarios y Opiniones Recientes</h2>
+        
+        <div class="ratings-list">
+          <mat-card *ngFor="let ticket of ratedTickets" class="feedback-card">
+            <div class="feedback-glow"></div>
+            
+            <mat-card-header class="feedback-header">
+              <!-- Avatar del Autor -->
+              <div class="user-avatar-circle">
+                {{ ticket.author.firstName[0] }}{{ ticket.author.lastName[0] }}
+              </div>
+              <div class="user-meta-info">
+                <mat-card-title class="user-name">{{ ticket.author.firstName }} {{ ticket.author.lastName }}</mat-card-title>
+                <mat-card-subtitle class="date-subtitle">
+                  <mat-icon class="mini-icon">history</mat-icon>
+                  <span>Valorado el {{ (ticket.updatedAt || ticket.createdAt) | date:'dd/MM/yyyy HH:mm' }}</span>
+                </mat-card-subtitle>
+              </div>
+              
+              <!-- Estrellas Oro de la Calificación -->
+              <div class="feedback-stars-row">
+                <mat-icon *ngFor="let star of getStarArray(ticket.rating)" class="gold-star-card">star</mat-icon>
+                <mat-icon *ngFor="let star of getEmptyStarArray(ticket.rating)" class="gray-star-card">star_border</mat-icon>
+              </div>
+            </mat-card-header>
+
+            <mat-card-content class="feedback-content">
+              <!-- Asunto y Ticket Vinculado -->
+              <div class="ticket-link-info">
+                <span class="ticket-ref">Incidencia #{{ ticket.id }}</span>
+                <span class="ticket-title">"{{ ticket.title }}"</span>
+              </div>
+
+              <!-- Comentario del Cliente (Si existe) -->
+              <blockquote class="customer-comment" *ngIf="ticket.ratingComment">
+                "{{ ticket.ratingComment }}"
+              </blockquote>
+              <p class="no-comment-label" *ngIf="!ticket.ratingComment">
+                <mat-icon>chat_bubble_outline</mat-icon> El cliente no ha dejado ningún comentario de texto.
+              </p>
+
+              <!-- Datos del Soporte Técnico prestado -->
+              <div class="technical-summary-info">
+                <div class="summary-item">
+                  <mat-icon>engineering</mat-icon>
+                  <span class="lbl">Técnico Asignado:</span>
+                  <span class="val">{{ ticket.agent ? ticket.agent.firstName + ' ' + ticket.agent.lastName : 'Sin asignar' }}</span>
+                </div>
+                <div class="summary-item">
+                  <mat-icon>category</mat-icon>
+                  <span class="lbl">Categoría:</span>
+                  <span class="val">{{ ticket.category.name }}</span>
+                </div>
+                <div class="summary-item">
+                  <mat-icon>priority_high</mat-icon>
+                  <span class="lbl">Prioridad:</span>
+                  <span class="val font-semibold" [class]="ticket.priority.toLowerCase()">{{ ticket.priority }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+
+            <mat-card-actions class="feedback-actions">
+              <button mat-button class="btn-view-ticket" [routerLink]="['/tickets', ticket.id]">
+                <mat-icon>visibility</mat-icon>
+                Ver Incidencia Completa
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</ion-content>
