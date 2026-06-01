@@ -89,6 +89,18 @@ class TicketChangeListener
                     $em->persist($history);
                     $uow->computeChangeSet($historyMeta, $history);
                 }
+
+                if (isset($changeSet['rating'])) {
+                    $history = new TicketHistory();
+                    $history->setTicket($entity);
+                    $history->setAction('Encuesta CSAT Completada');
+                    $history->setOldValue($changeSet['rating'][0] ? $changeSet['rating'][0] . ' ★' : 'Sin valorar');
+                    $history->setNewValue($changeSet['rating'][1] . ' ★');
+                    $history->setUser($user);
+
+                    $em->persist($history);
+                    $uow->computeChangeSet($historyMeta, $history);
+                }
             }
         }
     }

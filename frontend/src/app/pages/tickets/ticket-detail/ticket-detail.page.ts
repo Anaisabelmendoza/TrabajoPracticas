@@ -49,6 +49,12 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   commentFilePreview: string | null = null;
   today = new Date();
 
+  // Variables de Encuesta de Satisfacción CSAT
+  selectedRating = 0;
+  hoverRating = 0;
+  surveyComment = '';
+  surveySubmitted = false;
+
   // Variables del Cronómetro
   timerInterval: any;
   timerSeconds: number = 0;
@@ -281,6 +287,42 @@ export class TicketDetailPage implements OnInit, OnDestroy {
         this.showToast(msg, 'danger');
       }
     });
+  }
+
+  releaseTicket() {
+    if (!this.ticket) return;
+
+    this.alertCtrl.create({
+      header: 'Liberar Incidencia',
+      message: '¿Estás seguro de que deseas desasignar al técnico y devolver esta incidencia al estado "Nuevo" para que otro agente pueda atenderla?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Sí, liberar',
+          handler: () => {
+            this.loading = true;
+            if (this.isTimerRunning) {
+              this.stopTimerAndLog();
+            }
+            this.ticketService.updateTicket(this.ticket.id, {
+              agent: null,
+              status: 'Nuevo'
+            }).subscribe({
+              next: (updated) => {
+                this.ticket = updated;
+                this.loading = false;
+                this.showToast('Incidencia liberada. Ha regresado al grupo de Nuevas.', 'success');
+              },
+              error: (err) => {
+                this.loading = false;
+                console.error('Error al liberar ticket:', err);
+                this.showToast('Error al liberar la incidencia', 'danger');
+              }
+            });
+          }
+        }
+      ]
+    }).then(alert => alert.present());
   }
 
   async assignTicket() {
@@ -680,6 +722,69 @@ export class TicketDetailPage implements OnInit, OnDestroy {
     if (act.includes('estado')) return 'badge-status';
     if (act.includes('asign') || act.includes('técnico') || act.includes('tecnico')) return 'badge-agent';
     return 'badge-default';
+  }
+
+  // Métodos de Encuesta de Satisfacción CSAT
+  setRating(stars: number) {
+    this.selectedRating = stars;
+  }
+
+  setHoverRating(stars: number) {
+    this.hoverRating = stars;
+  }
+
+  submitSurvey() {
+    if (this.selectedRating < 1 || this.selectedRating > 5) return;
+    this.loading = true;
+    this.ticketService.updateTicket(this.ticket.id, {
+      rating: this.selectedRating,
+      ratingComment: this.surveyComment
+    }).subscribe({
+      next: (updated) => {
+        this.ticket = updated;
+        this.loading = false;
+        this.surveySubmitted = true;
+        this.showToast('¡Muchas gracias por valorar nuestro soporte! 👍', 'success');
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Error submitting survey:', err);
+        this.showToast('Error al enviar la valoración', 'danger');
+      }
+    });
+  }
+
+  // Métodos de Control y Cálculo de SLAs
+  getSlaRemainingTime(): { text: string; class: string; expired: boolean } {
+    if (!this.ticket || !this.ticket.slaLimit || this.ticket.status === 'Resuelto' || this.ticket.status === 'Cerrado') {
+      return { text: '', class: '', expired: false };
+    }
+    const limit = new Date(this.ticket.slaLimit);
+    const now = new Date();
+    const diff = limit.getTime() - now.getTime();
+    if (diff <= 0) {
+      const diffH = Math.abs(Math.floor(diff / (1000 * 60 * 60)));
+      return { text: `SLA Vencido hace ${diffH} horas`, class: 'sla-expired-detail', expired: true };
+    } else {
+      const diffH = Math.floor(diff / (1000 * 60 * 60));
+      const diffM = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      if (diffH < 2) {
+        return { text: `Urgente: Quedan ${diffH}h ${diffM}m`, class: 'sla-warning-detail', expired: false };
+      }
+      return { text: `Quedan ${diffH}h ${diffM}m`, class: 'sla-normal-detail', expired: false };
+    }
+  }
+
+  getSlaHoursEstimate(): number {
+    if (!this.ticket) return 24;
+    switch (this.ticket.priority?.toLowerCase()) {
+      case 'crítica':
+      case 'critica': return 4;
+      case 'alta': return 12;
+      case 'media': return 24;
+      case 'baja': return 48;
+      default: return 24;
+    }
   }
 }
 

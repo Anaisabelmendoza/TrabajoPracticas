@@ -545,6 +545,18 @@ ion-content.premium-content {
     &:hover { background: #f8fafc; }
   }
 
+  .btn-release {
+    border-radius: 14px;
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    background: #ffffff;
+    color: #ef4444;
+    font-weight: 600;
+    height: 40px;
+    
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    &:hover { background: #fef2f2; }
+  }
+
   .status-transitions-group {
     display: flex;
     gap: 8px;
@@ -1355,6 +1367,309 @@ ion-content.premium-content {
 @keyframes spinSlow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+// --- ESTILOS DE CONTROL DE SLAS (DETALLE DE TICKET) ---
+
+.client-sla-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(142, 45, 226, 0.06);
+  border: 1px solid rgba(142, 45, 226, 0.15);
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+  color: #5b21b6;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  box-shadow: 0 4px 15px rgba(142, 45, 226, 0.02);
+  
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #8e2de2;
+    flex-shrink: 0;
+  }
+}
+
+.sla-meta-indicator {
+  transition: all 0.3s ease;
+  
+  &.sla-expired-detail {
+    border-left: 4px solid #ef4444 !important;
+    background: rgba(239, 68, 68, 0.02);
+    .meta-value { color: #ef4444 !important; }
+    .meta-icon-box { color: #ef4444 !important; }
+  }
+  
+  &.sla-warning-detail {
+    border-left: 4px solid #f59e0b !important;
+    background: rgba(245, 158, 11, 0.02);
+    .meta-value { color: #d97706 !important; }
+    .meta-icon-box { color: #d97706 !important; }
+  }
+  
+  &.sla-normal-detail {
+    border-left: 4px solid #8e2de2 !important;
+    background: rgba(142, 45, 226, 0.02);
+    .meta-value { color: #8e2de2 !important; }
+    .meta-icon-box { color: #8e2de2 !important; }
+  }
+}
+
+.csat-meta-indicator {
+  border-left: 4px solid #ffd700 !important;
+  background: rgba(255, 215, 0, 0.03);
+  .meta-value { color: #b58900 !important; }
+  .meta-icon-box { color: #ffd700 !important; }
+}
+
+
+// --- ESTILOS DE LA ENCUESTA DE SATISFACCIÓN CSAT ---
+
+.csat-card-premium {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(142, 45, 226, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(142, 45, 226, 0.06) !important;
+  padding: 24px !important;
+  margin-top: 25px !important;
+  margin-bottom: 25px !important;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
+
+  .csat-glow-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(142, 45, 226, 0.04) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .csat-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    margin-bottom: 20px !important;
+    padding: 0 !important;
+
+    .csat-avatar-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(142, 45, 226, 0.1) 0%, rgba(74, 0, 224, 0.1) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(142, 45, 226, 0.15);
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #8e2de2;
+      }
+    }
+
+    .csat-title-area {
+      flex: 1;
+    }
+
+    .csat-title {
+      font-size: 1.15rem !important;
+      font-weight: 850 !important;
+      color: #1e293b;
+      margin: 0 !important;
+    }
+
+    .csat-subtitle {
+      font-size: 0.82rem !important;
+      color: #64748b !important;
+      margin-top: 3px !important;
+    }
+  }
+
+  .csat-content {
+    padding: 0 !important;
+    
+    .stars-container-premium {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #fafafa;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(0, 0, 0, 0.02);
+
+      .stars-label {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #334155;
+        margin: 0 0 12px 0;
+        text-align: center;
+      }
+
+      .stars-row {
+        display: flex;
+        gap: 8px;
+      }
+
+      .star-btn-interactive {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        color: #e2e8f0;
+
+        mat-icon {
+          font-size: 36px;
+          width: 36px;
+          height: 36px;
+          transition: color 0.15s ease;
+        }
+
+        &:hover {
+          transform: scale(1.22);
+        }
+      }
+
+      .star-btn-interactive:hover ~ .star-btn-interactive {
+        color: #e2e8f0 !important;
+      }
+
+      // Estrellas encendidas
+      .star-btn-interactive {
+        color: #ffd700;
+      }
+
+      .rating-text-feedback {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #8e2de2;
+        margin-top: 12px;
+        animation: slideUp 0.2s ease;
+      }
+    }
+
+    .feedback-comment-section {
+      margin-top: 15px;
+    }
+  }
+
+  .csat-actions {
+    padding: 0 !important;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+
+    .btn-submit-survey {
+      background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%) !important;
+      color: #ffffff !important;
+      border-radius: 12px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.5px !important;
+      padding: 0 20px !important;
+      height: 44px !important;
+      box-shadow: 0 4px 15px rgba(142, 45, 226, 0.25) !important;
+      transition: all 0.2s ease !important;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        margin-right: 6px;
+      }
+
+      &:disabled {
+        background: #e2e8f0 !important;
+        color: #94a3b8 !important;
+        box-shadow: none !important;
+      }
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(142, 45, 226, 0.35) !important;
+      }
+    }
+  }
+}
+
+.csat-completed-card-premium {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(142, 45, 226, 0.06) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02) !important;
+  margin-top: 20px !important;
+  margin-bottom: 25px !important;
+  overflow: hidden;
+  border-left: 5px solid #ffd700 !important;
+
+  .csat-completed-content {
+    display: flex !important;
+    gap: 16px;
+    padding: 20px !important;
+
+    .completed-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 215, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      mat-icon {
+        color: #b58900;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .completed-text-box {
+      flex: 1;
+
+      .completed-label {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0 0 6px 0;
+      }
+
+      .completed-quote {
+        margin: 0 0 10px 0;
+        font-size: 0.95rem;
+        font-style: italic;
+        color: #1e293b;
+        line-height: 1.5;
+        font-weight: 500;
+      }
+
+      .completed-stars {
+        display: flex;
+        gap: 3px;
+
+        .completed-star {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+  }
 }
 
 // 11. CSS de Impresión (PDF Premium)

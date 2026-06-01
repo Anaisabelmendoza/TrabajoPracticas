@@ -123,6 +123,12 @@
             <mat-card-content>
               <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
               
+              <!-- SLA Badge -->
+              <div *ngIf="getSlaStatus(ticket).text" class="sla-badge-kanban" [ngClass]="getSlaStatus(ticket).class">
+                <mat-icon style="font-size: 13px; width: 13px; height: 13px; margin-right: 4px; vertical-align: middle;">schedule</mat-icon>
+                <span>{{ getSlaStatus(ticket).text }}</span>
+              </div>
+
               <!-- Info del técnico si está asignado (Columna En Proceso) -->
               <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
                 <mat-icon>engineering</mat-icon>
@@ -202,6 +208,12 @@
             <mat-card-content>
               <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
               
+              <!-- SLA Badge -->
+              <div *ngIf="getSlaStatus(ticket).text" class="sla-badge-kanban" [ngClass]="getSlaStatus(ticket).class">
+                <mat-icon style="font-size: 13px; width: 13px; height: 13px; margin-right: 4px; vertical-align: middle;">schedule</mat-icon>
+                <span>{{ getSlaStatus(ticket).text }}</span>
+              </div>
+
               <!-- Info del técnico si está asignado (Columna En Proceso) -->
               <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
                 <mat-icon>engineering</mat-icon>
@@ -451,6 +463,12 @@
               <mat-card-content>
                 <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
                 
+                <!-- SLA Badge -->
+                <div *ngIf="getSlaStatus(ticket).text" class="sla-badge-kanban" [ngClass]="getSlaStatus(ticket).class">
+                  <mat-icon style="font-size: 13px; width: 13px; height: 13px; margin-right: 4px; vertical-align: middle;">schedule</mat-icon>
+                  <span>{{ getSlaStatus(ticket).text }}</span>
+                </div>
+
                 <!-- Info del técnico si está asignado (Columna En Proceso) -->
                 <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
                   <mat-icon>engineering</mat-icon>

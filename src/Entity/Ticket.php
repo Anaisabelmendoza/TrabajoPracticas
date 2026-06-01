@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -110,6 +111,14 @@ class Ticket
     #[ORM\Column(nullable: true)]
     #[Groups(['ticket:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    #[Groups(['ticket:read', 'ticket:write'])]
+    private ?int $rating = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['ticket:read', 'ticket:write'])]
+    private ?string $ratingComment = null;
 
     public function __construct()
     {
@@ -344,5 +353,46 @@ class Ticket
         }
 
         return $this;
+    }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(?int $rating): static
+    {
+        $this->rating = $rating;
+        return $this;
+    }
+
+    public function getRatingComment(): ?string
+    {
+        return $this->ratingComment;
+    }
+
+    public function setRatingComment(?string $ratingComment): static
+    {
+        $this->ratingComment = $ratingComment;
+        return $this;
+    }
+
+    #[Groups(['ticket:read'])]
+    #[SerializedName('slaLimit')]
+    public function getSlaLimit(): ?\DateTimeInterface
+    {
+        if (null === $this->createdAt) {
+            return null;
+        }
+
+        $hours = match (strtolower($this->priority ?? 'media')) {
+            'crítica', 'critica' => 4,
+            'alta' => 12,
+            'media' => 24,
+            'baja' => 48,
+            default => 24,
+        };
+
+        return $this->createdAt->modify(sprintf('+%d hours', $hours));
     }
 }

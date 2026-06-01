@@ -45,6 +45,12 @@
       </mat-card-header>
 
       <mat-card-content class="premium-card-content">
+        <!-- Banner Informativo del SLA para Clientes -->
+        <div class="client-sla-banner" *ngIf="!isAgent && ticket.status !== 'Resuelto' && ticket.status !== 'Cerrado' && ticket.slaLimit">
+          <mat-icon>info</mat-icon>
+          <span>Estimamos resolver tu incidencia en un plazo máximo de <strong>{{ getSlaHoursEstimate() }} horas</strong> (compromiso antes de las <strong>{{ ticket.slaLimit | date:'HH:mm' }}</strong> del día <strong>{{ ticket.slaLimit | date:'dd/MM' }}</strong>).</span>
+        </div>
+
         <!-- Descripción de la Incidencia -->
         <div class="description-section-premium">
           <div class="description-header-premium">
@@ -129,6 +135,28 @@
               <span class="meta-value font-semibold">{{ getTotalTimeSpent() }}</span>
             </div>
           </div>
+
+          <!-- Indicador de SLA (Activos) -->
+          <div class="meta-item-card sla-meta-indicator" *ngIf="ticket.status !== 'Resuelto' && ticket.status !== 'Cerrado' && getSlaRemainingTime().text" [ngClass]="getSlaRemainingTime().class">
+            <div class="meta-icon-box">
+              <mat-icon>hourglass_empty</mat-icon>
+            </div>
+            <div class="meta-info">
+              <span class="meta-label">Plazo de SLA</span>
+              <span class="meta-value font-semibold">{{ getSlaRemainingTime().text }}</span>
+            </div>
+          </div>
+
+          <!-- Indicador de Satisfacción CSAT (Resueltos/Cerrados ya valorados) -->
+          <div class="meta-item-card csat-meta-indicator" *ngIf="ticket.rating">
+            <div class="meta-icon-box">
+              <mat-icon style="color: #ffd700;">star</mat-icon>
+            </div>
+            <div class="meta-info">
+              <span class="meta-label">Satisfacción CSAT</span>
+              <span class="meta-value font-semibold">{{ ticket.rating }}/5 ★</span>
+            </div>
+          </div>
         </div>
       </mat-card-content>
       
@@ -145,6 +173,11 @@
           <button mat-stroked-button class="btn-assign" *ngIf="isAgent" (click)="assignTicket()">
             <mat-icon>assignment_ind</mat-icon>
             {{ ticket.agent ? 'Reasignar' : 'Asignar a...' }}
+          </button>
+
+          <button mat-stroked-button class="btn-release" *ngIf="isAgent && ticket.agent" (click)="releaseTicket()" title="Liberar incidencia para que otro agente la resuelva">
+            <mat-icon>undo</mat-icon>
+            Liberar Caso
           </button>
 
           <div class="status-transitions-group" *ngIf="ticket.agent">
@@ -217,6 +250,72 @@
           Generar PDF del Archivo
         </button>
       </mat-card-actions>
+    </mat-card>
+
+    <!-- ENCUESTA DE SATISFACCIÓN CSAT (SOLO CLIENTE, SI ESTÁ RESUELTO/CERRADO Y SIN VALORAR) -->
+    <mat-card class="csat-card-premium" *ngIf="(ticket.status === 'Resuelto' || ticket.status === 'Cerrado') && isOwner() && !ticket.rating">
+      <div class="csat-glow-overlay"></div>
+      <mat-card-header class="csat-header">
+        <div class="csat-avatar-wrapper">
+          <div class="csat-avatar-inner">
+            <mat-icon>rate_review</mat-icon>
+          </div>
+        </div>
+        <div class="csat-title-area">
+          <mat-card-title class="csat-title">Encuesta de Satisfacción (CSAT)</mat-card-title>
+          <mat-card-subtitle class="csat-subtitle">Tu opinión es muy importante para mejorar el servicio de soporte técnico</mat-card-subtitle>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content class="csat-content">
+        <div class="stars-container-premium">
+          <p class="stars-label">¿Cómo calificarías la atención de nuestro técnico?</p>
+          <div class="stars-row">
+            <button mat-icon-button *ngFor="let star of [1, 2, 3, 4, 5]" 
+                    class="star-btn-interactive"
+                    (click)="setRating(star)" 
+                    (mouseenter)="setHoverRating(star)" 
+                    (mouseleave)="setHoverRating(0)"
+                    [title]="'Calificar con ' + star + ' estrella(s)'">
+              <mat-icon class="star-icon-mat">{{ (hoverRating >= star || selectedRating >= star) ? 'star' : 'star_border' }}</mat-icon>
+            </button>
+          </div>
+          <span class="rating-text-feedback" *ngIf="selectedRating > 0">
+            {{ selectedRating === 5 ? '¡Excelente! 😍' : selectedRating === 4 ? 'Muy buena 😊' : selectedRating === 3 ? 'Aceptable 😐' : selectedRating === 2 ? 'Mala 🙁' : 'Muy mala 😠' }}
+          </span>
+        </div>
+
+        <div class="feedback-comment-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Comentarios adicionales (opcional)</mat-label>
+            <textarea matInput rows="3" [(ngModel)]="surveyComment" placeholder="Cuéntanos qué te ha parecido la resolución o qué podemos mejorar..."></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions class="csat-actions">
+        <button mat-flat-button class="btn-submit-survey" [disabled]="selectedRating === 0" (click)="submitSurvey()">
+          <mat-icon>send</mat-icon>
+          Enviar Valoración
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- COMENTARIO DE SATISFACCIÓN (SI YA EXISTE Y TIENE TEXTO) -->
+    <mat-card class="csat-completed-card-premium" *ngIf="ticket.ratingComment">
+      <div class="card-glow-overlay"></div>
+      <mat-card-content class="csat-completed-content">
+        <div class="completed-icon-box">
+          <mat-icon>feedback</mat-icon>
+        </div>
+        <div class="completed-text-box">
+          <p class="completed-label">Comentario de Satisfacción del Cliente:</p>
+          <blockquote class="completed-quote">"{{ ticket.ratingComment }}"</blockquote>
+          <div class="completed-stars">
+            <mat-icon *ngFor="let star of [1,2,3,4,5]" class="completed-star">{{ ticket.rating >= star ? 'star' : 'star_border' }}</mat-icon>
+          </div>
+        </div>
+      </mat-card-content>
     </mat-card>
 
     <!-- PESTAÑAS: DIÁLOGO E HISTORIAL -->
