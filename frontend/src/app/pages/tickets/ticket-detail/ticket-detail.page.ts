@@ -71,6 +71,10 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   slaFormattedDate = '';
   slaInterval: any;
 
+  // Variables de Notas Manuales de Historial
+  newManualNote = '';
+  isAddingNote = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -727,23 +731,52 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   getHistoryIcon(action: string): string {
     if (!action) return 'history';
     const act = action.toLowerCase();
+    if (act.includes('nota manual') || act.includes('\ud83d\udcdd')) return 'edit_note';
     if (act.includes('creación') || act.includes('creacion')) return 'add_circle';
     if (act.includes('prioridad')) return 'low_priority';
     if (act.includes('categoría') || act.includes('categoria')) return 'category';
     if (act.includes('estado')) return 'sync_alt';
     if (act.includes('asign') || act.includes('técnico') || act.includes('tecnico')) return 'person';
+    if (act.includes('csat') || act.includes('encuesta')) return 'star';
     return 'history';
   }
 
   getHistoryBadgeClass(action: string): string {
     if (!action) return 'badge-default';
     const act = action.toLowerCase();
+    if (act.includes('nota manual') || act.includes('\ud83d\udcdd')) return 'badge-note';
     if (act.includes('creación') || act.includes('creacion')) return 'badge-create';
     if (act.includes('prioridad')) return 'badge-priority';
     if (act.includes('categoría') || act.includes('categoria')) return 'badge-category';
     if (act.includes('estado')) return 'badge-status';
     if (act.includes('asign') || act.includes('técnico') || act.includes('tecnico')) return 'badge-agent';
     return 'badge-default';
+  }
+
+  addManualNote() {
+    if (!this.newManualNote.trim() || !this.ticket) return;
+    this.isAddingNote = true;
+
+    const token = this.authService.getToken();
+
+    this.http.post<any>(
+      `${environment.apiUrl}/api/ticket-notes/${this.ticket.id}`,
+      { note: this.newManualNote.trim() },
+      { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+    ).subscribe({
+      next: (newEntry) => {
+        if (!this.ticket.history) this.ticket.history = [];
+        this.ticket.history.unshift(newEntry);
+        this.newManualNote = '';
+        this.isAddingNote = false;
+        this.showToast('¡Nota guardada en el historial!', 'success');
+      },
+      error: (err) => {
+        console.error('Error guardando nota:', err);
+        this.isAddingNote = false;
+        this.showToast('Error al guardar la nota', 'danger');
+      }
+    });
   }
 
   // Métodos de Encuesta de Satisfacción CSAT
