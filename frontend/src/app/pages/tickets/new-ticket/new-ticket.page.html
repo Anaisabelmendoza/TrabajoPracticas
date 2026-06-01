@@ -35,8 +35,15 @@
                 <mat-option value="Baja">Baja</mat-option>
                 <mat-option value="Media">Media</mat-option>
                 <mat-option value="Alta">Alta</mat-option>
+                <mat-option value="Crítica">Crítica</mat-option>
               </mat-select>
             </mat-form-field>
+          </div>
+
+          <!-- SLA Feedback dinámico en creación -->
+          <div class="sla-creation-feedback" *ngIf="ticketForm.get('priority')?.value" [ngClass]="ticketForm.get('priority')?.value.toLowerCase()">
+            <mat-icon>schedule</mat-icon>
+            <span>Compromiso de resolución para prioridad <strong>{{ ticketForm.get('priority')?.value }}</strong>: máximo <strong>{{ getSlaHoursLimit(ticketForm.get('priority')?.value) }} horas</strong>.</span>
           </div>
 
           <mat-form-field appearance="outline" class="full-width">

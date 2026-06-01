@@ -25,11 +25,11 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
     operations: [
         new GetCollection(),
         new Post(processor: \App\State\TicketAuthorProcessor::class),
-        new Get(security: "is_granted('ROLE_AGENT') or object.getAuthor() == user"),
-        new Put(security: "is_granted('ROLE_AGENT') or object.getAuthor() == user"),
-        new Patch(security: "is_granted('ROLE_AGENT') or object.getAuthor() == user"),
+        new Get(security: "is_granted('ROLE_AGENT') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())"),
+        new Put(security: "is_granted('ROLE_AGENT') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())"),
+        new Patch(security: "is_granted('ROLE_AGENT') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())"),
         new Delete(
-            security: "is_granted('ROLE_ADMIN') or object.getAuthor() == user",
+            security: "is_granted('ROLE_ADMIN') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())",
             processor: \App\State\TicketDeleteProcessor::class
         ),
         new Post(
@@ -140,6 +140,24 @@ class Ticket
     public function updateTimestamps(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+        $this->calculateSlaLimit();
+    }
+
+    #[ORM\PostLoad]
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function calculateSlaLimit(): void
+    {
+        if (null !== $this->createdAt) {
+            $hours = match (strtolower($this->priority ?? 'media')) {
+                'crítica', 'critica' => 4,
+                'alta' => 12,
+                'media' => 24,
+                'baja' => 48,
+                default => 24,
+            };
+            $this->slaLimit = $this->createdAt->modify(sprintf('+%d hours', $hours));
+        }
     }
 
     public function getUpdatedAt(): ?\DateTimeImmutable
@@ -385,18 +403,9 @@ class Ticket
     #[SerializedName('slaLimit')]
     public function getSlaLimit(): ?\DateTimeInterface
     {
-        if (null === $this->createdAt) {
-            return null;
+        if (null === $this->slaLimit && null !== $this->createdAt) {
+            $this->calculateSlaLimit();
         }
-
-        $hours = match (strtolower($this->priority ?? 'media')) {
-            'crítica', 'critica' => 4,
-            'alta' => 12,
-            'media' => 24,
-            'baja' => 48,
-            default => 24,
-        };
-
-        return $this->createdAt->modify(sprintf('+%d hours', $hours));
+        return $this->slaLimit;
     }
 }

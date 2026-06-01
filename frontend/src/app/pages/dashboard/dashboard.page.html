@@ -60,7 +60,7 @@
             <p>No hay incidencias nuevas</p>
           </div>
           <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card"
-            [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
+            (click)="goToTicket(ticket.id)">
             <mat-card-header>
               <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
                 {{ getAuthorInitials(ticket.author) }}
@@ -105,7 +105,7 @@
             <p>No hay trabajos en curso</p>
           </div>
           <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card"
-            [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
+            (click)="goToTicket(ticket.id)">
             <mat-card-header>
               <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
                 {{ getAuthorInitials(ticket.author) }}
@@ -153,7 +153,7 @@
             <p>No hay resueltas</p>
           </div>
           <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card"
-            [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
+            (click)="goToTicket(ticket.id)">
             <mat-card-header>
               <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
                 {{ getAuthorInitials(ticket.author) }}
@@ -191,7 +191,7 @@
             <p>Sin archivadas</p>
           </div>
           <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card"
-            [routerLink]="['/tickets', ticket.id]" [queryParams]="{ from: 'dashboard' }">
+            (click)="goToTicket(ticket.id)">
             <mat-card-header>
               <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
                 {{ getAuthorInitials(ticket.author) }}

@@ -237,7 +237,38 @@ export class DashboardPage implements OnInit {
 
 
   getSlaStatus(ticket: any): { text: string; class: string; expired: boolean } {
-    if (!ticket || !ticket.slaLimit || ticket.status === 'Resuelto' || ticket.status === 'Cerrado') {
+    if (!ticket || (ticket.status === 'Resuelto' || ticket.status === 'Cerrado')) {
+      return { text: '', class: '', expired: false };
+    }
+
+    if (!ticket.slaLimit && ticket.createdAt) {
+      try {
+        const createdDate = new Date(ticket.createdAt);
+        let hoursToAdd = 24;
+        switch (ticket.priority?.toLowerCase()) {
+          case 'crítica':
+          case 'critica':
+            hoursToAdd = 4;
+            break;
+          case 'alta':
+            hoursToAdd = 12;
+            break;
+          case 'media':
+            hoursToAdd = 24;
+            break;
+          case 'baja':
+          default:
+            hoursToAdd = 48;
+            break;
+        }
+        const calculatedLimit = new Date(createdDate.getTime() + hoursToAdd * 60 * 60 * 1000);
+        ticket.slaLimit = calculatedLimit.toISOString();
+      } catch (e) {
+        console.error('Error calculating local SLA limit:', e);
+      }
+    }
+
+    if (!ticket.slaLimit) {
       return { text: '', class: '', expired: false };
     }
 

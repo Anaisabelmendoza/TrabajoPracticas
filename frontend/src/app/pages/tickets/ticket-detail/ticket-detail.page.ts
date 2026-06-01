@@ -62,6 +62,15 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   defaultBackHref = '/tickets';
   chatPollInterval: any;
 
+  // Variables de SLA calculadas en frontend de manera robusta
+  slaRemainingText = '';
+  slaRemainingClass = '';
+  slaRemainingExpired = false;
+  slaFormattedHours = 24;
+  slaFormattedTime = '';
+  slaFormattedDate = '';
+  slaInterval: any;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -98,12 +107,17 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   }
 
   isOwner(): boolean {
-    if (!this.ticket) return false;
+    if (!this.ticket || !this.ticket.author) return false;
     const user = this.authService.getUser();
-    // En el JWT de API Platform, el ID del usuario suele estar en el campo 'id' o similar
-    // Depende de lo que devuelva el Authorizer. 
-    // Compararemos por username/email si no tenemos el ID, o buscaremos el ID.
-    return user && (user.username === this.ticket.author.email || user.email === this.ticket.author.email);
+    if (!user) return false;
+
+    const loggedInEmail = user.email || user.username || user.sub;
+    const authorEmail = this.ticket.author.email;
+    const loggedInId = user.id;
+    const authorId = this.ticket.author.id;
+
+    return (loggedInEmail && authorEmail && loggedInEmail.toLowerCase() === authorEmail.toLowerCase()) ||
+           (loggedInId && authorId && loggedInId === authorId);
   }
 
   loadTicket(id: number) {
@@ -116,6 +130,8 @@ export class TicketDetailPage implements OnInit, OnDestroy {
           this.editedDescription = this.ticket.description;
         }
         this.resumeTimerIfActive();
+        this.calculateSlaDetails();
+        this.startSlaInterval();
         this.loading = false;
       },
       error: (err) => {
@@ -132,6 +148,9 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
+    }
+    if (this.slaInterval) {
+      clearInterval(this.slaInterval);
     }
     this.stopChatPolling();
   }
@@ -758,36 +777,118 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   }
 
   // Métodos de Control y Cálculo de SLAs
-  getSlaRemainingTime(): { text: string; class: string; expired: boolean } {
-    if (!this.ticket || !this.ticket.slaLimit || this.ticket.status === 'Resuelto' || this.ticket.status === 'Cerrado') {
-      return { text: '', class: '', expired: false };
+  calculateSlaDetails() {
+    if (!this.ticket) {
+      this.slaRemainingText = '';
+      return;
     }
+
+    if (!this.ticket.slaLimit && this.ticket.createdAt) {
+      try {
+        const createdDate = new Date(this.ticket.createdAt);
+        let hoursToAdd = 24;
+        switch (this.ticket.priority?.toLowerCase()) {
+          case 'crítica':
+          case 'critica':
+            hoursToAdd = 4;
+            break;
+          case 'alta':
+            hoursToAdd = 12;
+            break;
+          case 'media':
+            hoursToAdd = 24;
+            break;
+          case 'baja':
+          default:
+            hoursToAdd = 48;
+            break;
+        }
+        const calculatedLimit = new Date(createdDate.getTime() + hoursToAdd * 60 * 60 * 1000);
+        this.ticket.slaLimit = calculatedLimit.toISOString();
+      } catch (e) {
+        console.error('Error calculating local SLA limit:', e);
+      }
+    }
+
+    if (!this.ticket.slaLimit) {
+      this.slaRemainingText = '';
+      return;
+    }
+
+    // 1. Horas según prioridad
+    switch (this.ticket.priority?.toLowerCase()) {
+      case 'crítica':
+      case 'critica':
+        this.slaFormattedHours = 4;
+        break;
+      case 'alta':
+        this.slaFormattedHours = 12;
+        break;
+      case 'media':
+        this.slaFormattedHours = 24;
+        break;
+      case 'baja':
+      default:
+        this.slaFormattedHours = 48;
+        break;
+    }
+
+    // 2. Formatear compromiso antes de las HH:mm del dd/MM
+    try {
+      const limitDate = new Date(this.ticket.slaLimit);
+      const hours = limitDate.getHours().toString().padStart(2, '0');
+      const minutes = limitDate.getMinutes().toString().padStart(2, '0');
+      this.slaFormattedTime = `${hours}:${minutes}`;
+
+      const day = limitDate.getDate().toString().padStart(2, '0');
+      const month = (limitDate.getMonth() + 1).toString().padStart(2, '0');
+      this.slaFormattedDate = `${day}/${month}`;
+    } catch (e) {
+      console.error('Error parsing slaLimit:', e);
+    }
+
+    // 3. Calcular tiempo restante para el indicador
+    if (this.ticket.status === 'Resuelto' || this.ticket.status === 'Cerrado') {
+      this.slaRemainingText = '';
+      return;
+    }
+
     const limit = new Date(this.ticket.slaLimit);
     const now = new Date();
     const diff = limit.getTime() - now.getTime();
+
     if (diff <= 0) {
       const diffH = Math.abs(Math.floor(diff / (1000 * 60 * 60)));
-      return { text: `SLA Vencido hace ${diffH} horas`, class: 'sla-expired-detail', expired: true };
+      this.slaRemainingText = `SLA Vencido hace ${diffH} horas`;
+      this.slaRemainingClass = 'sla-expired-detail';
+      this.slaRemainingExpired = true;
     } else {
       const diffH = Math.floor(diff / (1000 * 60 * 60));
       const diffM = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       if (diffH < 2) {
-        return { text: `Urgente: Quedan ${diffH}h ${diffM}m`, class: 'sla-warning-detail', expired: false };
+        this.slaRemainingText = `Urgente: Quedan ${diffH}h ${diffM}m`;
+        this.slaRemainingClass = 'sla-warning-detail';
+      } else {
+        this.slaRemainingText = `Quedan ${diffH}h ${diffM}m`;
+        this.slaRemainingClass = 'sla-normal-detail';
       }
-      return { text: `Quedan ${diffH}h ${diffM}m`, class: 'sla-normal-detail', expired: false };
+      this.slaRemainingExpired = false;
     }
   }
 
+  startSlaInterval() {
+    if (this.slaInterval) clearInterval(this.slaInterval);
+    this.slaInterval = setInterval(() => {
+      this.calculateSlaDetails();
+    }, 30000); // Recalcular cada 30 segundos
+  }
+
+  getSlaRemainingTime(): { text: string; class: string; expired: boolean } {
+    return { text: this.slaRemainingText, class: this.slaRemainingClass, expired: this.slaRemainingExpired };
+  }
+
   getSlaHoursEstimate(): number {
-    if (!this.ticket) return 24;
-    switch (this.ticket.priority?.toLowerCase()) {
-      case 'crítica':
-      case 'critica': return 4;
-      case 'alta': return 12;
-      case 'media': return 24;
-      case 'baja': return 48;
-      default: return 24;
-    }
+    return this.slaFormattedHours;
   }
 }
 

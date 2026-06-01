@@ -100,7 +100,7 @@
           <div *ngIf="getFilteredTickets('Nuevo').length === 0" class="empty-state-small">
             <p>No hay incidencias nuevas</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card" [class]="ticket.priority.toLowerCase()" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Nuevo')" class="ticket-card kanban-card" [class]="ticket.priority.toLowerCase()" (click)="goToTicket(ticket.id)">
             <mat-card-header>
               <!-- Avatar circular con iniciales y degradado dinámico por letra -->
               <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
@@ -185,7 +185,7 @@
           <div *ngIf="getFilteredTickets('Proceso').length === 0" class="empty-state-small">
             <p>No hay trabajos en curso</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card" [class]="ticket.priority.toLowerCase()" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Proceso')" class="ticket-card kanban-card" [class]="ticket.priority.toLowerCase()" (click)="goToTicket(ticket.id)">
             <mat-card-header>
               <!-- Avatar circular con iniciales y degradado dinámico por letra -->
               <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
@@ -264,7 +264,7 @@
           <div *ngIf="getFilteredTickets('Resuelto').length === 0" class="empty-state-small">
             <p>No hay resueltas</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card" [class]="ticket.priority.toLowerCase()" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Resuelto')" class="ticket-card kanban-card" [class]="ticket.priority.toLowerCase()" (click)="goToTicket(ticket.id)">
             <mat-card-header>
               <!-- Avatar circular con iniciales y degradado dinámico por letra -->
               <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">
@@ -337,7 +337,7 @@
           <div *ngIf="getFilteredTickets('Cerrado').length === 0" class="empty-state-small">
             <p>Sin archivadas</p>
           </div>
-          <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card" [class]="ticket.priority.toLowerCase()" [routerLink]="['/tickets', ticket.id]">
+          <mat-card *ngFor="let ticket of getFilteredTickets('Cerrado')" class="ticket-card kanban-card" [class]="ticket.priority.toLowerCase()" (click)="goToTicket(ticket.id)">
             <mat-card-header>
               <!-- Avatar circular con iniciales y degradado dinámico por letra -->
               <div class="author-avatar avatar-{{ getAuthorInitials(ticket.author).toLowerCase()[0] }}" [title]="'Creado por ' + (ticket.author?.firstName || 'Usuario')">

@@ -46,9 +46,9 @@
 
       <mat-card-content class="premium-card-content">
         <!-- Banner Informativo del SLA para Clientes -->
-        <div class="client-sla-banner" *ngIf="!isAgent && ticket.status !== 'Resuelto' && ticket.status !== 'Cerrado' && ticket.slaLimit">
+        <div class="client-sla-banner" *ngIf="ticket.status !== 'Resuelto' && ticket.status !== 'Cerrado' && slaFormattedTime">
           <mat-icon>info</mat-icon>
-          <span>Tu incidencia se resolverá según la prioridad <strong>{{ ticket.priority }}</strong> en un plazo máximo de <strong>{{ getSlaHoursEstimate() }} horas</strong> (compromiso antes de las <strong>{{ ticket.slaLimit | date:'HH:mm' }}</strong> del día <strong>{{ ticket.slaLimit | date:'dd/MM' }}</strong>).</span>
+          <span>Tu incidencia se resolverá según la prioridad <strong>{{ ticket.priority }}</strong> en un plazo máximo de <strong>{{ slaFormattedHours }} horas</strong> (compromiso antes de las <strong>{{ slaFormattedTime }}</strong> del día <strong>{{ slaFormattedDate }}</strong>).</span>
         </div>
 
         <!-- Descripción de la Incidencia -->
@@ -137,13 +137,13 @@
           </div>
 
           <!-- Indicador de SLA (Activos) -->
-          <div class="meta-item-card sla-meta-indicator" *ngIf="ticket.status !== 'Resuelto' && ticket.status !== 'Cerrado' && getSlaRemainingTime().text" [ngClass]="getSlaRemainingTime().class">
+          <div class="meta-item-card sla-meta-indicator" *ngIf="ticket.status !== 'Resuelto' && ticket.status !== 'Cerrado' && slaRemainingText" [ngClass]="slaRemainingClass">
             <div class="meta-icon-box">
               <mat-icon>hourglass_empty</mat-icon>
             </div>
             <div class="meta-info">
               <span class="meta-label">Plazo de SLA</span>
-              <span class="meta-value font-semibold">{{ getSlaRemainingTime().text }}</span>
+              <span class="meta-value font-semibold">{{ slaRemainingText }}</span>
             </div>
           </div>
 
