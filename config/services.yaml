@@ -36,3 +36,7 @@ services:
     App\State\TicketClaimProcessor:
         bind:
             $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
+
+    App\State\TicketUpdateProcessor:
+        bind:
+            $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
