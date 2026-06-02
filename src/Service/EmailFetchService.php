@@ -148,7 +148,20 @@ class EmailFetchService
         $ticket->setAuthor($author);
         $ticket->setCategory($category);
         $ticket->setStatus('Nuevo');
-        $ticket->setPriority('Media');
+        
+        // --- DETECCIÓN DE PRIORIDAD ALTA POR PALABRAS CLAVE ---
+        $urgentKeywords = ['urgente', 'emergencia', 'caída', 'caida', 'crítico', 'critico', 'grave', 'roto', 'inmediato', 'falla total', 'urgencia'];
+        $priority = 'Media'; // Por defecto
+        
+        $contentToCheck = strtolower($subject . ' ' . $body);
+        foreach ($urgentKeywords as $word) {
+            if (str_contains($contentToCheck, $word)) {
+                $priority = 'Alta';
+                break;
+            }
+        }
+        $ticket->setPriority($priority);
+        // ------------------------------------------------------
         $ticket->setAttachments($attachments);
 
         $this->entityManager->persist($ticket);
