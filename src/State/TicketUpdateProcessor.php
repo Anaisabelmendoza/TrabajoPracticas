@@ -5,6 +5,7 @@ namespace App\State;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Ticket;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -13,20 +14,22 @@ class TicketUpdateProcessor implements ProcessorInterface
 {
     public function __construct(
         private readonly ProcessorInterface $persistProcessor,
-        private readonly MailerInterface $mailer
+        private readonly MailerInterface $mailer,
+        private readonly EntityManagerInterface $entityManager
     ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
-        // Guardamos si hubo un cambio de estado antes de persistir
         $statusChanged = false;
         $previousStatus = null;
         $newStatus = null;
 
         if ($data instanceof Ticket) {
-            $previousData = $context['previous_data'] ?? null;
-            if ($previousData instanceof Ticket) {
-                $previousStatus = $previousData->getStatus();
+            $uow = $this->entityManager->getUnitOfWork();
+            $originalData = $uow->getOriginalEntityData($data);
+            
+            if (isset($originalData['status'])) {
+                $previousStatus = $originalData['status'];
                 $newStatus = $data->getStatus();
                 if ($previousStatus !== $newStatus) {
                     $statusChanged = true;
