@@ -128,6 +128,10 @@ export class TicketsPage implements OnInit {
   updateRoles() {
     this.isAgent = this.authService.hasRole('ROLE_AGENT') || this.authService.hasRole('ROLE_ADMIN');
     this.isAdmin = this.authService.hasRole('ROLE_ADMIN');
+    const user = this.authService.getUser();
+    if (!this.isAgent && !this.isAdmin) {
+      alert(`INFO DEBUG: Roles cargados en Angular: ${JSON.stringify(user?.roles)}. isAgent: ${this.isAgent}. Esto significa que Angular te ve como CLIENTE normal.`);
+    }
   }
 
   loadCategories() {
@@ -266,10 +270,15 @@ export class TicketsPage implements OnInit {
         this.tickets = data;
         this.calculateStats(data);
         this.loading = false;
+        
+        // Debug alert temporal para ver cuántos tickets llegan a Angular
+        alert(`INFO DEBUG: Angular ha recibido ${data ? data.length : 0} tickets del servidor.`);
+        console.log("TICKETS LOADED:", data.length);
       },
       error: (err) => {
         console.error('Error loading tickets', err);
         this.loading = false;
+        alert('INFO DEBUG: Error 401 u otro error al cargar los tickets. Sesión caducada.');
       }
     });
   }

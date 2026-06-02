@@ -34,8 +34,11 @@ export class TicketService {
 
   getTickets(): Observable<any[]> {
     return this.http.get<any>(`${this.apiUrl}/api/tickets`, { headers: this.getHeaders() }).pipe(
-      tap(res => console.log('RAW API TICKETS RESPONSE:', res)),
-      map(response => response['member'] || response['hydra:member'] || []),
+      map(response => {
+        if (!response) return [];
+        if (Array.isArray(response)) return response;
+        return response['hydra:member'] || response['member'] || [];
+      }),
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           this.authService.logout();
