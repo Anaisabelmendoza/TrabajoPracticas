@@ -4,13 +4,10 @@ FROM php:8.4-apache
 RUN apt-get update && apt-get install -y \
     libicu-dev \
     libzip-dev \
-    libc-client-dev \
-    libkrb5-dev \
     zip \
     unzip \
     git \
-    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
-    && docker-php-ext-install intl opcache pdo pdo_mysql zip imap
+    && docker-php-ext-install intl opcache pdo pdo_mysql zip
 
 # Configurar Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
