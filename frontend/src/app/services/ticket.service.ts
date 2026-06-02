@@ -85,6 +85,15 @@ export class TicketService {
     return this.http.get<any[]>(`${this.apiUrl}/api/pdf-archive`, { headers: this.getAuthHeader() });
   }
 
+  addTicketNote(ticketId: number, note: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/api/ticket-notes/${ticketId}`, { note }, {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${this.authService.getToken()}`,
+        'Content-Type': 'application/json'
+      })
+    });
+  }
+
   getServerUrl(): string {
     return this.apiUrl;
   }

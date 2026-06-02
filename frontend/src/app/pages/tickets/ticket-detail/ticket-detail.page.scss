@@ -1158,6 +1158,57 @@ ion-content.premium-content {
   }
 }
 
+// Note bubble (manual note in history, chat style)
+.note-bubble {
+  background: #f5f3ff !important;
+  border-color: #ede9fe !important;
+  border-left: 3px solid #8e2de2 !important;
+  .bubble-header-info .sender-name { color: #6d28d9 !important; }
+  .bubble-message-text { color: #2e1065 !important; white-space: pre-wrap; }
+}
+
+// System pill (automatic events)
+.history-system-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px auto;
+  padding: 5px 14px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  max-width: 92%;
+  width: fit-content;
+  font-size: 0.78rem;
+  color: #64748b;
+  animation: fadeIn 0.3s ease;
+
+  .system-pill-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: #8e2de2;
+    flex-shrink: 0;
+  }
+
+  .system-pill-text {
+    line-height: 1.4;
+    strong { color: #334155; font-weight: 700; }
+    .pill-old { color: #94a3b8; text-decoration: line-through; }
+    .pill-new { color: #10b981; font-weight: 700; }
+  }
+
+  .system-pill-time {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-left: 6px;
+    border-left: 1px solid #e2e8f0;
+  }
+}
+
 // 9. Timeline de Historial Auditado
 .timeline-container-premium {
   position: relative;
