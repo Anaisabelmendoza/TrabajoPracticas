@@ -54,6 +54,28 @@ class EmailFetchService
                     $body = $message->getTextBody() ?: $message->getHTMLBody(true);
                     $from = $message->getFrom()[0]->mail;
 
+                    // --- FILTRO DE CORREOS (Google, Publicidad, No-Reply) ---
+                    $blockedKeywords = [
+                        'google.com', 'noreply', 'no-reply', 'marketing', 
+                        'newsletter', 'mailer-daemon', 'postmaster', 'bounce',
+                        'promociones', 'info@'
+                    ];
+                    
+                    $isSpam = false;
+                    foreach ($blockedKeywords as $keyword) {
+                        if (stripos($from, $keyword) !== false) {
+                            $isSpam = true;
+                            break;
+                        }
+                    }
+
+                    if ($isSpam) {
+                        // Lo marcamos como leído para que no vuelva a procesarse y pasamos al siguiente
+                        $message->setFlag('Seen');
+                        continue;
+                    }
+                    // ---------------------------------------------------------
+
                     // Procesar adjuntos
                     $attachments = [];
                     foreach ($message->getAttachments() as $attachment) {
