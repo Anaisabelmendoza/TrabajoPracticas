@@ -54,18 +54,34 @@ class EmailFetchService
                     $body = $message->getTextBody() ?: $message->getHTMLBody(true);
                     $from = $message->getFrom()[0]->mail;
 
-                    // --- FILTRO DE CORREOS (Google, Publicidad, No-Reply) ---
+                    // --- FILTRO DE CORREOS (Google, Spam, Clientes No Registrados) ---
                     $blockedKeywords = [
                         'google.com', 'noreply', 'no-reply', 'marketing', 
                         'newsletter', 'mailer-daemon', 'postmaster', 'bounce',
-                        'promociones', 'info@'
+                        'promociones', 'info@', 'google', 'alertas', 'alerts',
+                        'publicidad', 'ganaste', 'premio', 'loter', 'oferta', 
+                        'descuento', 'viagra', 'casino', 'crypto', 'bitcoin', 
+                        'invest', 'seo', 'no-responder'
                     ];
                     
                     $isSpam = false;
+                    
+                    // 1. Validar palabras clave de Spam o alertas de Google en el remitente o el asunto
                     foreach ($blockedKeywords as $keyword) {
-                        if (stripos($from, $keyword) !== false) {
+                        if (stripos($from, $keyword) !== false || stripos($subject, $keyword) !== false) {
                             $isSpam = true;
                             break;
+                        }
+                    }
+
+                    // 2. Validar que el remitente sea un cliente/usuario registrado en nuestra base de datos
+                    if (!$isSpam) {
+                        $userRepo = $this->entityManager->getRepository(User::class);
+                        $registeredUser = $userRepo->findOneBy(['email' => $from]);
+                        
+                        if (!$registeredUser) {
+                            // Si el remitente no existe como usuario en la base de datos, lo bloqueamos
+                            $isSpam = true;
                         }
                     }
 
@@ -74,7 +90,7 @@ class EmailFetchService
                         $message->setFlag('Seen');
                         continue;
                     }
-                    // ---------------------------------------------------------
+                    // -----------------------------------------------------------------
 
                     // Procesar adjuntos
                     $attachments = [];
