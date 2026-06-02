@@ -109,7 +109,11 @@ export class DashboardPage implements OnInit {
       error: (err) => {
         console.error('Error loading tickets', err);
         this.loading = false;
-        alert('INFO DASHBOARD DEBUG: getTickets() falló. Error 401?');
+        
+        // FORZAR LOGOUT POR SI LA SESION CADUCÓ Y EL INTERCEPTOR NO SALTÓ
+        localStorage.removeItem('auth_token');
+        alert(`INFO DASHBOARD DEBUG: getTickets() falló. Status: ${err?.status || 'N/A'}. Message: ${err?.message || 'N/A'}. TE HEMOS CERRADO SESIÓN POR SEGURIDAD.`);
+        this.router.navigate(['/login']);
       }
     });
   }
