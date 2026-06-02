@@ -240,9 +240,13 @@ export class TicketDetailPage implements OnInit, OnDestroy {
     if (minutes > 0) {
       this.loading = true;
       const user = this.authService.getUser();
+      // Si el ticket tiene un agente asignado, el tiempo se le imputa a él, 
+      // incluso si un administrador es quien detiene el cronómetro.
+      const assignedAgentId = this.ticket.agent ? this.ticket.agent.id : user.id;
+      
       this.workLogService.createWorkLog({
         ticket: `/api/tickets/${this.ticket.id}`,
-        agent: `/api/users/${user.id}`,
+        agent: `/api/users/${assignedAgentId}`,
         minutesSpent: minutes,
         description: 'Tiempo registrado automáticamente (Cronómetro)'
       }).subscribe({
