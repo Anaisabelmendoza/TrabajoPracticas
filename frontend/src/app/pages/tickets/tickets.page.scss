@@ -371,6 +371,11 @@ ion-toolbar {
           font-size: 18px;
           width: 18px;
           height: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0;
+          padding: 0;
         }
         
         &:hover {
