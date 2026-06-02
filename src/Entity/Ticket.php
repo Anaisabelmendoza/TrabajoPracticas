@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
     normalizationContext: ['groups' => ['ticket:read']],
     denormalizationContext: ['groups' => ['ticket:write']],
     operations: [
-        new GetCollection(),
+        new GetCollection(paginationEnabled: false),
         new Post(processor: \App\State\TicketAuthorProcessor::class),
         new Get(security: "is_granted('ROLE_AGENT') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())"),
         new Put(
