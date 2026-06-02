@@ -576,6 +576,7 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   }
 
   sendComment() {
+    if (this.loading) return;
     if (!this.ticket) return;
     if (!this.newComment.trim() && this.commentFiles.length === 0) return;
 

@@ -94,8 +94,9 @@
           </div>
 
           <!-- Botón de Registro -->
-          <button mat-raised-button color="primary" class="full-width submit-button" type="submit" [disabled]="registerForm.invalid">
-            Registrarme
+          <button mat-raised-button color="primary" class="full-width submit-button" type="submit" [disabled]="registerForm.invalid || isLoading">
+            <mat-icon *ngIf="isLoading" class="fa-spin">hourglass_empty</mat-icon>
+            {{ isLoading ? 'Procesando...' : 'Registrarme' }}
           </button>
 
           <!-- Regresar al Login -->

@@ -34,12 +34,13 @@ export class RegisterPage implements OnInit {
   hidePassword = true;
   hideConfirmPassword = true;
 
+  isLoading = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private toastCtrl: ToastController,
-    private loadingCtrl: LoadingController
+    private toastCtrl: ToastController
   ) {
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required]],
@@ -64,6 +65,8 @@ export class RegisterPage implements OnInit {
   }
 
   async onRegister() {
+    if (this.isLoading) return;
+    
     const isWorker = this.registerForm.get('userType')?.value === 'trabajador';
     const isAdministrator = this.registerForm.get('userType')?.value === 'administrador';
     const workerCode = this.registerForm.get('workerCode')?.value;
@@ -106,17 +109,16 @@ export class RegisterPage implements OnInit {
       roles: userRoles
     };
 
-    const loading = await this.loadingCtrl.create({ message: 'Registrando cuenta...' });
-    await loading.present();
+    this.isLoading = true;
 
     this.authService.register(userData).subscribe({
       next: async (res) => {
-        await loading.dismiss();
+        this.isLoading = false;
         this.showPopup('¡Usuario registrado con éxito!', 'success');
         this.router.navigate(['/login']);
       },
       error: async (err) => {
-        await loading.dismiss();
+        this.isLoading = false;
         const errorMessage = err.error?.detail || err.error?.['hydra:description'] || 'Error en el servidor';
         this.showPopup('Error: ' + errorMessage, 'danger');
       }

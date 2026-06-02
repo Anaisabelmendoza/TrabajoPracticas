@@ -31,6 +31,8 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   showPassword = false;
 
+  isLoading = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -53,14 +55,17 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
+    if (this.loginForm.valid && !this.isLoading) {
+      this.isLoading = true;
       this.authService.login(this.loginForm.value).subscribe({
         next: (response: any) => {
           console.log('Login exitoso:', response);
+          this.isLoading = false;
           this.router.navigate(['/dashboard']);
         },
         error: (err: any) => {
           console.error('Error en el login:', err);
+          this.isLoading = false;
           if (err.status === 401) {
             const errorMessage = err.error?.message || 'Credenciales incorrectas. Verifica tu email y contraseña.';
             alert(errorMessage);

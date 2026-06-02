@@ -394,7 +394,7 @@
                 rows="1">
               </textarea>
               
-              <button mat-mini-fab class="btn-send-message" (click)="sendComment()" [disabled]="!newComment.trim() && commentFiles.length === 0">
+              <button mat-mini-fab class="btn-send-message" (click)="sendComment()" [disabled]="(!newComment.trim() && commentFiles.length === 0) || loading">
                 <mat-icon>send</mat-icon>
               </button>
             </div>
