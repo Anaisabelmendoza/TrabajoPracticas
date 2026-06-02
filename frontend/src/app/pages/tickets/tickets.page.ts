@@ -492,6 +492,10 @@ export class TicketsPage implements OnInit {
     this.isStatusModalOpen = true;
   }
 
+  closeStatusModal() {
+    this.isStatusModalOpen = false;
+  }
+
   getModalFilteredTickets(): any[] {
     const statusFiltered = this.getFilteredTickets(this.selectedStatus);
     if (!this.modalSearchText) return statusFiltered;

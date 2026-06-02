@@ -49,8 +49,12 @@ export class TicketService {
     );
   }
 
-  getTicket(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/api/tickets/${id}`, { headers: this.getHeaders() });
+  getTicket(id: number, silent: boolean = false): Observable<any> {
+    let headers = this.getHeaders();
+    if (silent) {
+      headers = headers.set('X-Silent-Request', 'true');
+    }
+    return this.http.get<any>(`${this.apiUrl}/api/tickets/${id}`, { headers });
   }
 
   createTicket(ticketData: any): Observable<any> {

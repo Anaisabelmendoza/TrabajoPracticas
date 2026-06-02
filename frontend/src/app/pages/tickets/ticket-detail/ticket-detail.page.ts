@@ -175,7 +175,7 @@ export class TicketDetailPage implements OnInit, OnDestroy {
 
   refreshChatSilently(id: number) {
     if (this.loading || !this.ticket) return;
-    this.ticketService.getTicket(id).subscribe({
+    this.ticketService.getTicket(id, true).subscribe({
       next: (data) => {
         const currentCommentsLength = this.ticket.comments?.length || 0;
         const newCommentsLength = data.comments?.length || 0;

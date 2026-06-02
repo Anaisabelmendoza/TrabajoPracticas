@@ -221,7 +221,7 @@
   </div>
 
   <!-- Modal de Visualización Detallada de Incidencias por Estado -->
-  <ion-modal [isOpen]="isStatusModalOpen" (didDismiss)="isStatusModalOpen = false" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
+  <ion-modal [isOpen]="isStatusModalOpen" (didDismiss)="closeStatusModal()" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
     <ng-template>
       <ion-header>
         <ion-toolbar [style.--background]="getStatusHeaderColor(selectedStatus)">
@@ -229,7 +229,7 @@
             Incidencias: {{ selectedStatus === 'Proceso' ? 'En Proceso' : selectedStatus }}
           </ion-title>
           <ion-buttons slot="end">
-            <ion-button (click)="isStatusModalOpen = false" style="--color: #ffffff; font-weight: 700; color: #ffffff;">Cerrar</ion-button>
+            <ion-button (click)="closeStatusModal()" style="--color: #ffffff; font-weight: 700; color: #ffffff;">Cerrar</ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>

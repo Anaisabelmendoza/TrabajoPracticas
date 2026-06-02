@@ -209,6 +209,10 @@ export class DashboardPage implements OnInit {
     this.isStatusModalOpen = true;
   }
 
+  closeStatusModal() {
+    this.isStatusModalOpen = false;
+  }
+
   goToTicket(id: number) {
     this.isStatusModalOpen = false;
     this.router.navigate(['/tickets', id], { queryParams: { from: 'dashboard' } });
