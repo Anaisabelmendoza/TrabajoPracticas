@@ -121,7 +121,7 @@
             </mat-card-header>
             
             <mat-card-content>
-              <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+              <p class="description">{{ ticket.description | slice:0:80 }}{{ (ticket.description?.length || 0) > 80 ? '...' : '' }}</p>
               
               <!-- SLA Badge -->
               <div *ngIf="getSlaStatus(ticket).text" class="sla-badge-kanban" [ngClass]="getSlaStatus(ticket).class">
@@ -206,7 +206,7 @@
             </mat-card-header>
             
             <mat-card-content>
-              <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+              <p class="description">{{ ticket.description | slice:0:80 }}{{ (ticket.description?.length || 0) > 80 ? '...' : '' }}</p>
               
               <!-- SLA Badge -->
               <div *ngIf="getSlaStatus(ticket).text" class="sla-badge-kanban" [ngClass]="getSlaStatus(ticket).class">
@@ -285,7 +285,7 @@
             </mat-card-header>
             
             <mat-card-content>
-              <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+              <p class="description">{{ ticket.description | slice:0:80 }}{{ (ticket.description?.length || 0) > 80 ? '...' : '' }}</p>
               
               <!-- Info del técnico si está asignado (Columna En Proceso) -->
               <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
@@ -358,7 +358,7 @@
             </mat-card-header>
             
             <mat-card-content>
-              <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+              <p class="description">{{ ticket.description | slice:0:80 }}{{ (ticket.description?.length || 0) > 80 ? '...' : '' }}</p>
               
               <!-- Info del técnico si está asignado (Columna En Proceso) -->
               <p class="technician-info" *ngIf="ticket.agent || ticket.agentNameFallback">
@@ -461,7 +461,7 @@
               </mat-card-header>
               
               <mat-card-content>
-                <p class="description">{{ ticket.description | slice:0:80 }}{{ ticket.description.length > 80 ? '...' : '' }}</p>
+                <p class="description">{{ ticket.description | slice:0:80 }}{{ (ticket.description?.length || 0) > 80 ? '...' : '' }}</p>
                 
                 <!-- SLA Badge -->
                 <div *ngIf="getSlaStatus(ticket).text" class="sla-badge-kanban" [ngClass]="getSlaStatus(ticket).class">
