@@ -187,6 +187,7 @@ export class TicketsPage implements OnInit {
           let ticketCategoryId = null;
           if (t.category) {
             if (t.category.id) ticketCategoryId = t.category.id.toString();
+            else if (typeof t.category === 'string') ticketCategoryId = t.category.split('/').pop();
             else if (t.category['@id']) ticketCategoryId = t.category['@id'].split('/').pop();
           }
 
