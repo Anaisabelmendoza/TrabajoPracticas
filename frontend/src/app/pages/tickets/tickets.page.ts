@@ -173,19 +173,29 @@ export class TicketsPage implements OnInit {
       if (!statusMatch) return false;
 
       // 2. Filtro por CATEGORÍAS ASIGNADAS
-      // Si es AGENTE y NO es ADMIN, solo ve tickets de sus categorías asignadas
       if (isAgent && !isAdmin && this.currentUser && this.currentUser.categories) {
-        const agentCategoryUris = this.currentUser.categories.map((c: any) => typeof c === 'string' ? c : c['@id']);
+        // Extraemos solo los IDs numéricos de las categorías asignadas al agente
+        const agentCategoryIds = this.currentUser.categories.map((c: any) => {
+          if (c.id) return c.id.toString();
+          if (typeof c === 'string') return c.split('/').pop();
+          if (c['@id']) return c['@id'].split('/').pop();
+          return null;
+        }).filter((id: any) => id !== null);
         
-        // REGLA: Si el agente TIENE categorías asignadas, aplicamos el filtro. 
-        if (agentCategoryUris.length > 0) {
-          const ticketCategoryUri = t.category ? (t.category['@id'] || `/api/categories/${t.category.id}`) : null;
+        if (agentCategoryIds.length > 0) {
+          // Extraemos el ID numérico de la categoría del ticket
+          let ticketCategoryId = null;
+          if (t.category) {
+            if (t.category.id) ticketCategoryId = t.category.id.toString();
+            else if (t.category['@id']) ticketCategoryId = t.category['@id'].split('/').pop();
+          }
+
           const categoryName = t.category?.name || '';
 
           // EXCEPCIÓN: Si es un ticket de Email, todos los agentes deben poder verlo
           if (categoryName.toLowerCase() === 'email' || t.description?.includes('[ORIGEN: EMAIL]')) {
             // Permitimos el paso
-          } else if (!ticketCategoryUri || !agentCategoryUris.includes(ticketCategoryUri)) {
+          } else if (!ticketCategoryId || !agentCategoryIds.includes(ticketCategoryId)) {
             return false;
           }
         }
