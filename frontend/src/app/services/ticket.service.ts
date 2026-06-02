@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,8 @@ export class TicketService {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   private getHeaders() {
@@ -31,7 +34,15 @@ export class TicketService {
 
   getTickets(): Observable<any[]> {
     return this.http.get<any>(`${this.apiUrl}/api/tickets`, { headers: this.getHeaders() }).pipe(
-      map(response => response['member'] || response['hydra:member'] || [])
+      tap(res => console.log('RAW API TICKETS RESPONSE:', res)),
+      map(response => response['member'] || response['hydra:member'] || []),
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }
+        return throwError(() => error);
+      })
     );
   }
 
