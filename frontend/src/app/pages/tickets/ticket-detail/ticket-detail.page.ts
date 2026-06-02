@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-ticket-detail',
@@ -45,8 +45,8 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   isAdmin = false;
   isEditingDescription = false;
   editedDescription = '';
-  commentFile: File | null = null;
-  commentFilePreview: string | null = null;
+  commentFiles: File[] = [];
+  commentFilePreviews: string[] = [];
   today = new Date();
 
   // Variables de Encuesta de Satisfacción CSAT
@@ -552,18 +552,23 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   }
 
   onCommentFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.commentFile = file;
-      const reader = new FileReader();
-      reader.onload = (e: any) => this.commentFilePreview = e.target.result;
-      reader.readAsDataURL(file);
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        this.commentFiles.push(file);
+        const reader = new FileReader();
+        reader.onload = (e: any) => this.commentFilePreviews.push(e.target.result);
+        reader.readAsDataURL(file);
+      }
     }
+    // Limpiamos el input para permitir seleccionar el mismo archivo de nuevo si se borra
+    event.target.value = '';
   }
 
-  removeCommentFile() {
-    this.commentFile = null;
-    this.commentFilePreview = null;
+  removeCommentFile(index: number) {
+    this.commentFiles.splice(index, 1);
+    this.commentFilePreviews.splice(index, 1);
   }
 
   openImage(url: string) {
@@ -572,24 +577,26 @@ export class TicketDetailPage implements OnInit, OnDestroy {
 
   sendComment() {
     if (!this.ticket) return;
-    if (!this.newComment.trim() && !this.commentFile) return;
+    if (!this.newComment.trim() && this.commentFiles.length === 0) return;
 
     this.loading = true;
 
-    // 1. COMPROBAR SI HAY ARCHIVO PARA SUBIR
-    const upload$ = this.commentFile ?
-      this.ticketService.uploadFile(this.commentFile) : of({ path: null });
+    // 1. COMPROBAR SI HAY ARCHIVOS PARA SUBIR
+    const uploadObservables = this.commentFiles.map(f => this.ticketService.uploadFile(f));
+    const uploads$ = uploadObservables.length > 0 ? forkJoin(uploadObservables) : of([]);
 
-    upload$.pipe(
-      switchMap(res => {
-        return this.ticketService.addComment(this.ticket.id, this.newComment, res.path);
+    uploads$.pipe(
+      switchMap((responses: any[]) => {
+        const paths = responses.map(r => r.path);
+        return this.ticketService.addComment(this.ticket.id, this.newComment, paths);
       })
     ).subscribe({
       next: (comment) => {
         if (!this.ticket.comments) this.ticket.comments = [];
         this.ticket.comments.push(comment);
         this.newComment = '';
-        this.removeCommentFile();
+        this.commentFiles = [];
+        this.commentFilePreviews = [];
         this.loading = false;
         this.showToast('Mensaje enviado', 'success');
       },
@@ -598,9 +605,9 @@ export class TicketDetailPage implements OnInit, OnDestroy {
         this.loading = false;
         let msg = 'Error al enviar el mensaje';
         if (err.error && err.error.detail) {
-          msg = err.error.detail;
-        } else if (err.error && err.error.error) {
-          msg = err.error.error;
+          msg += ': ' + err.error.detail;
+        } else if (err.error && err.error.message) {
+          msg += ': ' + err.error.message;
         }
         this.showToast(msg, 'danger');
       }

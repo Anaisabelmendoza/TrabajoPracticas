@@ -47,9 +47,9 @@ class Comment
     #[Groups(['comment:read', 'ticket:read'])]
     private ?User $author = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(['comment:read', 'comment:write', 'ticket:read'])]
-    private ?string $attachment = null;
+    private ?array $attachments = null;
 
     public function __construct()
     {
@@ -109,14 +109,14 @@ class Comment
         return $this;
     }
 
-    public function getAttachment(): ?string
+    public function getAttachments(): ?array
     {
-        return $this->attachment;
+        return $this->attachments;
     }
 
-    public function setAttachment(?string $attachment): static
+    public function setAttachments(?array $attachments): static
     {
-        $this->attachment = $attachment;
+        $this->attachments = $attachments;
 
         return $this;
     }

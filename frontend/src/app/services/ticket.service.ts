@@ -43,13 +43,13 @@ export class TicketService {
     return this.http.post<any>(`${this.apiUrl}/api/tickets`, JSON.stringify(ticketData), { headers: this.getHeaders() });
   }
 
-  addComment(ticketId: number, content: string, attachment: string | null = null): Observable<any> {
+  addComment(ticketId: number, content: string, attachments: string[] = []): Observable<any> {
     const commentData: any = {
       content: content,
       ticket: `/api/tickets/${ticketId}`
     };
-    if (attachment) {
-      commentData.attachment = attachment;
+    if (attachments && attachments.length > 0) {
+      commentData.attachments = attachments;
     }
     return this.http.post<any>(`${this.apiUrl}/api/comments`, JSON.stringify(commentData), { headers: this.getHeaders() });
   }

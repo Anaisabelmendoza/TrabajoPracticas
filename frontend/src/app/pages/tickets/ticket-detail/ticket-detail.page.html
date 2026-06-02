@@ -351,11 +351,13 @@
                 </div>
                 <p class="bubble-message-text">{{ comment.content }}</p>
                 
-                <!-- Adjunto del Comentario -->
-                <div class="comment-image-attachment" *ngIf="comment.attachment">
-                  <img [src]="getServerUrl() + comment.attachment" (click)="openImage(comment.attachment)" />
-                  <div class="image-view-overlay">
-                    <mat-icon>zoom_in</mat-icon>
+                <!-- Adjuntos del Comentario -->
+                <div class="comment-image-gallery" *ngIf="comment.attachments?.length > 0">
+                  <div class="comment-image-attachment" *ngFor="let img of comment.attachments">
+                    <img [src]="getServerUrl() + img" (click)="openImage(img)" />
+                    <div class="image-view-overlay">
+                      <mat-icon>zoom_in</mat-icon>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -369,19 +371,20 @@
 
           <!-- Caja de Entrada de Comentario (Oculto si está cerrado) -->
           <div class="chat-input-dock-premium" *ngIf="ticket.status !== 'Cerrado'">
-            <!-- Miniatura de archivo adjunto seleccionado -->
-            <div class="attachment-floating-preview" *ngIf="commentFile">
-              <img [src]="commentFilePreview" />
-              <div class="preview-name">Imagen seleccionada</div>
-              <button class="btn-clear-preview" (click)="removeCommentFile()">
-                <mat-icon>close</mat-icon>
-              </button>
+            <!-- Miniaturas de archivos adjuntos seleccionados -->
+            <div class="attachment-floating-gallery" *ngIf="commentFiles?.length > 0">
+              <div class="attachment-floating-preview" *ngFor="let preview of commentFilePreviews; let i = index">
+                <img [src]="preview" />
+                <button class="btn-clear-preview" (click)="removeCommentFile(i)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
             </div>
 
             <div class="chat-input-box-wrapper">
               <button mat-icon-button class="btn-attach-media" (click)="fileInput.click()" title="Adjuntar captura de pantalla">
                 <mat-icon>photo_camera</mat-icon>
-                <input type="file" #fileInput (change)="onCommentFileSelected($event)" accept="image/*" hidden>
+                <input type="file" #fileInput (change)="onCommentFileSelected($event)" accept="image/*" multiple hidden>
               </button>
               
               <textarea 
@@ -391,7 +394,7 @@
                 rows="1">
               </textarea>
               
-              <button mat-mini-fab class="btn-send-message" (click)="sendComment()" [disabled]="!newComment.trim() && !commentFile">
+              <button mat-mini-fab class="btn-send-message" (click)="sendComment()" [disabled]="!newComment.trim() && commentFiles.length === 0">
                 <mat-icon>send</mat-icon>
               </button>
             </div>
@@ -577,8 +580,8 @@
         <div class="print-comment-body">
           {{ comment.content }}
         </div>
-        <div class="print-comment-attachment" *ngIf="comment.attachment">
-          Adjunto asociado: {{ comment.attachment }}
+        <div class="print-comment-attachment" *ngIf="comment.attachments?.length > 0">
+          Adjuntos asociados: {{ comment.attachments.length }} imagen(es)
         </div>
       </div>
     </div>
