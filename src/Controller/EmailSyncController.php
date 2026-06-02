@@ -14,8 +14,8 @@ class EmailSyncController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $emailUser = $_ENV['GMAIL_USER'] ?? null;
-        $emailPass = $_ENV['GMAIL_APP_PASS'] ?? null;
+        $emailUser = $_ENV['GMAIL_USER'] ?? $_SERVER['GMAIL_USER'] ?? getenv('GMAIL_USER') ?: null;
+        $emailPass = $_ENV['GMAIL_APP_PASS'] ?? $_SERVER['GMAIL_APP_PASS'] ?? getenv('GMAIL_APP_PASS') ?: null;
 
         if (!$emailUser || !$emailPass) {
             return new JsonResponse(['error' => 'Configuración de Gmail faltante en .env'], 400);
