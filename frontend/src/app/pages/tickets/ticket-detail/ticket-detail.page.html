@@ -79,7 +79,7 @@
         </div>
         
         <!-- Galería de Evidencias (Adjuntos) -->
-        <div class="ticket-evidence-premium" *ngIf="ticket.attachments?.length > 0">
+        <div class="ticket-evidence-premium" *ngIf="ticket.attachments && ticket.attachments.length > 0">
           <span class="evidence-label">
             <mat-icon>collections</mat-icon>
             Evidencias Adjuntas ({{ ticket.attachments.length }})
@@ -352,7 +352,7 @@
                 <p class="bubble-message-text">{{ comment.content }}</p>
                 
                 <!-- Adjuntos del Comentario -->
-                <div class="comment-image-gallery" *ngIf="comment.attachments?.length > 0">
+                <div class="comment-image-gallery" *ngIf="comment.attachments && comment.attachments.length > 0">
                   <div class="comment-image-attachment" *ngFor="let img of comment.attachments">
                     <img [src]="getServerUrl() + img" (click)="openImage(img)" />
                     <div class="image-view-overlay">
@@ -372,7 +372,7 @@
           <!-- Caja de Entrada de Comentario (Oculto si está cerrado) -->
           <div class="chat-input-dock-premium" *ngIf="ticket.status !== 'Cerrado'">
             <!-- Miniaturas de archivos adjuntos seleccionados -->
-            <div class="attachment-floating-gallery" *ngIf="commentFiles?.length > 0">
+            <div class="attachment-floating-gallery" *ngIf="commentFiles && commentFiles.length > 0">
               <div class="attachment-floating-preview" *ngFor="let preview of commentFilePreviews; let i = index">
                 <img [src]="preview" />
                 <button class="btn-clear-preview" (click)="removeCommentFile(i)">
@@ -570,7 +570,7 @@
     </div>
 
     <!-- Registro de comentarios / Timeline -->
-    <div *ngIf="ticket.comments?.length > 0">
+    <div *ngIf="ticket.comments && ticket.comments.length > 0">
       <div class="print-section-title">Historial de Comunicaciones</div>
       <div class="print-comment-box" *ngFor="let comment of ticket.comments">
         <div class="print-comment-header">
@@ -580,14 +580,14 @@
         <div class="print-comment-body">
           {{ comment.content }}
         </div>
-        <div class="print-comment-attachment" *ngIf="comment.attachments?.length > 0">
+        <div class="print-comment-attachment" *ngIf="comment.attachments && comment.attachments.length > 0">
           Adjuntos asociados: {{ comment.attachments.length }} imagen(es)
         </div>
       </div>
     </div>
 
     <!-- Registro de tiempos de trabajo -->
-    <div *ngIf="ticket.workLogs?.length > 0">
+    <div *ngIf="ticket.workLogs && ticket.workLogs.length > 0">
       <div class="print-section-title">Registro de Tiempos Trabajados</div>
       <table class="print-zebra-table">
         <thead>
@@ -610,7 +610,7 @@
     </div>
 
     <!-- Historial de cambios técnicos -->
-    <div *ngIf="ticket.history?.length > 0">
+    <div *ngIf="ticket.history && ticket.history.length > 0">
       <div class="print-section-title">Historial de Resolución (Auditoría)</div>
       <table class="print-zebra-table">
         <thead>
