@@ -26,8 +26,14 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
         new GetCollection(),
         new Post(processor: \App\State\TicketAuthorProcessor::class),
         new Get(security: "is_granted('ROLE_AGENT') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())"),
-        new Put(security: "is_granted('ROLE_AGENT') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())"),
-        new Patch(security: "is_granted('ROLE_AGENT') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())"),
+        new Put(
+            security: "is_granted('ROLE_AGENT') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())",
+            processor: \App\State\TicketUpdateProcessor::class
+        ),
+        new Patch(
+            security: "is_granted('ROLE_AGENT') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())",
+            processor: \App\State\TicketUpdateProcessor::class
+        ),
         new Delete(
             security: "is_granted('ROLE_ADMIN') or (user !== null and object.getAuthor().getUserIdentifier() == user.getUserIdentifier())",
             processor: \App\State\TicketDeleteProcessor::class

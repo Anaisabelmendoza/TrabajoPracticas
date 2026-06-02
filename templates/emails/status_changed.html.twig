@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); color: white; padding: 30px; text-align: center; }
+        .content { padding: 30px; background: white; }
+        .ticket-info { background: #f8fafc; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #0ea5e9; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; background-color: #e0f2fe; color: #0369a1; margin-top: 10px; }
+        .footer { background: #f4f4f4; padding: 20px; text-align: center; font-size: 0.8rem; color: #777; }
+        .button { display: inline-block; padding: 12px 25px; background: #0ea5e9; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin: 0; font-size: 24px;">Actualización de Incidencia</h1>
+        </div>
+        <div class="content">
+            <p>Hola {{ clientName }},</p>
+            <p>Te informamos de que el estado de tu incidencia ha cambiado.</p>
+            
+            <div class="ticket-info">
+                <p style="margin: 0;"><strong>Número de Incidencia:</strong> #{{ ticketId }}</p>
+                <p style="margin: 5px 0 0 0;"><strong>Asunto:</strong> {{ subject }}</p>
+                <p style="margin: 10px 0 0 0;"><strong>Nuevo Estado:</strong> <span class="status-badge">{{ newStatus }}</span></p>
+            </div>
+            
+            <p>Puedes consultar todos los detalles o enviar nuevos comentarios haciendo clic en el siguiente enlace:</p>
+            <div style="text-align: center;">
+                <a href="{{ ticketUrl }}" class="button">Ver Incidencia</a>
+            </div>
+            
+            <p style="margin-top: 30px;">Atentamente,<br><strong>Equipo de Soporte HELPDESK</strong></p>
+        </div>
+        <div class="footer">
+            <p>Este es un correo automático, por favor no respondas directamente.</p>
+            <p>&copy; {{ "now"|date("Y") }} HelpDesk Pro. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
