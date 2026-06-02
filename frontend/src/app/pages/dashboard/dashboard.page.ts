@@ -104,10 +104,12 @@ export class DashboardPage implements OnInit {
         this.tickets = data;
         this.calculateStats(data);
         this.loading = false;
+        alert(`INFO DASHBOARD DEBUG: getTickets() devolvió ${data ? data.length : 0} tickets. isAgent=${this.isAgent}, isAdmin=${this.isAdmin}`);
       },
       error: (err) => {
         console.error('Error loading tickets', err);
         this.loading = false;
+        alert('INFO DASHBOARD DEBUG: getTickets() falló. Error 401?');
       }
     });
   }
