@@ -5,6 +5,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { NotificationPushService } from './services/notification-push.service';
 
+import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import { LoadingService } from './services/loading.service';
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -18,8 +21,26 @@ export class AppComponent implements OnInit, OnDestroy {
     private themeService: ThemeService,
     private authService: AuthService,
     private http: HttpClient,
-    private notificationPushService: NotificationPushService
-  ) {}
+    private notificationPushService: NotificationPushService,
+    private router: Router,
+    private loadingService: LoadingService
+  ) {
+    // Escuchar eventos de navegación para mostrar el spinner
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.loadingService.show();
+      } else if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
+        // Un pequeño timeout para que la transición sea suave
+        setTimeout(() => {
+          this.loadingService.forceHide();
+        }, 300);
+      }
+    });
+  }
 
   ngOnInit() {
     // Iniciar monitoreo si ya está logueado

@@ -16,9 +16,11 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { NgrokInterceptor } from './interceptors/ngrok.interceptor';
+import { LoadingInterceptor } from './interceptors/loading.interceptor';
+import { GlobalLoadingComponent } from './components/global-loading/global-loading.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, GlobalLoadingComponent],
   imports: [
     BrowserModule, 
     IonicModule.forRoot(), 
@@ -34,7 +36,8 @@ import { NgrokInterceptor } from './interceptors/ngrok.interceptor';
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: HTTP_INTERCEPTORS, useClass: NgrokInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: NgrokInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true }
   ],
   bootstrap: [AppComponent],
 })
