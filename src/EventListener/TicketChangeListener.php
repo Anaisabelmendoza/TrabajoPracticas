@@ -7,12 +7,14 @@ use App\Entity\TicketHistory;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Mailer\MailerInterface;
 
 #[AsDoctrineListener(event: Events::onFlush)]
 class TicketChangeListener
 {
-    public function __construct(private readonly Security $security)
+    public function __construct(private readonly Security $security, private readonly MailerInterface $mailer)
     {
     }
 
@@ -52,6 +54,23 @@ class TicketChangeListener
 
                     $em->persist($history);
                     $uow->computeChangeSet($historyMeta, $history);
+
+                    // Enviar notificación por email cuando el estado pasa a 'En proceso'
+                    if (strtolower($changeSet['status'][1]) === 'en proceso') {
+                        $clientEmail = $entity->getAuthor() ? $entity->getAuthor()->getEmail() : null;
+                        if ($clientEmail) {
+                            $email = (new TemplatedEmail())
+                                ->from('no-reply@yourdomain.com')
+                                ->to($clientEmail)
+                                ->subject('Tu incidencia está en proceso')
+                                ->htmlTemplate('emails/status_in_process.html.twig')
+                                ->context([
+                                    'ticketId' => $entity->getId(),
+                                    'title' => $entity->getTitle(),
+                                ]);
+                            $this->mailer->send($email);
+                        }
+                    }
                 }
 
                 if (isset($changeSet['agent'])) {

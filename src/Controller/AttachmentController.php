@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
 
 class AttachmentController extends AbstractController
 {
@@ -107,5 +110,15 @@ class AttachmentController extends AbstractController
         return new JsonResponse([
             'path' => '/uploads/attachments/'.$newFilename
         ]);
+    }
+
+    #[Route('/uploads/attachments/{filename}', name: 'app_attachment_download', methods: ['GET'])]
+    public function download(string $filename): Response
+    {
+        $filePath = $this->getParameter('kernel.project_dir').'/public/uploads/attachments/'.$filename;
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('File not found');
+        }
+        return new BinaryFileResponse($filePath);
     }
 }
