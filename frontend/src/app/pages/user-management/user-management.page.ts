@@ -12,6 +12,8 @@ import { FormsModule } from '@angular/forms';
 
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import Chart from 'chart.js/auto';
@@ -32,7 +34,9 @@ import Chart from 'chart.js/auto';
     MatSnackBarModule,
     FormsModule,
     MatTabsModule,
-    MatMenuModule
+    MatMenuModule,
+    MatFormFieldModule,
+    MatInputModule
   ]
 })
 export class UserManagementPage implements OnInit {
@@ -42,6 +46,7 @@ export class UserManagementPage implements OnInit {
   clients: User[] = [];
   loading = true;
   displayedColumns: string[] = ['name', 'email', 'status', 'duty', 'connected', 'actions'];
+  searchTerm: string = '';
 
   selectedAgentForMetrics: User | null = null;
   selectedUserForCategories: User | null = null;
@@ -152,6 +157,26 @@ export class UserManagementPage implements OnInit {
     this.admins = this.users.filter(u => u.roles && u.roles.includes('ROLE_ADMIN'));
     this.agents = this.users.filter(u => u.roles && u.roles.includes('ROLE_AGENT') && !u.roles.includes('ROLE_ADMIN'));
     this.clients = this.users.filter(u => !u.roles || (!u.roles.includes('ROLE_AGENT') && !u.roles.includes('ROLE_ADMIN')));
+  }
+
+  get filteredAdmins() {
+    return this.admins.filter(u => this.matchesSearch(u));
+  }
+
+  get filteredAgents() {
+    return this.agents.filter(u => this.matchesSearch(u));
+  }
+
+  get filteredClients() {
+    return this.clients.filter(u => this.matchesSearch(u));
+  }
+
+  matchesSearch(user: any): boolean {
+    if (!this.searchTerm) return true;
+    const term = this.searchTerm.toLowerCase();
+    const name = ((user.firstName || '') + ' ' + (user.lastName || '')).toLowerCase();
+    const email = (user.email || '').toLowerCase();
+    return name.includes(term) || email.includes(term);
   }
 
   toggleActive(user: any) {

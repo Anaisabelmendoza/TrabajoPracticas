@@ -2,298 +2,71 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Informe de Actividad - {{ agent.firstName }} {{ agent.lastName }}</title>
+    <title>Informe de Actividad</title>
     <style>
-        @page {
-            margin: 100px 50px 80px 50px;
-        }
-        body {
-            font-family: 'Helvetica', sans-serif;
-            color: #2d3748;
-            line-height: 1.6;
-            font-size: 12px;
-            margin: 0;
-            padding: 0;
-        }
-        
-        /* Cabecera Fija Cohesiva */
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 5px;
-        }
-        .header-logo-text {
-            font-size: 20px;
-            font-weight: 900;
-            color: #8e2de2;
-            letter-spacing: 1px;
-        }
-        .header-logo-sub {
-            font-size: 10px;
-            color: #718096;
-            font-weight: bold;
-            margin-top: 2px;
-        }
-        .header-meta-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: #2d3748;
-            text-align: right;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .header-meta-date {
-            font-size: 9px;
-            color: #a0aec0;
-            text-align: right;
-            margin-top: 3px;
-        }
-        .brand-bar {
-            height: 3px;
-            background-color: #8e2de2;
-            margin-bottom: 25px;
-            width: 100%;
-            border-radius: 2px;
-        }
-
-        /* Sección Titulo con Barra Izquierda */
-        .section-title {
-            border-left: 4px solid #8e2de2;
-            padding-left: 10px;
-            font-size: 12px;
-            font-weight: 800;
-            color: #1a202c;
-            margin-top: 25px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Cuadrícula de 3 Tarjetas KPI mediante Tabla Borde Cero */
-        .kpi-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 10px;
-            margin-bottom: 15px;
-            margin-left: -10px;
-            margin-right: -10px;
-        }
-        .kpi-card {
-            width: 33.33%;
-            background-color: #f7fafc;
-            border: 1px solid #edf2f7;
-            border-radius: 8px;
-            padding: 12px 15px;
-            vertical-align: top;
-            text-align: center;
-        }
-        .kpi-label {
-            font-size: 8.5px;
-            color: #a0aec0;
-            text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
-        }
-        .kpi-value-huge {
-            font-size: 20px;
-            font-weight: 900;
-            color: #8e2de2;
-        }
-        .kpi-value-text {
-            font-size: 11.5px;
-            font-weight: 700;
-            color: #2d3748;
-            margin-top: 4px;
-        }
-
-        /* Tablas Zebra Premium */
-        .zebra-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #edf2f7;
-        }
-        .zebra-table th {
-            background-color: #8e2de2;
-            color: #ffffff;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 9.5px;
-            letter-spacing: 0.5px;
-            padding: 10px 12px;
-            text-align: left;
-        }
-        .zebra-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #edf2f7;
-            color: #4a5568;
-            vertical-align: middle;
-        }
-        .zebra-table tr:nth-child(even) td {
-            background-color: #f7fafc;
-        }
-
-        /* Tramos de conexión en píldoras redondeadas */
-        .segment-pill {
-            display: inline-block;
-            background-color: #e3f2fd;
-            color: #1565c0;
-            padding: 3px 8px;
-            border-radius: 20px;
-            margin-right: 5px;
-            margin-bottom: 4px;
-            font-size: 9px;
-            font-weight: bold;
-            border: 1px solid #bbdefb;
-        }
-
-        /* Resumen al final de página */
-        .summary-box {
-            margin-top: 35px;
-            border-top: 1px solid #edf2f7;
-            padding-top: 15px;
-            text-align: right;
-            page-break-inside: avoid;
-        }
-        .summary-title {
-            font-size: 13px;
-            font-weight: 800;
-            color: #2d3748;
-        }
-        .summary-desc {
-            font-size: 10px;
-            color: #a0aec0;
-            margin-top: 4px;
-        }
-
-        /* Pie de página Fijo */
-        .footer {
-            position: fixed;
-            bottom: -50px;
-            left: 0px;
-            right: 0px;
-            height: 30px;
-            border-top: 1px solid #edf2f7;
-            padding-top: 8px;
-        }
-        .footer-left {
-            float: left;
-            font-size: 9px;
-            color: #a0aec0;
-            font-weight: bold;
-        }
-        .footer-right {
-            float: right;
-            font-size: 9px;
-            color: #a0aec0;
-        }
-        .page-number:before {
-            content: "Página " counter(page);
-        }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #333; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .info-box { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #f9f9f9; border-radius: 5px; }
+        .info-box h3 { margin: 0 0 10px 0; font-size: 16px; color: #8e2de2; }
+        .info-box p { margin: 5px 0; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #8e2de2; color: white; text-transform: uppercase; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .footer { text-align: center; font-size: 10px; color: #777; margin-top: 30px; }
     </style>
 </head>
 <body>
-    <!-- Cabecera de Reporte -->
-    <table class="header-table">
-        <tr>
-            <td>
-                <div class="header-logo-text">HELPDESK PRO</div>
-                <div class="header-logo-sub">SISTEMA INTEGRAL DE SOPORTE TÉCNICO</div>
-            </td>
-            <td>
-                <div class="header-meta-title">Informe de Actividad Mensual</div>
-                <div class="header-meta-date">Mes de {{ monthName }} {{ year }}</div>
-            </td>
-        </tr>
-    </table>
-    <div class="brand-bar"></div>
+    <div class="header">
+        <h2 style="margin: 0; color: #333;">INFORME DE ACTIVIDAD MENSUAL</h2>
+        <p style="margin-top: 5px; color: #666;">Mes: <strong>{{ monthName }} {{ year }}</strong></p>
+    </div>
 
-    <!-- Cálculo rápido de trabajo real en Twig -->
-    {% set totalWorkMinutes = 0 %}
-    {% for day, data in dailyStats %}
-        {% set totalWorkMinutes = totalWorkMinutes + data.workMinutes %}
-    {% endfor %}
+    {%- set totalWorkMinutes = 0 -%}
+    {%- for day, data in dailyStats -%}
+        {%- set totalWorkMinutes = totalWorkMinutes + data.workMinutes -%}
+    {%- endfor -%}
 
-    <!-- Rejilla de Información / KPIs superiores -->
-    <table class="kpi-table">
-        <tr>
-            <td class="kpi-card">
-                <div class="kpi-label">Horas Conexión Totales</div>
-                <div class="kpi-value-huge">{{ (totalMinutes / 60)|number_format(1) }} h</div>
-                <div style="font-size: 9px; color: #718096; margin-top: 2px;">Tiempo de Sesión Activo</div>
-            </td>
-            <td class="kpi-card">
-                <div class="kpi-label">Tiempo en Incidencias</div>
-                <div class="kpi-value-huge" style="color: #388e3c;">{{ (totalWorkMinutes / 60)|number_format(1) }} h</div>
-                <div style="font-size: 9px; color: #718096; margin-top: 2px;">Registrado en Tickets</div>
-            </td>
-            <td class="kpi-card">
-                <div class="kpi-label">Técnico Asignado</div>
-                <div class="kpi-value-text">{{ agent.firstName }} {{ agent.lastName }}</div>
-                <div style="font-size: 9px; color: #a0aec0; word-break: break-all;">{{ agent.email }}</div>
-            </td>
-        </tr>
-    </table>
+    <div class="info-box">
+        <h3>Técnico: {{ agent.firstName }} {{ agent.lastName }}</h3>
+        <p><strong>Email:</strong> {{ agent.email }}</p>
+        <p><strong>Total Horas Conexión en App:</strong> {{ (totalMinutes / 60)|number_format(1) }} h</p>
+        <p><strong>Total Tiempo en Incidencias:</strong> {{ (totalWorkMinutes / 60)|number_format(1) }} h</p>
+    </div>
 
-    <div class="section-title">Desglose de Conexión Diario</div>
-    
-    <table class="zebra-table">
+    <table>
         <thead>
             <tr>
-                <th style="width: 10%;">Día</th>
-                <th style="width: 50%;">Tramos de Conexión Registrados</th>
-                <th style="width: 20%; text-align: right;">Minutos en App</th>
-                <th style="width: 20%; text-align: right;">Trabajo (Tickets)</th>
+                <th style="width: 20%;">Día</th>
+                <th style="width: 40%;">Minutos en App</th>
+                <th style="width: 40%;">Trabajo (Tickets)</th>
             </tr>
         </thead>
         <tbody>
             {% for day, data in dailyStats %}
             <tr>
-                <td style="font-weight: bold; text-align: center;">{{ day }}</td>
+                <td><strong>{{ day }}</strong></td>
                 <td>
-                    {% for segment in data.segments %}
-                        <span class="segment-pill">{{ segment.start|slice(0, 5) }} - {{ segment.end|slice(0, 5) }}</span>
+                    {% if data.totalMinutes > 0 %}
+                        {{ data.totalMinutes }} min
                     {% else %}
-                        <span style="color: #a0aec0; font-style: italic; font-size: 10.5px;">Conexión automática/Ping</span>
-                    {% endfor %}
+                        <span style="color: #999;">-</span>
+                    {% endif %}
                 </td>
-                <td style="text-align: right; font-weight: bold;">{{ data.totalMinutes }} min</td>
-                <td style="text-align: right; font-weight: bold; color: #2e7d32;">
+                <td style="color: #2e7d32; font-weight: bold;">
                     {% if data.workMinutes > 0 %}
                         {{ (data.workMinutes / 60)|number_format(1) }} h
                     {% else %}
-                        <span style="color: #a0aec0; font-weight: normal;">-</span>
+                        <span style="color: #999;">-</span>
                     {% endif %}
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="4" style="text-align: center; color: #a0aec0; font-style: italic; padding: 25px;">
-                    No hay registros de actividad ni fichajes para este agente en el mes de {{ monthName }}.
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <!-- Caja de resumen y auditoría -->
-    <div class="summary-box">
-        <div class="summary-title">
-            Resumen: {{ (totalMinutes / 60)|number_format(1) }} Horas de Conexión Activa Registradas
-        </div>
-        <div class="summary-desc">
-            * Este informe certifica las horas acumuladas de sesión e inactividad controlada de la plataforma HelpDesk Pro para el periodo indicado.<br>
-            Generado para fines de auditoría interna el {{ "now"|date("d/m/Y H:i") }}
-        </div>
-    </div>
-
-    <!-- Pie de página fijo -->
     <div class="footer">
-        <span class="footer-left">REGISTRO DE CONTROL MENSUAL - HELPDESK PRO</span>
-        <span class="footer-right page-number"></span>
+        Generado el {{ "now"|date("d/m/Y H:i") }} - HelpDesk Pro
     </div>
 </body>
 </html>

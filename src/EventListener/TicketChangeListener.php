@@ -63,10 +63,13 @@ class TicketChangeListener
                                 ->from('no-reply@yourdomain.com')
                                 ->to($clientEmail)
                                 ->subject('Tu incidencia está en proceso')
-                                ->htmlTemplate('emails/status_in_process.html.twig')
+                                ->htmlTemplate('emails/status_changed.html.twig')
                                 ->context([
                                     'ticketId' => $entity->getId(),
-                                    'title' => $entity->getTitle(),
+                                    'subject' => $entity->getTitle(),
+                                    'clientName' => $entity->getAuthor() ? $entity->getAuthor()->getFirstName() ?? 'Cliente' : 'Cliente',
+                                    'newStatus' => 'En proceso',
+                                    'ticketUrl' => 'http://localhost:4200/tickets/' . $entity->getId(),
                                 ]);
                             $this->mailer->send($email);
                         }

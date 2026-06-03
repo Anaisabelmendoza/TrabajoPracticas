@@ -26,6 +26,14 @@
       <p>Cargando lista de agentes...</p>
     </div>
 
+    <div class="search-section" *ngIf="!loading" style="margin-bottom: 20px;">
+      <mat-form-field appearance="outline" style="width: 100%; max-width: 400px;">
+        <mat-label>Buscar por nombre o correo</mat-label>
+        <input matInput [(ngModel)]="searchTerm" placeholder="Ej: Juan Perez">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+
     <!-- Panel de Métricas del Agente -->
     <div *ngIf="selectedAgentForMetrics" class="metrics-panel mat-elevation-z3"
       style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; position: relative;">
@@ -41,14 +49,14 @@
     </div>
 
     <mat-tab-group *ngIf="!loading" dynamicHeight>
-      <mat-tab label="Agentes ({{agents.length}})">
-        <ng-container *ngTemplateOutlet="userTable; context: { $implicit: agents }"></ng-container>
+      <mat-tab label="Agentes ({{filteredAgents.length}})">
+        <ng-container *ngTemplateOutlet="userTable; context: { $implicit: filteredAgents }"></ng-container>
       </mat-tab>
-      <mat-tab label="Clientes ({{clients.length}})">
-        <ng-container *ngTemplateOutlet="userTable; context: { $implicit: clients }"></ng-container>
+      <mat-tab label="Clientes ({{filteredClients.length}})">
+        <ng-container *ngTemplateOutlet="userTable; context: { $implicit: filteredClients }"></ng-container>
       </mat-tab>
-      <mat-tab label="Administradores ({{admins.length}})">
-        <ng-container *ngTemplateOutlet="userTable; context: { $implicit: admins }"></ng-container>
+      <mat-tab label="Administradores ({{filteredAdmins.length}})">
+        <ng-container *ngTemplateOutlet="userTable; context: { $implicit: filteredAdmins }"></ng-container>
       </mat-tab>
     </mat-tab-group>
 

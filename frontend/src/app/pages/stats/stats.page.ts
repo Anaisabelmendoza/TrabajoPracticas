@@ -146,11 +146,37 @@ export class StatsPage implements OnInit, AfterViewInit {
     window.open(url, '_blank');
   }
 
-  downloadAgentReport(agent: any) {
+  showDownloadModal = false;
+  agentToDownload: any = null;
+  downloadMonth: number = new Date().getMonth() + 1;
+  downloadYear: number = new Date().getFullYear();
+
+  openDownloadModal(agent: any) {
+    this.agentToDownload = agent;
+    // Por defecto sugerimos el mes actual o el que esté viendo en el panel
+    this.downloadMonth = this.selectedReportMonth || new Date().getMonth() + 1;
+    this.downloadYear = this.selectedReportYear || new Date().getFullYear();
+    this.showDownloadModal = true;
+  }
+
+  closeDownloadModal() {
+    this.showDownloadModal = false;
+    this.agentToDownload = null;
+  }
+
+  confirmDownload() {
+    if (!this.agentToDownload) return;
     const token = this.authService.getToken();
-    const date = new Date();
-    const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-    const url = `${environment.apiUrl}/api/reports/agent/${agent.id}/sessions?token=${token}&month=${yearMonth}`;
+    const yearMonth = `${this.downloadYear}-${this.downloadMonth.toString().padStart(2, '0')}`;
+    const url = `${environment.apiUrl}/api/reports/agent/${this.agentToDownload.id}/sessions?token=${token}&month=${yearMonth}`;
+    window.open(url, '_blank');
+    this.closeDownloadModal();
+  }
+
+  downloadGlobalReport() {
+    const token = this.authService.getToken();
+    const yearMonth = `${this.selectedReportYear}-${this.selectedReportMonth.toString().padStart(2, '0')}`;
+    const url = `${environment.apiUrl}/api/reports/agents/sessions?token=${token}&month=${yearMonth}`;
     window.open(url, '_blank');
   }
 

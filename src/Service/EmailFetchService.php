@@ -70,7 +70,9 @@ class EmailFetchService
                         // intentos de evasión y respuestas automáticas
                         'no-responder',
                         // nuevos filtros solicitados
-                        'facturas', 'alerta'
+                        'facturas', 'alerta',
+                        // plataformas y newsletters de terceros
+                        'ngrok', 'hubspot', 'mailchimp', 'sendgrid', 'news', 'updates', 'boletin'
                     ];
                     
                     $isSpam = false;
