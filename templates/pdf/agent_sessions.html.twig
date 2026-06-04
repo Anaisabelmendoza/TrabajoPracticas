@@ -30,6 +30,7 @@
     <div class="info-box">
         <h3>Técnico: {{ agent.firstName }} {{ agent.lastName }}</h3>
         <p><strong>Email:</strong> {{ agent.email }}</p>
+        <p><strong>Rol:</strong> {% if 'ROLE_ADMIN' in agent.roles %}Administrador{% else %}Agente{% endif %}</p>
         <p><strong>Total Horas Conexión en App:</strong> {{ (totalMinutes / 60)|number_format(1) }} h</p>
         <p><strong>Total Tiempo en Incidencias:</strong> {{ (totalWorkMinutes / 60)|number_format(1) }} h</p>
     </div>

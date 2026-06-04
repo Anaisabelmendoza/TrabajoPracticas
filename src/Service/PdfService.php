@@ -134,28 +134,49 @@ class PdfService
 
         $agentsData = [];
         
+        $monthDt = \DateTime::createFromFormat('Y-m', $month);
+        $daysInMonth = $monthDt ? (int)$monthDt->format('t') : 31;
+
         foreach ($agents as $agent) {
             $connectionData = $agent->getConnectionData() ?: [];
             $totalMinutes = 0;
-            $workMinutesTotal = 0;
+            $dailyStats = [];
+
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $dayStr = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
+                $dailyStats[$dayStr] = [
+                    'totalMinutes' => 0,
+                    'workMinutes' => 0
+                ];
+            }
 
             foreach ($connectionData as $date => $data) {
                 if (str_starts_with($date, $month)) {
-                    $totalMinutes += ($data['totalMinutes'] ?? 0);
+                    $day = substr($date, 8, 2);
+                    if (isset($dailyStats[$day])) {
+                        $dailyStats[$day]['totalMinutes'] = $data['totalMinutes'] ?? 0;
+                        $totalMinutes += $dailyStats[$day]['totalMinutes'];
+                    }
                 }
             }
             
             // Calcular horas de trabajo
             foreach ($agent->getWorkLogs() as $log) {
-                if ($log->getDate()->format('Y-m') === $month) {
-                    $workMinutesTotal += $log->getMinutesSpent();
+                $logDate = $log->getDate();
+                if ($logDate && $logDate->format('Y-m') === $month) {
+                    $day = $logDate->format('d');
+                    if (isset($dailyStats[$day])) {
+                        $dailyStats[$day]['workMinutes'] += $log->getMinutesSpent();
+                    }
                 }
             }
+
+            ksort($dailyStats);
 
             $agentsData[] = [
                 'agent' => $agent,
                 'totalMinutes' => $totalMinutes,
-                'workMinutes' => $workMinutesTotal
+                'dailyStats' => $dailyStats
             ];
         }
 

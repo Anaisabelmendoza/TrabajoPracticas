@@ -114,7 +114,7 @@
   </mat-menu>
 
   <!-- MODAL: PANEL DE INFORMES MENSUALES DETALLADOS -->
-  <ion-modal [isOpen]="showGlobalReport" (didDismiss)="closeGlobalReport()">
+  <ion-modal [isOpen]="showGlobalReport" (didDismiss)="closeGlobalReport()" style="--width: 95%; --max-width: 1200px;">
     <ng-template>
       <ion-header>
         <ion-toolbar>
@@ -137,7 +137,7 @@
               </select>
             </div>
             
-            <button mat-flat-button style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; border-radius: 20px;" (click)="downloadGlobalReport()">
+            <button mat-flat-button style="margin-left: 20px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; border-radius: 20px;" (click)="downloadGlobalReport()">
               <mat-icon style="margin-right: 8px;">download</mat-icon>
               DESCARGAR INFORME GENERAL (PDF)
             </button>
