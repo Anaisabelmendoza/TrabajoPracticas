@@ -91,6 +91,12 @@ export class TicketService {
     );
   }
 
+  getPriorities(): Observable<any[]> {
+    return this.http.get<any>(`${this.apiUrl}/api/priorities`, { headers: this.getHeaders() }).pipe(
+      map(response => response['member'] || response['hydra:member'] || [])
+    );
+  }
+
   uploadFile(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);

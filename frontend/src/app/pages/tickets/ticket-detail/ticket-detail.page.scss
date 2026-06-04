@@ -132,6 +132,10 @@ ion-content.premium-content {
     &::before { background: linear-gradient(90deg, #800080, #ff007f); }
     box-shadow: 0 10px 35px rgba(128, 0, 128, 0.06), 0 4px 15px rgba(0, 0, 0, 0.02) !important;
   }
+  &.priority-urgente {
+    &::before { background: linear-gradient(90deg, #ff3d00, #dd2c00); }
+    box-shadow: 0 10px 35px rgba(255, 61, 0, 0.06), 0 4px 15px rgba(0, 0, 0, 0.02) !important;
+  }
 
   &:hover {
     transform: translateY(-4px);
@@ -484,6 +488,32 @@ ion-content.premium-content {
       font-size: 0.925rem;
       font-weight: 600;
       color: #1e293b;
+    }
+
+    .inline-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: transparent;
+      border: 1px dashed rgba(100, 116, 139, 0.3);
+      border-radius: 6px;
+      font-size: 0.925rem;
+      font-weight: 600;
+      color: inherit;
+      padding: 2px 24px 2px 4px;
+      margin-left: -4px;
+      cursor: pointer;
+      outline: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      background-size: 8px auto;
+      transition: all 0.2s;
+
+      &:hover, &:focus {
+        border-color: rgba(100, 116, 139, 0.8);
+        background-color: rgba(255, 255, 255, 0.5);
+      }
     }
   }
 
@@ -1504,6 +1534,24 @@ ion-content.premium-content {
       color: #4f46e5;
       border-color: rgba(79, 70, 229, 0.1);
     }
+
+    &.priority-high {
+      background: rgba(244, 67, 54, 0.1);
+      color: #d32f2f;
+      border: 1px solid rgba(244, 67, 54, 0.2);
+    }
+
+    &.priority-critical {
+      background: rgba(156, 39, 176, 0.1);
+      color: #7b1fa2;
+      border: 1px solid rgba(156, 39, 176, 0.2);
+    }
+
+    &.priority-urgente {
+      background: rgba(255, 61, 0, 0.1);
+      color: #dd2c00;
+      border: 1px solid rgba(255, 61, 0, 0.2);
+    }
   }
 
   .flow-arrow-icon {
@@ -2077,6 +2125,10 @@ ion-content.premium-content {
     }
     &.print-badge-priority-critical {
       background-color: #b71c1c !important;
+      color: #ffffff !important;
+    }
+    &.print-badge-priority-urgente {
+      background-color: #dd2c00 !important;
       color: #ffffff !important;
     }
   }

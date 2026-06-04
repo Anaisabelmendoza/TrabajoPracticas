@@ -55,24 +55,22 @@ class TicketChangeListener
                     $em->persist($history);
                     $uow->computeChangeSet($historyMeta, $history);
 
-                    // Enviar notificación por email cuando el estado pasa a 'En proceso'
-                    if (strtolower($changeSet['status'][1]) === 'en proceso') {
-                        $clientEmail = $entity->getAuthor() ? $entity->getAuthor()->getEmail() : null;
-                        if ($clientEmail) {
-                            $email = (new TemplatedEmail())
-                                ->from('no-reply@yourdomain.com')
-                                ->to($clientEmail)
-                                ->subject('Tu incidencia está en proceso')
-                                ->htmlTemplate('emails/status_changed.html.twig')
-                                ->context([
-                                    'ticketId' => $entity->getId(),
-                                    'subject' => $entity->getTitle(),
-                                    'clientName' => $entity->getAuthor() ? $entity->getAuthor()->getFirstName() ?? 'Cliente' : 'Cliente',
-                                    'newStatus' => 'En proceso',
-                                    'ticketUrl' => 'http://localhost:4200/tickets/' . $entity->getId(),
-                                ]);
-                            $this->mailer->send($email);
-                        }
+                    // Enviar notificación por email sobre el cambio de estado
+                    $clientEmail = $entity->getAuthor() ? $entity->getAuthor()->getEmail() : null;
+                    if ($clientEmail) {
+                        $email = (new TemplatedEmail())
+                            ->from('no-reply@yourdomain.com')
+                            ->to($clientEmail)
+                            ->subject('Actualización en tu incidencia: ' . $changeSet['status'][1])
+                            ->htmlTemplate('emails/status_changed.html.twig')
+                            ->context([
+                                'ticketId' => $entity->getId(),
+                                'subject' => $entity->getTitle(),
+                                'clientName' => $entity->getAuthor() ? $entity->getAuthor()->getFirstName() ?? 'Cliente' : 'Cliente',
+                                'newStatus' => $changeSet['status'][1],
+                                'ticketUrl' => 'http://localhost:4200/tickets/' . $entity->getId(),
+                            ]);
+                        $this->mailer->send($email);
                     }
                 }
 

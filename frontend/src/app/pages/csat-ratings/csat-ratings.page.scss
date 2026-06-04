@@ -449,7 +449,8 @@
           &.baja { color: #4caf50; }
           &.media { color: #ff9800; }
           &.alta { color: #f44336; }
-          &.crítica { color: #b71c1c; }
+          &.crítica, &.critica { color: #b71c1c; }
+          &.urgente { color: #dd2c00; }
         }
       }
     }

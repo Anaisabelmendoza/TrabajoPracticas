@@ -75,6 +75,10 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   newManualNote = '';
   isAddingNote = false;
 
+  // Variables para edición de Categoría y Prioridad
+  categories: any[] = [];
+  priorities: any[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -108,6 +112,10 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   ionViewWillEnter() {
     this.isAgent = this.authService.hasRole('ROLE_AGENT') || this.authService.hasRole('ROLE_ADMIN');
     this.isAdmin = this.authService.hasRole('ROLE_ADMIN');
+    if (this.isAgent || this.isAdmin) {
+      this.ticketService.getCategories().subscribe(data => this.categories = data);
+      this.ticketService.getPriorities().subscribe(data => this.priorities = data);
+    }
   }
 
   isOwner(): boolean {
@@ -426,11 +434,16 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   }
 
   updateStatus(newStatus: string) {
-    if (!this.ticket) return;
+    if (!this.ticket || newStatus === this.ticket.status) return;
+
+    this.loading = true;
     this.ticketService.updateTicket(this.ticket.id, { status: newStatus }).subscribe({
-      next: (updated) => {
-        this.ticket = updated;
-        this.showToast(`Estado cambiado a: ${newStatus}`, 'success');
+      next: () => {
+        this.ticket.status = newStatus;
+        this.loading = false;
+        this.showToast('Estado actualizado', 'success');
+        this.calculateSlaDetails();
+        this.refreshChatSilently(this.ticket.id); // Para cargar el historial de cambios
 
         // Iniciar cronómetro automáticamente
         if (newStatus === 'En proceso') {
@@ -451,6 +464,47 @@ export class TicketDetailPage implements OnInit, OnDestroy {
           msg = err.error;
         }
         this.showToast(msg, 'danger');
+      }
+    });
+  }
+
+  updateCategory(event: any) {
+    const newCategoryId = event.target.value;
+    if (!this.ticket || !newCategoryId) return;
+
+    this.loading = true;
+    this.ticketService.updateTicket(this.ticket.id, { category: `/api/categories/${newCategoryId}` }).subscribe({
+      next: (updatedTicket) => {
+        this.ticket.category = updatedTicket.category;
+        this.loading = false;
+        this.showToast('Categoría actualizada', 'success');
+        this.refreshChatSilently(this.ticket.id);
+      },
+      error: (err) => {
+        console.error('Error en updateCategory:', err);
+        this.loading = false;
+        this.showToast('Error al actualizar categoría', 'danger');
+      }
+    });
+  }
+
+  updatePriority(event: any) {
+    const newPriority = event.target.value;
+    if (!this.ticket || newPriority === this.ticket.priority) return;
+
+    this.loading = true;
+    this.ticketService.updateTicket(this.ticket.id, { priority: newPriority }).subscribe({
+      next: (updatedTicket) => {
+        this.ticket.priority = updatedTicket.priority;
+        this.loading = false;
+        this.showToast('Prioridad actualizada', 'success');
+        this.calculateSlaDetails();
+        this.refreshChatSilently(this.ticket.id);
+      },
+      error: (err) => {
+        console.error('Error en updatePriority:', err);
+        this.loading = false;
+        this.showToast('Error al actualizar prioridad', 'danger');
       }
     });
   }
@@ -719,6 +773,8 @@ export class TicketDetailPage implements OnInit, OnDestroy {
         return 'priority-high';
       case 'media':
         return 'priority-medium';
+      case 'urgente':
+        return 'priority-urgente';
       case 'baja':
       default:
         return 'priority-low';
@@ -855,22 +911,15 @@ export class TicketDetailPage implements OnInit, OnDestroy {
       return;
     }
 
-    // 1. Horas según prioridad
-    switch (this.ticket.priority?.toLowerCase()) {
-      case 'crítica':
-      case 'critica':
-        this.slaFormattedHours = 4;
-        break;
-      case 'alta':
-        this.slaFormattedHours = 12;
-        break;
-      case 'media':
-        this.slaFormattedHours = 24;
-        break;
-      case 'baja':
-      default:
-        this.slaFormattedHours = 48;
-        break;
+    // 1. Horas según prioridad (Calculadas automáticamente desde las fechas)
+    try {
+      const limitDate = new Date(this.ticket.slaLimit);
+      const createdAt = new Date(this.ticket.createdAt);
+      // Calculamos la diferencia en milisegundos y la pasamos a horas
+      const diffMs = limitDate.getTime() - createdAt.getTime();
+      this.slaFormattedHours = Math.round(diffMs / (1000 * 60 * 60));
+    } catch (e) {
+      this.slaFormattedHours = 24; // fallback
     }
 
     // 2. Formatear compromiso antes de las HH:mm del dd/MM

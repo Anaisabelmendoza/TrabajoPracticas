@@ -146,25 +146,9 @@ class Ticket
     public function updateTimestamps(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
-        $this->calculateSlaLimit();
     }
 
-    #[ORM\PostLoad]
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function calculateSlaLimit(): void
-    {
-        if (null !== $this->createdAt) {
-            $hours = match (strtolower($this->priority ?? 'media')) {
-                'crítica', 'critica' => 4,
-                'alta' => 12,
-                'media' => 24,
-                'baja' => 48,
-                default => 24,
-            };
-            $this->slaLimit = $this->createdAt->modify(sprintf('+%d hours', $hours));
-        }
-    }
+
 
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
@@ -409,9 +393,6 @@ class Ticket
     #[SerializedName('slaLimit')]
     public function getSlaLimit(): ?\DateTimeInterface
     {
-        if (null === $this->slaLimit && null !== $this->createdAt) {
-            $this->calculateSlaLimit();
-        }
         return $this->slaLimit;
     }
 }

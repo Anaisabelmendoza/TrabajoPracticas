@@ -35,6 +35,7 @@ import { switchMap } from 'rxjs/operators';
 export class NewTicketPage implements OnInit {
   ticketForm: FormGroup;
   categories: any[] = [];
+  priorities: any[] = [];
   loading = false;
   selectedFiles: any[] = [];
 
@@ -58,17 +59,14 @@ export class NewTicketPage implements OnInit {
     this.ticketService.getCategories().subscribe(data => {
       this.categories = data;
     });
+    this.ticketService.getPriorities().subscribe(data => {
+      this.priorities = data;
+    });
   }
 
-  getSlaHoursLimit(priority: string): number {
-    switch (priority?.toLowerCase()) {
-      case 'crítica':
-      case 'critica': return 4;
-      case 'alta': return 12;
-      case 'media': return 24;
-      case 'baja': return 48;
-      default: return 24;
-    }
+  getSlaHoursLimit(priorityName: string): number {
+    const priority = this.priorities.find(p => p.name === priorityName);
+    return priority && priority.slaHours ? priority.slaHours : 24;
   }
 
   async showToast(message: string, color: string) {

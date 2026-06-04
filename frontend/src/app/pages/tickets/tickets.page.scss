@@ -142,7 +142,8 @@ ion-toolbar {
   &.baja::before { background: linear-gradient(to bottom, #11998e, #38ef7d); }
   &.media::before { background: linear-gradient(to bottom, #ff9800, #ffc107); }
   &.alta::before { background: linear-gradient(to bottom, #ff416c, #ff4b2b); }
-  &.crítica::before { background: linear-gradient(to bottom, #800080, #ff007f); }
+  &.crítica::before, &.critica::before { background: linear-gradient(to bottom, #800080, #ff007f); }
+  &.urgente::before { background: linear-gradient(to bottom, #dd2c00, #ff6d00); }
 
   &:hover {
     transform: translateY(-6px) scale(1.01);
@@ -150,7 +151,8 @@ ion-toolbar {
     &.baja { box-shadow: 0 12px 24px rgba(56, 239, 125, 0.15) !important; }
     &.media { box-shadow: 0 12px 24px rgba(255, 152, 0, 0.15) !important; }
     &.alta { box-shadow: 0 12px 24px rgba(255, 75, 43, 0.15) !important; }
-    &.crítica { box-shadow: 0 12px 24px rgba(255, 0, 127, 0.15) !important; }
+    &.crítica, &.critica { box-shadow: 0 12px 24px rgba(255, 0, 127, 0.15) !important; }
+    &.urgente { box-shadow: 0 12px 24px rgba(221, 44, 0, 0.15) !important; }
   }
 
   mat-card-header {
@@ -324,7 +326,8 @@ ion-toolbar {
         &.baja { background: #e8f5e9; color: #2e7d32; }
         &.media { background: #fff3e0; color: #ef6c00; }
         &.alta { background: #ffebee; color: #c62828; }
-        &.crítica { background: #b71c1c; color: #fff; }
+        &.crítica, &.critica { background: #b71c1c; color: #fff; }
+        &.urgente { background: #ff3d00; color: #fff; }
       }
       
       .status-pill {

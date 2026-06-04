@@ -102,7 +102,10 @@
             </div>
             <div class="meta-info">
               <span class="meta-label">Categoría</span>
-              <span class="meta-value">{{ ticket.category.name }}</span>
+              <span class="meta-value" *ngIf="!isAgent && !isAdmin">{{ ticket.category.name }}</span>
+              <select class="inline-select" *ngIf="isAgent || isAdmin" (change)="updateCategory($event)">
+                <option *ngFor="let cat of categories" [value]="cat.id" [selected]="cat.id === ticket.category.id">{{ cat.name }}</option>
+              </select>
             </div>
           </div>
 
@@ -112,7 +115,10 @@
             </div>
             <div class="meta-info">
               <span class="meta-label">Prioridad</span>
-              <span class="meta-value font-semibold">{{ ticket.priority }}</span>
+              <span class="meta-value font-semibold" *ngIf="!isAgent && !isAdmin">{{ ticket.priority }}</span>
+              <select class="inline-select" *ngIf="isAgent || isAdmin" (change)="updatePriority($event)">
+                <option *ngFor="let p of priorities" [value]="p.name" [selected]="p.name === ticket.priority">{{ p.name }}</option>
+              </select>
             </div>
           </div>
 
