@@ -63,11 +63,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     // --- AQUÍ ESTÁ EL PRIMER CAMBIO MÁGICO (type: 'boolean') ---
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    #[Groups(['user:read', 'user:write'])]
     private bool $isActive = true;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    #[Groups(['user:read', 'user:write'])]
     private bool $isOnDuty = true;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -265,8 +263,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    #[Groups(['user:read'])]
-    #[SerializedName('lastActivityAt')]
     public function getLastActivityAt(): ?\DateTimeInterface
     {
         return $this->lastActivityAt;

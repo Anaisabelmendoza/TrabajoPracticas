@@ -1,25 +1,37 @@
 <?php
-require 'vendor/autoload.php';
+$url = 'http://localhost:8000/api/login_check';
+$data = json_encode(['username' => 'anaisabelmendozajurado@gmail.com', 'password' => 'admin']); // Assuming this is the admin credentials
+$options = [
+    'http' => [
+        'header'  => "Content-type: application/json\r\n",
+        'method'  => 'POST',
+        'content' => $data,
+        'ignore_errors' => true,
+    ],
+];
+$context  = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+$tokenInfo = json_decode($result, true);
 
-use App\Kernel;
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\HttpFoundation\Request;
+if (!isset($tokenInfo['token'])) {
+    die("Login failed: " . $result);
+}
+$token = $tokenInfo['token'];
 
-(new Dotenv())->bootEnv(__DIR__.'/.env');
-
-$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
-$kernel->boot();
-
-$container = $kernel->getContainer();
-$jwtManager = $container->get('lexik_jwt_authentication.jwt_manager');
-$em = $container->get('doctrine')->getManager();
-
-$user = $em->getRepository(\App\Entity\User::class)->findOneBy(['email' => 'ana@gmail.com']);
-$token = $jwtManager->create($user);
-
-$request = Request::create('/api/tickets', 'GET');
-$request->headers->set('Accept', 'application/json');
-$request->headers->set('Authorization', 'Bearer ' . $token);
-
-$response = $kernel->handle($request);
-echo $response->getContent();
+// Now let's try to patch user ID 1
+$patchUrl = 'http://localhost:8000/api/users/1';
+$patchData = json_encode(['isActive' => false]);
+$patchOptions = [
+    'http' => [
+        'header'  => "Content-type: application/merge-patch+json\r\nAuthorization: Bearer $token\r\n",
+        'method'  => 'PATCH',
+        'content' => $patchData,
+        'ignore_errors' => true,
+    ],
+];
+$patchContext = stream_context_create($patchOptions);
+$patchResult = file_get_contents($patchUrl, false, $patchContext);
+echo "PATCH Result:\n";
+echo $patchResult;
+echo "\nHTTP Response headers:\n";
+print_r($http_response_header);
