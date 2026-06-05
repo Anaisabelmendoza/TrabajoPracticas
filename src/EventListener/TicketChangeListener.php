@@ -57,9 +57,12 @@ class TicketChangeListener
 
                     // Enviar notificación por email sobre el cambio de estado
                     $clientEmail = $entity->getAuthor() ? $entity->getAuthor()->getEmail() : null;
-                    if ($clientEmail) {
+                    $systemEmails = ['anaisabelmendozajurado@gmail.com', 'soporte@helpdesk.com'];
+                    
+                    if ($clientEmail && !in_array(strtolower($clientEmail), $systemEmails)) {
                         $email = (new TemplatedEmail())
-                            ->from('no-reply@yourdomain.com')
+                            ->from(new \Symfony\Component\Mime\Address('soporte@helpdesk.com', 'HelpDesk Soporte'))
+                            ->replyTo(new \Symfony\Component\Mime\Address('soporte@helpdesk.com', 'HelpDesk Soporte'))
                             ->to($clientEmail)
                             ->subject('Actualización en tu incidencia: ' . $changeSet['status'][1])
                             ->htmlTemplate('emails/status_changed.html.twig')

@@ -176,11 +176,9 @@ class EmailFetchService
         $ticket->setStatus('Nuevo');
         
         // --- DETECCIÓN DE PRIORIDAD POR PALABRAS CLAVE ---
-        $highKeywords = [
-            'urgente', 'emergencia', 'caída', 'caida', 'crítico', 'critico', 'grave', 'roto', 'inmediato',
-            'falla total', 'urgencia', 'incidente', 'error', 'fallo', 'colapso', 'apagón', 'apagon'
-        ];
-        $criticalKeywords = ['crítica', 'critica', 'crítico', 'critico'];
+        $criticalKeywords = ['crítica', 'critica', 'crítico', 'critico', 'falla total', 'colapso', 'apagón', 'apagon'];
+        $urgentKeywords = ['urgente', 'emergencia', 'inmediato', 'urgencia'];
+        $highKeywords = ['caída', 'caida', 'grave', 'roto', 'incidente', 'error', 'fallo'];
         $lowKeywords = ['baja', 'menor', 'trivial'];
 
         $priority = 'Media'; // Por defecto
@@ -193,7 +191,16 @@ class EmailFetchService
                 break;
             }
         }
-        // Prioridad Alta (si no es crítica)
+        // Prioridad Urgente (si no es Crítica)
+        if ($priority === 'Media') {
+            foreach ($urgentKeywords as $word) {
+                if (str_contains($contentToCheck, $word)) {
+                    $priority = 'Urgente';
+                    break;
+                }
+            }
+        }
+        // Prioridad Alta (si no es Urgente ni Crítica)
         if ($priority === 'Media') {
             foreach ($highKeywords as $word) {
                 if (str_contains($contentToCheck, $word)) {
@@ -202,7 +209,7 @@ class EmailFetchService
                 }
             }
         }
-        // Prioridad Baja (solo si sigue en Media)
+        // Prioridad Baja
         if ($priority === 'Media') {
             foreach ($lowKeywords as $word) {
                 if (str_contains($contentToCheck, $word)) {

@@ -8,7 +8,7 @@
         .header { background: linear-gradient(135deg, #7c3aed 100%); color: white; padding: 30px; text-align: center; }
         .content { padding: 30px; background: white; }
         .ticket-info { background: #f8fafc; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #7c3aed; }
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; background-color: #e0f2fe; color: #7c3aed; margin-top: 10px; }
+        .message-content { background: #e0f2fe; padding: 15px; border-radius: 6px; margin: 20px 0; font-style: italic; color: #555; }
         .footer { background: #f4f4f4; padding: 20px; text-align: center; font-size: 0.8rem; color: #777; }
         .button { display: inline-block; padding: 12px 25px; background: #7c3aed; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 15px; }
     </style>
@@ -16,19 +16,22 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 style="margin: 0; font-size: 24px;">Actualización de Incidencia</h1>
+            <h1 style="margin: 0; font-size: 24px;">Nuevo Mensaje en tu Incidencia</h1>
         </div>
         <div class="content">
             <p>Hola {{ clientName }},</p>
-            <p>Te informamos de que el estado de tu incidencia ha cambiado.</p>
+            <p>El agente <strong>{{ agentName }}</strong> ha respondido a tu incidencia en el chat.</p>
             
             <div class="ticket-info">
                 <p style="margin: 0;"><strong>Número de Incidencia:</strong> #{{ ticketId }}</p>
                 <p style="margin: 5px 0 0 0;"><strong>Asunto:</strong> {{ subject }}</p>
-                <p style="margin: 10px 0 0 0;"><strong>Nuevo Estado:</strong> <span class="status-badge">{{ newStatus }}</span></p>
             </div>
             
-            <p>Puedes consultar todos los detalles o enviar nuevos comentarios haciendo clic en el siguiente enlace:</p>
+            <div class="message-content">
+                "{{ messageContent }}"
+            </div>
+            
+            <p>Puedes consultar toda la conversación o responder haciendo clic en el siguiente enlace:</p>
             <div style="text-align: center; margin-top: 15px;">
                 <table border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
                     <tr>
