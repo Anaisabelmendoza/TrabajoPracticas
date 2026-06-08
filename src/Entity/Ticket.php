@@ -16,6 +16,8 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -394,5 +396,22 @@ class Ticket
     public function getSlaLimit(): ?\DateTimeInterface
     {
         return $this->slaLimit;
+    }
+
+    #[Assert\Callback]
+    public function validateAgentCategory(ExecutionContextInterface $context): void
+    {
+        $agent = $this->getAgent();
+        $category = $this->getCategory();
+        
+        if ($agent !== null && $category !== null) {
+            if (!$agent->getCategories()->contains($category)) {
+                if (!in_array('ROLE_ADMIN', $agent->getRoles())) {
+                    $context->buildViolation('El agente asignado no tiene permiso para resolver incidencias de esta categoría.')
+                        ->atPath('agent')
+                        ->addViolation();
+                }
+            }
+        }
     }
 }

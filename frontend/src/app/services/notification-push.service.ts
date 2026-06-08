@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
@@ -8,16 +8,16 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class NotificationPushService {
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   private lastTicketId: number | null = null;
   private lastCommentId: number | null = null;
   private pollInterval: any;
   private isFirstLoad = true;
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-    private router: Router
-  ) {
+  constructor() {
     this.requestPermission();
   }
 

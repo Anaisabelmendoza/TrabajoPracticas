@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController, AlertController } from '@ionic/angular';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
@@ -38,6 +38,15 @@ import { of, forkJoin } from 'rxjs';
   ]
 })
 export class TicketDetailPage implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private ticketService = inject(TicketService);
+  authService = inject(AuthService);
+  private workLogService = inject(WorkLogService);
+  private toastCtrl = inject(ToastController);
+  private alertCtrl = inject(AlertController);
+  private http = inject(HttpClient);
+
   ticket: any = null;
   newComment = '';
   loading = true;
@@ -78,17 +87,6 @@ export class TicketDetailPage implements OnInit, OnDestroy {
   // Variables para edición de Categoría y Prioridad
   categories: any[] = [];
   priorities: any[] = [];
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private ticketService: TicketService,
-    public authService: AuthService,
-    private workLogService: WorkLogService,
-    private toastCtrl: ToastController,
-    private alertCtrl: AlertController,
-    private http: HttpClient
-  ) { }
 
   ngOnInit() {
     this.isAgent = this.authService.hasRole('ROLE_AGENT') || this.authService.hasRole('ROLE_ADMIN');

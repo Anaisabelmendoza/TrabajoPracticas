@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Router } from '@angular/router';
@@ -31,6 +31,11 @@ import { MatInputModule } from '@angular/material/input';
   ]
 })
 export class DashboardPage implements OnInit {
+  private authService = inject(AuthService);
+  private ticketService = inject(TicketService);
+  private router = inject(Router);
+  private http = inject(HttpClient);
+
   userName: string = '';
   loading = true;
   isAdmin = false;
@@ -48,14 +53,6 @@ export class DashboardPage implements OnInit {
   isStatusModalOpen: boolean = false;
   selectedStatus: string = '';
   modalSearchText: string = '';
-
-
-  constructor(
-    private authService: AuthService,
-    private ticketService: TicketService,
-    private router: Router,
-    private http: HttpClient
-  ) { }
 
   ngOnInit() {
     this.updateRoles();

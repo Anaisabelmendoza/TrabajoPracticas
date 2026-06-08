@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { TicketService } from '../../services/ticket.service';
@@ -47,6 +47,14 @@ import { environment } from 'src/environments/environment';
   ]
 })
 export class TicketsPage implements OnInit {
+  private ticketService = inject(TicketService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private alertCtrl = inject(AlertController);
+  private toastCtrl = inject(ToastController);
+  private http = inject(HttpClient);
+
   tickets: any[] = [];
   categories: any[] = [];
   loading = true;
@@ -75,16 +83,6 @@ export class TicketsPage implements OnInit {
     inProgress: 0,
     resolved: 0
   };
-
-  constructor(
-    private ticketService: TicketService,
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private alertCtrl: AlertController,
-    private toastCtrl: ToastController,
-    private http: HttpClient
-  ) {}
 
   ngOnInit() {
     this.updateRoles();

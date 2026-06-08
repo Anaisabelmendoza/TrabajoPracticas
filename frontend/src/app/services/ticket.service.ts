@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
+import { map, tap, catchError, shareReplay } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
@@ -10,13 +10,13 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class TicketService {
-  private apiUrl = environment.apiUrl;
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-    private router: Router
-  ) { }
+  private apiUrl = environment.apiUrl;
+  private categoriesCache$?: Observable<any[]>;
+  private prioritiesCache$?: Observable<any[]>;
 
   private getHeaders() {
     return new HttpHeaders({
@@ -86,15 +86,23 @@ export class TicketService {
   }
 
   getCategories(): Observable<any[]> {
-    return this.http.get<any>(`${this.apiUrl}/api/categories`, { headers: this.getHeaders() }).pipe(
-      map(response => response['member'] || response['hydra:member'] || [])
-    );
+    if (!this.categoriesCache$) {
+      this.categoriesCache$ = this.http.get<any>(`${this.apiUrl}/api/categories`, { headers: this.getHeaders() }).pipe(
+        map(response => response['member'] || response['hydra:member'] || []),
+        shareReplay(1)
+      );
+    }
+    return this.categoriesCache$;
   }
 
   getPriorities(): Observable<any[]> {
-    return this.http.get<any>(`${this.apiUrl}/api/priorities`, { headers: this.getHeaders() }).pipe(
-      map(response => response['member'] || response['hydra:member'] || [])
-    );
+    if (!this.prioritiesCache$) {
+      this.prioritiesCache$ = this.http.get<any>(`${this.apiUrl}/api/priorities`, { headers: this.getHeaders() }).pipe(
+        map(response => response['member'] || response['hydra:member'] || []),
+        shareReplay(1)
+      );
+    }
+    return this.prioritiesCache$;
   }
 
   uploadFile(file: File): Observable<any> {

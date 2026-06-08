@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LoadingService } from '../../services/loading.service';
 
@@ -8,12 +8,12 @@ import { LoadingService } from '../../services/loading.service';
   styleUrls: ['./global-loading.component.scss'],
   standalone: false
 })
-export class GlobalLoadingComponent implements OnInit {
+export class GlobalLoadingComponent {
+  private loadingService = inject(LoadingService);
+
   isLoading$: Observable<boolean>;
 
-  constructor(private loadingService: LoadingService) {
+  constructor() {
     this.isLoading$ = this.loadingService.isLoading$;
   }
-
-  ngOnInit(): void {}
 }

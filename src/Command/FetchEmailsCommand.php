@@ -68,6 +68,9 @@ class FetchEmailsCommand extends Command
                 if (!$loop) return Command::FAILURE;
             }
 
+            // Liberar memoria para evitar memory leak en el loop infinito
+            $this->emailFetchService->clearMemory();
+
             if ($loop) {
                 $io->text("Esperando 5 minutos para la próxima sincronización... (Ctrl+C para parar)");
                 sleep(300);

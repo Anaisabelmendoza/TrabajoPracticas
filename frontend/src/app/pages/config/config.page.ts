@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -32,6 +32,9 @@ import { AuthService } from 'src/app/services/auth.service';
   ]
 })
 export class ConfigPage implements OnInit {
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+
   // Variables para Categorías
   categories: any[] = [];
   newCategoryName: string = '';
@@ -42,11 +45,6 @@ export class ConfigPage implements OnInit {
   newPriorityName: string = '';
 
   loading: boolean = false;
-
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService
-  ) {}
 
   ngOnInit() {
     this.loadCategories();

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -58,6 +58,10 @@ import Chart from 'chart.js/auto';
   ]
 })
 export class StatsPage implements OnInit, AfterViewInit {
+  private authService = inject(AuthService);
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
   @ViewChild('pieCanvas') private pieCanvas!: ElementRef;
   @ViewChild('barCanvas') private barCanvas!: ElementRef;
 
@@ -100,12 +104,6 @@ export class StatsPage implements OnInit, AfterViewInit {
   daysOfMonth: number[] = [];
 
   categories: any[] = [];
-
-  constructor(
-    private authService: AuthService,
-    private http: HttpClient,
-    private router: Router
-  ) { }
 
   ngOnInit() {
     this.initYearRange();

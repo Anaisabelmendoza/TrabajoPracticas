@@ -29,9 +29,17 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(),
         new Post(processor: \App\State\UserPasswordHasher::class),
         new Get(),
-        new Put(processor: \App\State\UserPasswordHasher::class),
-        new Patch(processor: \App\State\UserPasswordHasher::class),
-        new Delete(),
+        new Put(
+            security: "is_granted('ROLE_ADMIN') or object == user",
+            processor: \App\State\UserPasswordHasher::class
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN') or object == user",
+            processor: \App\State\UserPasswordHasher::class
+        ),
+        new Delete(
+            security: "is_granted('ROLE_ADMIN')"
+        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface

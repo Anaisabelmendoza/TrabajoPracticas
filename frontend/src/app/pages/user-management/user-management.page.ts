@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -40,6 +40,11 @@ import Chart from 'chart.js/auto';
   ]
 })
 export class UserManagementPage implements OnInit {
+  private userService = inject(UserService);
+  private snackBar = inject(MatSnackBar);
+  private alertController = inject(AlertController);
+  private http = inject(HttpClient);
+
   users: User[] = [];
   admins: User[] = [];
   agents: User[] = [];
@@ -53,13 +58,6 @@ export class UserManagementPage implements OnInit {
   allCategories: any[] = [];
   agentChart: any = null;
   saving = false;
-
-  constructor(
-    private userService: UserService,
-    private snackBar: MatSnackBar,
-    private alertController: AlertController,
-    private http: HttpClient
-  ) {}
 
   ngOnInit() {
     this.loadUsers();

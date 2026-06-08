@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ThemeService } from './services/theme.service';
 import { AuthService } from './services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -15,16 +15,16 @@ import { LoadingService } from './services/loading.service';
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
+  private themeService = inject(ThemeService);
+  private authService = inject(AuthService);
+  private http = inject(HttpClient);
+  private notificationPushService = inject(NotificationPushService);
+  private router = inject(Router);
+  private loadingService = inject(LoadingService);
+
   private pingInterval: any;
 
-  constructor(
-    private themeService: ThemeService,
-    private authService: AuthService,
-    private http: HttpClient,
-    private notificationPushService: NotificationPushService,
-    private router: Router,
-    private loadingService: LoadingService
-  ) {
+  constructor() {
     // Escuchar eventos de navegación para mostrar el spinner
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {

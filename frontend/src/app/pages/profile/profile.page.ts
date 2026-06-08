@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController } from '@ionic/angular';
@@ -34,6 +34,14 @@ import { environment } from '../../../environments/environment';
   ]
 })
 export class ProfilePage implements OnInit {
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private http = inject(HttpClient);
+  private toastCtrl = inject(ToastController);
+  themeService = inject(ThemeService);
+
   user: any = null;
   profileImage: string | null = null;
   isDarkMode = false;
@@ -47,16 +55,6 @@ export class ProfilePage implements OnInit {
   hideCurrentPwd = true;
   hideNewPwd = true;
   hideConfirmPwd = true;
-
-  constructor(
-    private authService: AuthService,
-    private userService: UserService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private http: HttpClient,
-    private toastCtrl: ToastController,
-    public themeService: ThemeService
-  ) { }
 
   ngOnInit() {
     this.isDarkMode = this.themeService.getDarkMode();

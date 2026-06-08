@@ -136,7 +136,7 @@ class EmailFetchService
                     $stats['messages'][] = $e->getMessage();
                 }
             }
-
+            $client->disconnect();
             return $stats;
         } catch (\Exception $e) {
             throw new \Exception('Error de conexión con Gmail: ' . $e->getMessage());
@@ -228,7 +228,7 @@ class EmailFetchService
         // Enviar respuesta automática con diseño personalizado
         try {
             $emailResponse = (new \Symfony\Bridge\Twig\Mime\TemplatedEmail())
-                ->from('anaisabelmendozajurado@gmail.com')
+                ->from(new \Symfony\Component\Mime\Address('soporte@helpdesk.com', 'HelpDesk Soporte'))
                 ->to($email)
                 ->subject('Incidencia Recibida: #' . $ticket->getId() . ' - ' . $subject)
                 ->htmlTemplate('emails/auto_reply.html.twig')
@@ -242,5 +242,11 @@ class EmailFetchService
             // Error al enviar email - podemos registrarlo en el log
             error_log('Error enviando auto-respuesta: ' . $e->getMessage());
         }
+    }
+
+    public function clearMemory(): void
+    {
+        $this->entityManager->clear();
+        gc_collect_cycles();
     }
 }

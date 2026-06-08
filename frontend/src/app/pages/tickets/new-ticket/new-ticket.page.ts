@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController, NavController } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -33,20 +33,20 @@ import { switchMap } from 'rxjs/operators';
   ]
 })
 export class NewTicketPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private ticketService = inject(TicketService);
+  private toastCtrl = inject(ToastController);
+  private navCtrl = inject(NavController);
+  private http = inject(HttpClient);
+  authService = inject(AuthService);
+
   ticketForm: FormGroup;
   categories: any[] = [];
   priorities: any[] = [];
   loading = false;
   selectedFiles: any[] = [];
 
-  constructor(
-    private fb: FormBuilder,
-    private ticketService: TicketService,
-    private toastCtrl: ToastController,
-    private navCtrl: NavController,
-    private http: HttpClient,
-    public authService: AuthService
-  ) {
+  constructor() {
     this.ticketForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5)]],
       description: ['', [Validators.required, Validators.minLength(10)]],

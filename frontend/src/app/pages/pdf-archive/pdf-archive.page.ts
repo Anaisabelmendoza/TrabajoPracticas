@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -34,6 +34,8 @@ import { FormsModule } from '@angular/forms';
   ]
 })
 export class PdfArchivePage implements OnInit {
+  private ticketService = inject(TicketService);
+
   loading = true;
   clientsWithActiveTickets: { client: any, tickets: any[] }[] = [];
   clientsWithPdfArchives: { client: any, tickets: any[] }[] = [];
@@ -56,8 +58,6 @@ export class PdfArchivePage implements OnInit {
       (c.client.lastName && c.client.lastName.toLowerCase().includes(term))
     );
   }
-
-  constructor(private ticketService: TicketService) {}
 
   ngOnInit() {
     this.loadArchivedTickets();
