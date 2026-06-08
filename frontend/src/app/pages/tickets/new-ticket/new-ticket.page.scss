@@ -212,6 +212,13 @@ mat-card-content {
     border-color: rgba(156, 39, 176, 0.2);
     mat-icon { color: #9c27b0; }
   }
+
+  &.urgente {
+    background: rgba(255, 61, 0, 0.08);
+    color: #dd2c00;
+    border-color: rgba(255, 61, 0, 0.2);
+    mat-icon { color: #ff3d00; }
+  }
 }
 
 @keyframes fadeIn {

@@ -7,12 +7,14 @@ use App\Entity\TicketHistory;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Mailer\MailerInterface;
 
 #[AsDoctrineListener(event: Events::onFlush)]
 class TicketChangeListener
 {
-    public function __construct(private readonly Security $security)
+    public function __construct(private readonly Security $security, private readonly MailerInterface $mailer)
     {
     }
 
@@ -52,6 +54,27 @@ class TicketChangeListener
 
                     $em->persist($history);
                     $uow->computeChangeSet($historyMeta, $history);
+
+                    // Enviar notificación por email sobre el cambio de estado
+                    $clientEmail = $entity->getAuthor() ? $entity->getAuthor()->getEmail() : null;
+                    $systemEmails = ['anaisabelmendozajurado@gmail.com', 'soporte@helpdesk.com'];
+                    
+                    if ($clientEmail && !in_array(strtolower($clientEmail), $systemEmails)) {
+                        $email = (new TemplatedEmail())
+                            ->from(new \Symfony\Component\Mime\Address('soporte@helpdesk.com', 'HelpDesk Soporte'))
+                            ->replyTo(new \Symfony\Component\Mime\Address('soporte@helpdesk.com', 'HelpDesk Soporte'))
+                            ->to($clientEmail)
+                            ->subject('Actualización en tu incidencia: ' . $changeSet['status'][1])
+                            ->htmlTemplate('emails/status_changed.html.twig')
+                            ->context([
+                                'ticketId' => $entity->getId(),
+                                'subject' => $entity->getTitle(),
+                                'clientName' => $entity->getAuthor() ? $entity->getAuthor()->getFirstName() ?? 'Cliente' : 'Cliente',
+                                'newStatus' => $changeSet['status'][1],
+                                'ticketUrl' => 'http://localhost:4200/tickets/' . $entity->getId(),
+                            ]);
+                        $this->mailer->send($email);
+                    }
                 }
 
                 if (isset($changeSet['agent'])) {

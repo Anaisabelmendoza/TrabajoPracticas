@@ -449,7 +449,8 @@
           &.baja { color: #4caf50; }
           &.media { color: #ff9800; }
           &.alta { color: #f44336; }
-          &.crítica { color: #b71c1c; }
+          &.crítica, &.critica { color: #b71c1c; }
+          &.urgente { color: #dd2c00; }
         }
       }
     }
@@ -461,7 +462,7 @@
     justify-content: flex-end;
 
     .btn-view-ticket {
-      color: #8e2de2 !important;
+      color: var(--ion-color-primary) !important;
       font-weight: 800 !important;
       font-size: 0.82rem !important;
       text-transform: uppercase !important;
@@ -476,7 +477,7 @@
       }
 
       &:hover {
-        background: rgba(142, 45, 226, 0.05) !important;
+        background: rgba(var(--ion-color-primary-rgb), 0.05) !important;
       }
     }
   }

@@ -170,7 +170,7 @@ ion-content {
 
   .filter-selector-clean {
     width: 100%;
-    max-width: 500px;
+    max-width: 800px;
 
     .dual-selector {
       display: flex;
@@ -206,6 +206,21 @@ ion-content {
           border-color: #8e2de2;
           box-shadow: 0 0 0 4px rgba(142, 45, 226, 0.1);
         }
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 15px !important;
+
+      .dual-selector {
+        flex-direction: column;
+      }
+
+      button {
+        margin-left: 0 !important;
+        width: 100%;
       }
     }
   }

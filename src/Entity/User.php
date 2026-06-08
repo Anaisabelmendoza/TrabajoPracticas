@@ -29,9 +29,17 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(),
         new Post(processor: \App\State\UserPasswordHasher::class),
         new Get(),
-        new Put(processor: \App\State\UserPasswordHasher::class),
-        new Patch(processor: \App\State\UserPasswordHasher::class),
-        new Delete(),
+        new Put(
+            security: "is_granted('ROLE_ADMIN') or object == user",
+            processor: \App\State\UserPasswordHasher::class
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN') or object == user",
+            processor: \App\State\UserPasswordHasher::class
+        ),
+        new Delete(
+            security: "is_granted('ROLE_ADMIN')"
+        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -63,11 +71,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     // --- AQUÍ ESTÁ EL PRIMER CAMBIO MÁGICO (type: 'boolean') ---
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    #[Groups(['user:read', 'user:write'])]
     private bool $isActive = true;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    #[Groups(['user:read', 'user:write'])]
     private bool $isOnDuty = true;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -265,8 +271,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    #[Groups(['user:read'])]
-    #[SerializedName('lastActivityAt')]
     public function getLastActivityAt(): ?\DateTimeInterface
     {
         return $this->lastActivityAt;

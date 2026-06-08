@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -20,6 +20,9 @@ import { MatIconModule } from '@angular/material/icon';
   ]
 })
 export class StatsDrilldownPage implements OnInit {
+  private route = inject(ActivatedRoute);
+  private ticketService = inject(TicketService);
+
   filterType: string = '';
   pageTitle: string = 'Listado de Incidencias';
   
@@ -31,11 +34,6 @@ export class StatsDrilldownPage implements OnInit {
   
   tickets: any[] = [];
   loading = true;
-
-  constructor(
-    private route: ActivatedRoute,
-    private ticketService: TicketService
-  ) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {

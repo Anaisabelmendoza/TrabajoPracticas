@@ -56,12 +56,23 @@ class EmailFetchService
 
                     // --- FILTRO DE CORREOS (Google, Spam, Clientes No Registrados) ---
                     $blockedKeywords = [
-                        'google.com', 'noreply', 'no-reply', 'marketing', 
+                        // dominios y remitentes genéricos no deseados
+                        'google.com', 'noreply', 'no-reply', 'marketing',
+                        // listas de difusión y rebotes
                         'newsletter', 'mailer-daemon', 'postmaster', 'bounce',
-                        'promociones', 'info@', 'google', 'alertas', 'alerts',
-                        'publicidad', 'ganaste', 'premio', 'loter', 'oferta', 
-                        'descuento', 'viagra', 'casino', 'crypto', 'bitcoin', 
-                        'invest', 'seo', 'no-responder'
+                        // palabras clave comunes de spam / phishing
+                        'promociones', 'promo', 'promocion', 'info@', 'google', 'alertas', 'alerts', 'spam',
+                        // contenido publicitario y promociones
+                        'publicidad', 'advert', 'advertising', 'sponsored', 'sponsor',
+                        'ganaste', 'premio', 'loter', 'oferta', 'descuento', 'free', 'win', 'winner', 'prize', 'gift',
+                        // temas de alto riesgo / fraude
+                        'viagra', 'casino', 'crypto', 'bitcoin', 'invest', 'seo',
+                        // intentos de evasión y respuestas automáticas
+                        'no-responder',
+                        // nuevos filtros solicitados
+                        'facturas', 'alerta',
+                        // plataformas y newsletters de terceros
+                        'ngrok', 'hubspot', 'mailchimp', 'sendgrid', 'news', 'updates', 'boletin'
                     ];
                     
                     $isSpam = false;
@@ -74,16 +85,15 @@ class EmailFetchService
                         }
                     }
 
-                    // 2. Validar que el remitente sea un cliente/usuario registrado en nuestra base de datos
-                    if (!$isSpam) {
-                        $userRepo = $this->entityManager->getRepository(User::class);
-                        $registeredUser = $userRepo->findOneBy(['email' => $from]);
-                        
-                        if (!$registeredUser) {
-                            // Si el remitente no existe como usuario en la base de datos, lo bloqueamos
-                            $isSpam = true;
-                        }
-                    }
+                    // 2. No se verifica registro de usuario; cualquier remitente válido pasa siempre (solo se aplica el filtro de palabras clave)
+                    // La lógica de registro se ha eliminado para permitir que clientes potenciales envíen incidencias sin estar registrados.
+                    // if (!$isSpam) {
+                    //     $userRepo = $this->entityManager->getRepository(User::class);
+                    //     $registeredUser = $userRepo->findOneBy(['email' => $from]);
+                    //     if (!$registeredUser) {
+                    //         $isSpam = true;
+                    //     }
+                    // }
 
                     if ($isSpam) {
                         // Lo marcamos como leído para que no vuelva a procesarse y pasamos al siguiente
@@ -126,7 +136,7 @@ class EmailFetchService
                     $stats['messages'][] = $e->getMessage();
                 }
             }
-
+            $client->disconnect();
             return $stats;
         } catch (\Exception $e) {
             throw new \Exception('Error de conexión con Gmail: ' . $e->getMessage());
@@ -165,15 +175,47 @@ class EmailFetchService
         $ticket->setCategory($category);
         $ticket->setStatus('Nuevo');
         
-        // --- DETECCIÓN DE PRIORIDAD ALTA POR PALABRAS CLAVE ---
-        $urgentKeywords = ['urgente', 'emergencia', 'caída', 'caida', 'crítico', 'critico', 'grave', 'roto', 'inmediato', 'falla total', 'urgencia'];
+        // --- DETECCIÓN DE PRIORIDAD POR PALABRAS CLAVE ---
+        $criticalKeywords = ['crítica', 'critica', 'crítico', 'critico', 'falla total', 'colapso', 'apagón', 'apagon'];
+        $urgentKeywords = ['urgente', 'emergencia', 'inmediato', 'urgencia'];
+        $highKeywords = ['caída', 'caida', 'grave', 'roto', 'incidente', 'error', 'fallo'];
+        $lowKeywords = ['baja', 'menor', 'trivial'];
+
         $priority = 'Media'; // Por defecto
-        
         $contentToCheck = strtolower($subject . ' ' . $body);
-        foreach ($urgentKeywords as $word) {
+
+        // Prioridad Crítica
+        foreach ($criticalKeywords as $word) {
             if (str_contains($contentToCheck, $word)) {
-                $priority = 'Alta';
+                $priority = 'Crítica';
                 break;
+            }
+        }
+        // Prioridad Urgente (si no es Crítica)
+        if ($priority === 'Media') {
+            foreach ($urgentKeywords as $word) {
+                if (str_contains($contentToCheck, $word)) {
+                    $priority = 'Urgente';
+                    break;
+                }
+            }
+        }
+        // Prioridad Alta (si no es Urgente ni Crítica)
+        if ($priority === 'Media') {
+            foreach ($highKeywords as $word) {
+                if (str_contains($contentToCheck, $word)) {
+                    $priority = 'Alta';
+                    break;
+                }
+            }
+        }
+        // Prioridad Baja
+        if ($priority === 'Media') {
+            foreach ($lowKeywords as $word) {
+                if (str_contains($contentToCheck, $word)) {
+                    $priority = 'Baja';
+                    break;
+                }
             }
         }
         $ticket->setPriority($priority);
@@ -186,7 +228,7 @@ class EmailFetchService
         // Enviar respuesta automática con diseño personalizado
         try {
             $emailResponse = (new \Symfony\Bridge\Twig\Mime\TemplatedEmail())
-                ->from('anaisabelmendozajurado@gmail.com')
+                ->from(new \Symfony\Component\Mime\Address('soporte@helpdesk.com', 'HelpDesk Soporte'))
                 ->to($email)
                 ->subject('Incidencia Recibida: #' . $ticket->getId() . ' - ' . $subject)
                 ->htmlTemplate('emails/auto_reply.html.twig')
@@ -200,5 +242,11 @@ class EmailFetchService
             // Error al enviar email - podemos registrarlo en el log
             error_log('Error enviando auto-respuesta: ' . $e->getMessage());
         }
+    }
+
+    public function clearMemory(): void
+    {
+        $this->entityManager->clear();
+        gc_collect_cycles();
     }
 }

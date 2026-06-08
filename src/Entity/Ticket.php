@@ -16,6 +16,8 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -146,25 +148,9 @@ class Ticket
     public function updateTimestamps(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
-        $this->calculateSlaLimit();
     }
 
-    #[ORM\PostLoad]
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function calculateSlaLimit(): void
-    {
-        if (null !== $this->createdAt) {
-            $hours = match (strtolower($this->priority ?? 'media')) {
-                'crítica', 'critica' => 4,
-                'alta' => 12,
-                'media' => 24,
-                'baja' => 48,
-                default => 24,
-            };
-            $this->slaLimit = $this->createdAt->modify(sprintf('+%d hours', $hours));
-        }
-    }
+
 
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
@@ -409,9 +395,23 @@ class Ticket
     #[SerializedName('slaLimit')]
     public function getSlaLimit(): ?\DateTimeInterface
     {
-        if (null === $this->slaLimit && null !== $this->createdAt) {
-            $this->calculateSlaLimit();
-        }
         return $this->slaLimit;
+    }
+
+    #[Assert\Callback]
+    public function validateAgentCategory(ExecutionContextInterface $context): void
+    {
+        $agent = $this->getAgent();
+        $category = $this->getCategory();
+        
+        if ($agent !== null && $category !== null) {
+            if (!$agent->getCategories()->contains($category)) {
+                if (!in_array('ROLE_ADMIN', $agent->getRoles())) {
+                    $context->buildViolation('El agente asignado no tiene permiso para resolver incidencias de esta categoría.')
+                        ->atPath('agent')
+                        ->addViolation();
+                }
+            }
+        }
     }
 }

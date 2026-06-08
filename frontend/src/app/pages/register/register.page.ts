@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
@@ -29,19 +29,19 @@ import { MatIconModule } from '@angular/material/icon';
     RouterModule
   ]
 })
-export class RegisterPage implements OnInit {
+export class RegisterPage {
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private toastCtrl = inject(ToastController);
+
   registerForm: FormGroup;
   hidePassword = true;
   hideConfirmPassword = true;
 
   isLoading = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private toastCtrl: ToastController
-  ) {
+  constructor() {
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
@@ -56,8 +56,6 @@ export class RegisterPage implements OnInit {
       confirmPassword: ['', [Validators.required]]
     }, { validator: this.passwordMatchValidator });
   }
-
-  ngOnInit() { }
 
   passwordMatchValidator(g: FormGroup) {
     return g.get('password')?.value === g.get('confirmPassword')?.value

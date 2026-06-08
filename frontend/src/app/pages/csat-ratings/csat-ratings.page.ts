@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -25,6 +25,9 @@ import { AuthService } from '../../services/auth.service';
   ]
 })
 export class CsatRatingsPage implements OnInit {
+  private ticketService = inject(TicketService);
+  authService = inject(AuthService);
+
   ratedTickets: any[] = [];
   loading = true;
 
@@ -33,11 +36,6 @@ export class CsatRatingsPage implements OnInit {
   averageRating = 0;
   starCounts = [0, 0, 0, 0, 0]; // Índice 0 = 1 estrella, 4 = 5 estrellas
   starPercentages = [0, 0, 0, 0, 0];
-
-  constructor(
-    private ticketService: TicketService,
-    public authService: AuthService
-  ) {}
 
   ngOnInit() {
     this.loadRatings();

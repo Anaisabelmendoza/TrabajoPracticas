@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IonicModule, ToastController } from '@ionic/angular';
@@ -29,6 +29,11 @@ import { MatIconModule } from '@angular/material/icon';
   ]
 })
 export class ForgotPasswordPage {
+  private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
+  private toastCtrl = inject(ToastController);
+  private router = inject(Router);
+
   step: number = 1;
   emailForm: FormGroup;
   codeForm: FormGroup;
@@ -37,12 +42,7 @@ export class ForgotPasswordPage {
   showPassword = false;
   showConfirmPassword = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
-    private toastCtrl: ToastController,
-    private router: Router
-  ) {
+  constructor() {
     this.emailForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
     });

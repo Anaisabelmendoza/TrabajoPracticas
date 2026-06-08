@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -12,6 +12,8 @@ import { FormsModule } from '@angular/forms';
 
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import Chart from 'chart.js/auto';
@@ -32,29 +34,30 @@ import Chart from 'chart.js/auto';
     MatSnackBarModule,
     FormsModule,
     MatTabsModule,
-    MatMenuModule
+    MatMenuModule,
+    MatFormFieldModule,
+    MatInputModule
   ]
 })
 export class UserManagementPage implements OnInit {
+  private userService = inject(UserService);
+  private snackBar = inject(MatSnackBar);
+  private alertController = inject(AlertController);
+  private http = inject(HttpClient);
+
   users: User[] = [];
   admins: User[] = [];
   agents: User[] = [];
   clients: User[] = [];
   loading = true;
   displayedColumns: string[] = ['name', 'email', 'status', 'duty', 'connected', 'actions'];
+  searchTerm: string = '';
 
   selectedAgentForMetrics: User | null = null;
   selectedUserForCategories: User | null = null;
   allCategories: any[] = [];
   agentChart: any = null;
   saving = false;
-
-  constructor(
-    private userService: UserService,
-    private snackBar: MatSnackBar,
-    private alertController: AlertController,
-    private http: HttpClient
-  ) {}
 
   ngOnInit() {
     this.loadUsers();
@@ -152,6 +155,26 @@ export class UserManagementPage implements OnInit {
     this.admins = this.users.filter(u => u.roles && u.roles.includes('ROLE_ADMIN'));
     this.agents = this.users.filter(u => u.roles && u.roles.includes('ROLE_AGENT') && !u.roles.includes('ROLE_ADMIN'));
     this.clients = this.users.filter(u => !u.roles || (!u.roles.includes('ROLE_AGENT') && !u.roles.includes('ROLE_ADMIN')));
+  }
+
+  get filteredAdmins() {
+    return this.admins.filter(u => this.matchesSearch(u));
+  }
+
+  get filteredAgents() {
+    return this.agents.filter(u => this.matchesSearch(u));
+  }
+
+  get filteredClients() {
+    return this.clients.filter(u => this.matchesSearch(u));
+  }
+
+  matchesSearch(user: any): boolean {
+    if (!this.searchTerm) return true;
+    const term = this.searchTerm.toLowerCase();
+    const name = ((user.firstName || '') + ' ' + (user.lastName || '')).toLowerCase();
+    const email = (user.email || '').toLowerCase();
+    return name.includes(term) || email.includes(term);
   }
 
   toggleActive(user: any) {

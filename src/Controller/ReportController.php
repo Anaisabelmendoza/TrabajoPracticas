@@ -65,4 +65,25 @@ class ReportController extends AbstractController
             'Content-Disposition' => 'attachment; filename="Informe_' . $user->getFirstName() . '_' . $user->getLastName() . '_' . $month . '.pdf"'
         ]);
     }
+
+    #[Route('/api/reports/agents/sessions', name: 'app_report_all_agents_sessions', methods: ['GET'])]
+    public function getAllAgentsSessionReport(Request $request, UserRepository $userRepository, \App\Service\PdfService $pdfService): Response
+    {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Solo los administradores pueden ver este informe.');
+        }
+
+        $users = $userRepository->findAll();
+        $agents = array_filter($users, function($user) {
+            return in_array('ROLE_AGENT', $user->getRoles()) || in_array('ROLE_ADMIN', $user->getRoles());
+        });
+
+        $month = $request->query->get('month', (new \DateTime())->format('Y-m'));
+        $pdfContent = $pdfService->generateAllAgentsSessionPdf($agents, $month);
+
+        return new Response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="Informe_Global_Agentes_' . $month . '.pdf"'
+        ]);
+    }
 }

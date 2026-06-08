@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController, NavController } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -33,19 +33,20 @@ import { switchMap } from 'rxjs/operators';
   ]
 })
 export class NewTicketPage implements OnInit {
+  private fb = inject(FormBuilder);
+  private ticketService = inject(TicketService);
+  private toastCtrl = inject(ToastController);
+  private navCtrl = inject(NavController);
+  private http = inject(HttpClient);
+  authService = inject(AuthService);
+
   ticketForm: FormGroup;
   categories: any[] = [];
+  priorities: any[] = [];
   loading = false;
   selectedFiles: any[] = [];
 
-  constructor(
-    private fb: FormBuilder,
-    private ticketService: TicketService,
-    private toastCtrl: ToastController,
-    private navCtrl: NavController,
-    private http: HttpClient,
-    public authService: AuthService
-  ) {
+  constructor() {
     this.ticketForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
@@ -58,17 +59,14 @@ export class NewTicketPage implements OnInit {
     this.ticketService.getCategories().subscribe(data => {
       this.categories = data;
     });
+    this.ticketService.getPriorities().subscribe(data => {
+      this.priorities = data;
+    });
   }
 
-  getSlaHoursLimit(priority: string): number {
-    switch (priority?.toLowerCase()) {
-      case 'crítica':
-      case 'critica': return 4;
-      case 'alta': return 12;
-      case 'media': return 24;
-      case 'baja': return 48;
-      default: return 24;
-    }
+  getSlaHoursLimit(priorityName: string): number {
+    const priority = this.priorities.find(p => p.name === priorityName);
+    return priority && priority.slaHours ? priority.slaHours : 24;
   }
 
   async showToast(message: string, color: string) {

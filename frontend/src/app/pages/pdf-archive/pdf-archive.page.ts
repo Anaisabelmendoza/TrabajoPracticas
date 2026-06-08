@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -9,6 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-pdf-archive',
@@ -24,15 +27,37 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatIconModule,
     MatExpansionModule,
     MatListModule,
-    MatTabsModule
+    MatTabsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule
   ]
 })
 export class PdfArchivePage implements OnInit {
+  private ticketService = inject(TicketService);
+
   loading = true;
   clientsWithActiveTickets: { client: any, tickets: any[] }[] = [];
   clientsWithPdfArchives: { client: any, tickets: any[] }[] = [];
+  searchTerm: string = '';
 
-  constructor(private ticketService: TicketService) {}
+  get filteredActiveTickets() {
+    if (!this.searchTerm) return this.clientsWithActiveTickets;
+    const term = this.searchTerm.toLowerCase();
+    return this.clientsWithActiveTickets.filter(c => 
+      c.client.firstName.toLowerCase().includes(term) || 
+      (c.client.lastName && c.client.lastName.toLowerCase().includes(term))
+    );
+  }
+
+  get filteredPdfArchives() {
+    if (!this.searchTerm) return this.clientsWithPdfArchives;
+    const term = this.searchTerm.toLowerCase();
+    return this.clientsWithPdfArchives.filter(c => 
+      c.client.firstName.toLowerCase().includes(term) || 
+      (c.client.lastName && c.client.lastName.toLowerCase().includes(term))
+    );
+  }
 
   ngOnInit() {
     this.loadArchivedTickets();

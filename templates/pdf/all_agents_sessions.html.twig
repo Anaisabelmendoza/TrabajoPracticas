@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Informe Global de Agentes</title>
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #333; margin: 0; padding: 0; }
+        .agent-container { page-break-after: always; margin-bottom: 30px; }
+        .agent-container:last-child { page-break-after: auto; }
+        
+        .header { text-align: center; margin-bottom: 20px; }
+        .info-box { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #f9f9f9; border-radius: 5px; }
+        .info-box h3 { margin: 0 0 10px 0; font-size: 16px; color: #8e2de2; }
+        .info-box p { margin: 5px 0; font-size: 13px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #8e2de2; color: white; text-transform: uppercase; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        
+        .footer { text-align: center; font-size: 10px; color: #777; margin-top: 30px; }
+        
+        .company-name { font-weight: bold; color: #8e2de2; font-size: 14px; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    {% for item in agentsData %}
+    <div class="agent-container">
+        <div class="header">
+            <div class="company-name">HELPDESK PRO</div>
+            <h2 style="margin: 0; color: #333;">INFORME DE ACTIVIDAD MENSUAL</h2>
+            <p style="margin-top: 5px; color: #666;">Mes: <strong>{{ monthName|upper }} {{ year }}</strong></p>
+        </div>
+
+        {%- set totalWorkMinutes = 0 -%}
+        {%- for day, data in item.dailyStats -%}
+            {%- set totalWorkMinutes = totalWorkMinutes + data.workMinutes -%}
+        {%- endfor -%}
+
+        <div class="info-box">
+            <h3>Técnico: {{ item.agent.firstName }} {{ item.agent.lastName }}</h3>
+            <p><strong>Email:</strong> {{ item.agent.email }}</p>
+            <p><strong>Rol:</strong> {% if 'ROLE_ADMIN' in item.agent.roles %}Administrador{% else %}Agente{% endif %}</p>
+            <p><strong>Total Horas Conexión en App:</strong> {{ (item.totalMinutes / 60)|number_format(1) }} h</p>
+            <p><strong>Total Tiempo en Incidencias:</strong> {{ (totalWorkMinutes / 60)|number_format(1) }} h</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Día</th>
+                    <th style="width: 40%;">Minutos en App</th>
+                    <th style="width: 40%;">Trabajo (Tickets)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for day, data in item.dailyStats %}
+                <tr>
+                    <td><strong>{{ day }}</strong></td>
+                    <td>
+                        {% if data.totalMinutes > 0 %}
+                            {{ data.totalMinutes }} min
+                        {% else %}
+                            <span style="color: #999;">-</span>
+                        {% endif %}
+                    </td>
+                    <td style="color: #2e7d32; font-weight: bold;">
+                        {% if data.workMinutes > 0 %}
+                            {{ (data.workMinutes / 60)|number_format(1) }} h
+                        {% else %}
+                            <span style="color: #999;">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="footer">
+            Generado el {{ "now"|date("d/m/Y H:i") }} - HelpDesk Pro
+        </div>
+    </div>
+    {% else %}
+        <div style="text-align: center; padding: 50px; font-style: italic; color: #999;">
+            No hay agentes en el sistema para generar el informe.
+        </div>
+    {% endfor %}
+</body>
+</html>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
@@ -28,16 +28,12 @@ import { environment } from '../../../environments/environment';
     MatDividerModule
   ]
 })
-export class AdminControlPage implements OnInit {
+export class AdminControlPage {
+  private http = inject(HttpClient);
+  private toastCtrl = inject(ToastController);
+  private authService = inject(AuthService);
+
   isSyncing = false;
-
-  constructor(
-    private http: HttpClient,
-    private toastCtrl: ToastController,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit() {}
 
   syncEmails() {
     if (this.isSyncing) return;

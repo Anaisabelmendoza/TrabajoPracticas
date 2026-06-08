@@ -29,6 +29,14 @@
       <p>Cargando archivo histórico...</p>
     </div>
 
+    <div class="search-section" *ngIf="!loading" style="margin-bottom: 20px;">
+      <mat-form-field appearance="outline" style="width: 100%; max-width: 400px; background: white; border-radius: 4px;">
+        <mat-label>Buscar cliente por correo o nombre</mat-label>
+        <input matInput [(ngModel)]="searchTerm" placeholder="Ej: anaisabel...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start"
       style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
 
@@ -46,8 +54,8 @@
             <p>No hay incidencias en la base de datos marcadas como resueltas o cerradas.</p>
           </div>
 
-          <mat-accordion *ngIf="clientsWithActiveTickets.length > 0" multi="false">
-            <mat-expansion-panel *ngFor="let group of clientsWithActiveTickets">
+          <mat-accordion *ngIf="filteredActiveTickets.length > 0" multi="false">
+            <mat-expansion-panel *ngFor="let group of filteredActiveTickets">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   <mat-icon style="margin-right: 10px; color: #43a047;">person</mat-icon>
@@ -91,8 +99,8 @@
             <p>Aún no se han generado copias PDF de tickets eliminados.</p>
           </div>
 
-          <mat-accordion *ngIf="clientsWithPdfArchives.length > 0" multi="false">
-            <mat-expansion-panel *ngFor="let group of clientsWithPdfArchives">
+          <mat-accordion *ngIf="filteredPdfArchives.length > 0" multi="false">
+            <mat-expansion-panel *ngFor="let group of filteredPdfArchives">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   <mat-icon style="margin-right: 10px; color: #e53935;">folder_zip</mat-icon>
