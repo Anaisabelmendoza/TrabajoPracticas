@@ -50,7 +50,7 @@ class EmailFetchService
 
             foreach ($messages as $message) {
                 try {
-                    $subject = (string) $message->getSubject();
+                    $subject = mb_decode_mimeheader((string) $message->getSubject());
                     $body = $message->getTextBody() ?: $message->getHTMLBody(true);
                     $from = $message->getFrom()[0]->mail;
 
