@@ -61,7 +61,8 @@ export class NotificationPushService {
 
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.authService.getToken()}`,
-      'Accept': 'application/ld+json'
+      'Accept': 'application/ld+json',
+      'X-Silent-Request': 'true'
     });
 
     // Consultamos los tickets más recientes (ordenados por ID desc)
@@ -97,7 +98,8 @@ export class NotificationPushService {
 
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.authService.getToken()}`,
-      'Accept': 'application/ld+json'
+      'Accept': 'application/ld+json',
+      'X-Silent-Request': 'true'
     });
 
     // Consultamos los comentarios más recientes del sistema

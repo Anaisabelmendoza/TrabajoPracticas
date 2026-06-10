@@ -50,7 +50,8 @@ class EmailFetchService
 
             foreach ($messages as $message) {
                 try {
-                    $subject = mb_decode_mimeheader((string) $message->getSubject());
+                    $rawSubject = (string) $message->getSubject();
+                    $subject = iconv_mime_decode($rawSubject, 0, "UTF-8") ?: $rawSubject;
                     $body = $message->getTextBody() ?: $message->getHTMLBody(true);
                     $from = $message->getFrom()[0]->mail;
 
@@ -72,7 +73,7 @@ class EmailFetchService
                         // nuevos filtros solicitados
                         'facturas', 'alerta',
                         // plataformas y newsletters de terceros
-                        'ngrok', 'hubspot', 'mailchimp', 'sendgrid', 'news', 'updates', 'boletin'
+                        'ngrok', 'hubspot', 'mailchimp', 'sendgrid', 'news', 'updates', 'boletin', 'heygen', 'customerio'
                     ];
                     
                     $isSpam = false;
