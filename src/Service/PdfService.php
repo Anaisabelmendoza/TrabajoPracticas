@@ -163,6 +163,11 @@ class PdfService
             // Calcular horas de trabajo
             foreach ($agent->getWorkLogs() as $log) {
                 $logDate = $log->getDate();
+                if ($logDate) {
+                    $formattedLogMonth = $logDate->format('Y-m');
+                    $match = ($formattedLogMonth === $month) ? 'YES' : 'NO';
+                    error_log("DEBUG PDF: Agent " . $agent->getId() . " | Log Date: " . $logDate->format('Y-m-d') . " | Log Month: " . $formattedLogMonth . " | Query Month: " . $month . " | Match: " . $match);
+                }
                 if ($logDate && $logDate->format('Y-m') === $month) {
                     $day = $logDate->format('d');
                     if (isset($dailyStats[$day])) {
