@@ -41,8 +41,8 @@
             <h3>Técnico: {{ item.agent.firstName }} {{ item.agent.lastName }}</h3>
             <p><strong>Email:</strong> {{ item.agent.email }}</p>
             <p><strong>Rol:</strong> {% if 'ROLE_ADMIN' in item.agent.roles %}Administrador{% else %}Agente{% endif %}</p>
-            <p><strong>Total Horas Conexión en App:</strong> {{ (item.totalMinutes / 60)|number_format(1) }} h</p>
-            <p><strong>Total Tiempo en Incidencias:</strong> {{ (totalWorkMinutes / 60)|number_format(1) }} h</p>
+            <p><strong>Total Horas Conexión en App:</strong> {{ (item.totalMinutes // 60) }}h {{ (item.totalMinutes % 60) }}m</p>
+            <p><strong>Total Tiempo en Incidencias:</strong> {{ (totalWorkMinutes // 60) }}h {{ (totalWorkMinutes % 60) }}m</p>
         </div>
 
         <table>
@@ -59,14 +59,14 @@
                     <td><strong>{{ day }}</strong></td>
                     <td>
                         {% if data.totalMinutes > 0 %}
-                            {{ data.totalMinutes }} min
+                            {{ (data.totalMinutes // 60) }}h {{ (data.totalMinutes % 60) }}m
                         {% else %}
                             <span style="color: #999;">-</span>
                         {% endif %}
                     </td>
                     <td style="color: #2e7d32; font-weight: bold;">
                         {% if data.workMinutes > 0 %}
-                            {{ (data.workMinutes / 60)|number_format(1) }} h
+                            {{ (data.workMinutes // 60) }}h {{ (data.workMinutes % 60) }}m
                         {% else %}
                             <span style="color: #999;">-</span>
                         {% endif %}
