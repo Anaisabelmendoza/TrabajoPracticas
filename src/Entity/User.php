@@ -91,6 +91,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[SerializedName('password')]
     private ?string $plainPassword = null;
 
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $resetPasswordCode = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $resetPasswordExpiresAt = null;
+
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Ticket::class, cascade: ['remove'])]
     private Collection $authoredTickets;
 
@@ -162,6 +168,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPlainPassword(): ?string { return $this->plainPassword; }
 
     public function setPlainPassword(?string $plainPassword): self { $this->plainPassword = $plainPassword; return $this; }
+
+    public function getResetPasswordCode(): ?string { return $this->resetPasswordCode; }
+
+    public function setResetPasswordCode(?string $resetPasswordCode): self { $this->resetPasswordCode = $resetPasswordCode; return $this; }
+
+    public function getResetPasswordExpiresAt(): ?\DateTimeInterface { return $this->resetPasswordExpiresAt; }
+
+    public function setResetPasswordExpiresAt(?\DateTimeInterface $resetPasswordExpiresAt): self { $this->resetPasswordExpiresAt = $resetPasswordExpiresAt; return $this; }
 
     public function getAuthoredTickets(): Collection { return $this->authoredTickets; }
 

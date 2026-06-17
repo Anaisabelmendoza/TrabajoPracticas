@@ -63,24 +63,24 @@ export class ForgotPasswordPage {
   sendCode() {
     if (this.emailForm.invalid) return;
     this.loading = true;
-    this.http.post(`${environment.apiUrl}/forgot-password`, this.emailForm.value).subscribe({
+    this.http.post(`${environment.apiUrl}/api/forgot-password`, this.emailForm.value).subscribe({
       next: () => {
         this.loading = false;
         this.step = 2;
-        this.showToast('Código enviado (usa 123456 para la prueba)', 'success');
+        this.showToast('Código de 6 dígitos enviado a tu correo', 'success');
       },
       error: () => {
         this.loading = false;
-        this.showToast('Error al enviar el código', 'danger');
+        this.showToast('Error al enviar el código. Revisa tu conexión.', 'danger');
       }
     });
   }
 
   verifyCode() {
-    if (this.codeForm.get('code')?.value === '123456') {
+    if (this.codeForm.valid) {
       this.step = 3;
     } else {
-      this.showToast('Código incorrecto. Prueba con 123456', 'danger');
+      this.showToast('Por favor, introduce el código de 6 dígitos completo', 'danger');
     }
   }
 
@@ -93,15 +93,16 @@ export class ForgotPasswordPage {
       password: this.resetForm.get('password')?.value
     };
 
-    this.http.post(`${environment.apiUrl}/reset-password`, data).subscribe({
+    this.http.post(`${environment.apiUrl}/api/reset-password`, data).subscribe({
       next: () => {
         this.loading = false;
         this.showToast('Contraseña actualizada con éxito', 'success');
         this.router.navigate(['/login']);
       },
-      error: () => {
+      error: (err: any) => {
         this.loading = false;
-        this.showToast('Error al actualizar la contraseña', 'danger');
+        const errMsg = err.error?.error || 'Error al actualizar la contraseña (¿Código inválido?)';
+        this.showToast(errMsg, 'danger');
       }
     });
   }
